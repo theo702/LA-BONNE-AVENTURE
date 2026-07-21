@@ -27,6 +27,9 @@
     checkin: null,
     checkout: null,
     quote: null,
+    promo: '',
+    promoError: '',
+    form: { name: '', email: '', phone: '' },
     submitting: false,
   };
 
@@ -151,35 +154,40 @@
   function summaryNode(){
     var s = document.createElement('div');
     var ci = state.checkin, co = state.checkout;
+    var q = state.quote;
     var box = '<div class="bw-summary"><div class="bw-dates">'+
       '<div class="bw-date-box"><div class="lab">Arrivée</div><div class="val'+(ci?'':' empty')+'">'+(ci?fmtLong(ci):'—')+'</div></div>'+
       '<div class="bw-arrow">'+icon('arrow')+'</div>'+
       '<div class="bw-date-box"><div class="lab">Départ</div><div class="val'+(co?'':' empty')+'">'+(co?fmtLong(co):'—')+'</div></div></div>';
 
-    if(state.quote && state.quote.ok){
-      var q = state.quote;
-      box += '<div class="bw-line"><span>'+euros(q.nightlyCents,q.currency)+' × '+q.nights+' nuits</span><b>'+euros(q.lodgingCents,q.currency)+'</b></div>';
-      box += '<div class="bw-line"><span>Frais de ménage</span><b>'+euros(q.cleaningCents,q.currency)+'</b></div>';
-      if(q.taxeCents>0) box += '<div class="bw-line"><span>Taxe de séjour</span><b>'+euros(q.taxeCents,q.currency)+'</b></div>';
+    if(q && q.ok && q.lines){
+      q.lines.forEach(function(l){
+        var neg = l.cents < 0;
+        box += '<div class="bw-line'+(neg?' discount':'')+'"><span>'+l.label+'</span><b>'+(neg?'−':'')+euros(Math.abs(l.cents),q.currency)+'</b></div>';
+      });
       box += '<div class="bw-total"><span class="t">Total</span><span class="v">'+euros(q.totalCents,q.currency)+'</span></div>';
     } else {
       var hint = 'Sélectionnez vos dates (min. '+(state.cfg?state.cfg.minNights:2)+' nuits).';
-      if(state.quote && !state.quote.ok) hint = state.quote.message;
+      if(q && !q.ok) hint = q.message || hint;
       box += '<div class="bw-line" style="justify-content:center;color:var(--ink-soft)">'+hint+'</div>';
     }
 
-    // formulaire (visible quand un devis valide existe)
-    if(state.quote && state.quote.ok){
+    // code promo + formulaire (visibles quand un devis valide existe)
+    if(q && q.ok){
+      box += '<div class="bw-promo"><input id="bwPromo" type="text" placeholder="Code promo" value="'+(state.promo||'')+'"><button type="button" id="bwPromoBtn">Appliquer</button></div>';
+      if(state.promoError) box += '<div class="bw-promo-err">'+state.promoError+'</div>';
+
+      var f = state.form || {};
       var maxG = state.cfg ? state.cfg.maxGuests : 2;
-      var opts=''; for(var g=1; g<=maxG; g++){ opts += '<option value="'+g+'"'+(g===state.quote.guests?' selected':'')+'>'+g+' voyageur'+(g>1?'s':'')+'</option>'; }
+      var opts=''; for(var g=1; g<=maxG; g++){ opts += '<option value="'+g+'"'+(g===q.guests?' selected':'')+'>'+g+' voyageur'+(g>1?'s':'')+'</option>'; }
       box += '<div class="bw-form">'+
-        '<div class="bw-field"><label>Nom complet</label><input id="bwName" type="text" placeholder="Camille Dupont" autocomplete="name"></div>'+
+        '<div class="bw-field"><label>Nom complet</label><input id="bwName" type="text" value="'+esc(f.name)+'" placeholder="Camille Dupont" autocomplete="name"></div>'+
         '<div class="bw-row2">'+
-          '<div class="bw-field"><label>Email</label><input id="bwEmail" type="email" placeholder="vous@email.com" autocomplete="email"></div>'+
-          '<div class="bw-field"><label>Téléphone</label><input id="bwPhone" type="tel" placeholder="06 12 34 56 78" autocomplete="tel"></div>'+
+          '<div class="bw-field"><label>Email</label><input id="bwEmail" type="email" value="'+esc(f.email)+'" placeholder="vous@email.com" autocomplete="email"></div>'+
+          '<div class="bw-field"><label>Téléphone</label><input id="bwPhone" type="tel" value="'+esc(f.phone)+'" placeholder="06 12 34 56 78" autocomplete="tel"></div>'+
         '</div>'+
         '<div class="bw-field"><label>Voyageurs</label><select id="bwGuests">'+opts+'</select></div>'+
-        '<button class="bw-pay" id="bwPay"'+(state.submitting?' disabled':'')+'>'+icon('card')+(state.submitting?'Redirection…':'Réserver et payer '+euros(state.quote.totalCents,state.quote.currency))+'</button>'+
+        '<button class="bw-pay" id="bwPay"'+(state.submitting?' disabled':'')+'>'+icon('card')+(state.submitting?'Redirection…':'Réserver et payer '+euros(q.totalCents,q.currency))+'</button>'+
         '<div class="bw-err" id="bwErr"></div>'+
         '<div class="bw-secure">'+icon('lock')+'Paiement sécurisé par Stripe · confirmation immédiate</div>'+
       '</div>';
@@ -189,6 +197,8 @@
     s.appendChild(el(box));
     return s.firstChild;
   }
+
+  function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
   // ---- interactions ----
   function bind(){
@@ -202,6 +212,21 @@
     if(guests) guests.addEventListener('change', function(){ refreshQuote(); });
     var pay = document.getElementById('bwPay');
     if(pay) pay.addEventListener('click', pay_);
+
+    var promoBtn = document.getElementById('bwPromoBtn');
+    if(promoBtn) promoBtn.addEventListener('click', function(){
+      var inp = document.getElementById('bwPromo');
+      state.promo = (inp ? inp.value : '').trim();
+      state.promoError = '';
+      refreshQuote();
+    });
+    // conserver la saisie du formulaire entre deux rendus
+    [['bwName','name'],['bwEmail','email'],['bwPhone','phone']].forEach(function(p){
+      var e = document.getElementById(p[0]);
+      if(e) e.addEventListener('input', function(){ state.form[p[1]] = e.value; });
+    });
+    var promoInp = document.getElementById('bwPromo');
+    if(promoInp) promoInp.addEventListener('keydown', function(ev){ if(ev.key==='Enter'){ ev.preventDefault(); if(promoBtn) promoBtn.click(); } });
   }
 
   function shiftMonth(delta){
@@ -226,30 +251,29 @@
   function refreshQuote(){
     if(!state.checkin || !state.checkout){ render(); return; }
     var guestsSel = document.getElementById('bwGuests');
-    var guests = guestsSel ? parseInt(guestsSel.value,10) : 1;
-
-    // calcul client immédiat (retour instantané)
-    var n = nights(state.checkin, state.checkout);
+    var guests = guestsSel ? parseInt(guestsSel.value,10) : ((state.quote && state.quote.guests) || 1);
     var cfg = state.cfg;
+
+    // estimation locale immédiate (tarif de base, sans remises ni taxe — corrigée par le serveur)
+    var n = nights(state.checkin, state.checkout);
     if(n < cfg.minNights){
       state.quote = { ok:false, message:'Séjour minimum de '+cfg.minNights+' nuits.' };
-      render(); return;
+    } else {
+      var lodging = n*cfg.nightlyCents;
+      state.quote = { ok:true, guests:guests, currency:cfg.currency, totalCents:lodging+cfg.cleaningCents,
+        lines:[ {label:(cfg.nightlyCents/100)+' € × '+n+' nuits', cents:lodging}, {label:'Frais de ménage', cents:cfg.cleaningCents} ] };
     }
-    var lodging = n*cfg.nightlyCents;
-    var taxe = (cfg.taxeCents||0)*guests*n;
-    state.quote = { ok:true, checkin:state.checkin, checkout:state.checkout, nights:n, guests:guests,
-      currency:cfg.currency, nightlyCents:cfg.nightlyCents, cleaningCents:cfg.cleaningCents,
-      lodgingCents:lodging, taxeCents:taxe, totalCents:lodging+cfg.cleaningCents+taxe };
     render();
 
-    // validation serveur en arrière-plan (dispo + prix officiel)
+    // devis serveur : remises, taxe de séjour, code promo, disponibilité
     fetch(API+'/api/quote', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ checkin:state.checkin, checkout:state.checkout, guests:guests }) })
-      .then(function(r){ return r.json().then(function(j){ return {status:r.status, j:j}; }); })
-      .then(function(res){
-        if(res.j && res.j.ok){ state.quote = res.j; render(); }
-        else if(res.j){ state.quote = res.j; render(); }
-      }).catch(function(){ /* on garde le calcul client */ });
+      body: JSON.stringify({ checkin:state.checkin, checkout:state.checkout, guests:guests, promo:state.promo||'' }) })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if(j && j.ok){ state.promoError=''; state.quote=j; render(); }
+        else if(j && j.error==='promo'){ state.promoError=j.message||'Code promo invalide.'; state.promo=''; render(); refreshQuote(); }
+        else if(j){ state.quote=j; render(); }
+      }).catch(function(){ /* on garde l'estimation locale */ });
   }
 
   function pay_(){
@@ -263,11 +287,12 @@
     if(!name.trim()){ err.textContent='Merci d’indiquer votre nom.'; return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){ err.textContent='Email invalide.'; return; }
 
+    state.form = { name:name.trim(), email:email.trim(), phone:phone.trim() };
     state.submitting = true; render();
 
     fetch(API+'/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ checkin:state.checkin, checkout:state.checkout, guests:guests,
-        name:name.trim(), email:email.trim(), phone:phone.trim() }) })
+        name:name.trim(), email:email.trim(), phone:phone.trim(), promo:state.promo||'' }) })
       .then(function(r){ return r.json(); })
       .then(function(j){
         if(j && j.ok && j.url){ window.location.href = j.url; return; }

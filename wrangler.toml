@@ -31,8 +31,14 @@ TAXE_CENTS = "0"          # taxe de séjour €/personne/nuit en centimes (0 = d
 HOST_EMAIL = "theobonaventure1@gmail.com"
 FROM_EMAIL = "reservation@labonneaventure.fr"   # doit être un domaine vérifié dans Resend
 
+# Note : après le 1er déploiement, les tarifs/réductions/taxe se règlent depuis la page
+# /admin (stockés en base D1, table settings). Les [vars] ci-dessus ne servent que de
+# valeurs initiales / de secours.
+
 # --- Secrets (NE PAS mettre ici — voir README-deploiement.md) ---
 # wrangler pages secret put AIRBNB_ICAL_URL
 # wrangler pages secret put STRIPE_SECRET_KEY
 # wrangler pages secret put STRIPE_WEBHOOK_SECRET
 # wrangler pages secret put RESEND_API_KEY
+# wrangler pages secret put ADMIN_PASSWORD     # mot de passe de la page /admin
+# wrangler pages secret put ADMIN_SECRET       # chaîne aléatoire, signe le cookie admin

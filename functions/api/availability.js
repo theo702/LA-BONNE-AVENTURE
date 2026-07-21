@@ -1,31 +1,25 @@
-// GET /api/availability — plages occupées (Airbnb ⋃ réservations directes) + tarifs.
+// GET /api/availability — plages occupées (Airbnb ⋃ réservations directes) + réglages.
 import { fetchExternalRanges } from '../_lib/ical.js';
 import { getBusyRanges } from '../_lib/db.js';
-import { getPricing } from '../_lib/pricing.js';
+import { loadSettings } from '../_lib/pricing.js';
 
 export async function onRequestGet({ env }) {
-  const p = getPricing(env);
+  const s = await loadSettings(env);
   let external = [];
   let busy = [];
   try {
-    [external, busy] = await Promise.all([
-      fetchExternalRanges(env, {}),
-      getBusyRanges(env),
-    ]);
-  } catch (err) {
-    // On ne casse pas le calendrier si une source échoue : on renvoie ce qu'on a.
-  }
+    [external, busy] = await Promise.all([fetchExternalRanges(env, {}), getBusyRanges(env)]);
+  } catch (err) { /* on ne casse pas le calendrier si une source échoue */ }
   const blocked = [...external, ...busy].filter((r) => r.from && r.to);
 
   return Response.json(
     {
       blocked,
-      minNights: p.minNights,
-      maxGuests: p.maxGuests,
-      nightlyCents: p.nightlyCents,
-      cleaningCents: p.cleaningCents,
-      taxeCents: p.taxePerPersonPerNightCents,
-      currency: p.currency,
+      minNights: s.min_nights,
+      maxGuests: s.max_guests,
+      nightlyCents: s.nightly_cents,
+      cleaningCents: s.cleaning_cents,
+      currency: s.currency,
     },
     { headers: { 'cache-control': 'no-store' } }
   );

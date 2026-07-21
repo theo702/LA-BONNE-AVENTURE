@@ -1,5 +1,5 @@
 // POST /api/stripe-webhook — confirme la réservation après paiement, envoie les emails.
-import { getBooking, confirmBooking, cancelBooking } from '../_lib/db.js';
+import { getBooking, confirmBooking, cancelBooking, incrementPromoUse } from '../_lib/db.js';
 
 // Vérifie la signature Stripe (HMAC SHA-256) sur le corps brut.
 async function verifyStripe(payload, header, secret) {
@@ -101,6 +101,7 @@ export async function onRequestPost({ env, request }) {
       const booking = await getBooking(env, bookingId);
       if (booking && booking.status !== 'confirmed') {
         await confirmBooking(env, bookingId);
+        if (booking.promo_code) await incrementPromoUse(env, booking.promo_code);
         await sendEmails(env, { ...booking, status: 'confirmed' });
       }
     }

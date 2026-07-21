@@ -59,6 +59,8 @@ wrangler pages secret put AIRBNB_ICAL_URL       # l'URL .ics d'Airbnb
 wrangler pages secret put STRIPE_SECRET_KEY      # sk_test_... (puis sk_live_... en prod)
 wrangler pages secret put STRIPE_WEBHOOK_SECRET  # whsec_... (voir étape 4)
 wrangler pages secret put RESEND_API_KEY         # re_...
+wrangler pages secret put ADMIN_PASSWORD         # mot de passe de la page /admin
+wrangler pages secret put ADMIN_SECRET           # une longue chaîne aléatoire (signe le cookie admin)
 ```
 
 Les tarifs et emails non secrets se règlent dans `wrangler.toml` (bloc `[vars]`) :
@@ -107,11 +109,26 @@ en **gardant exactement ces noms** (elles s'afficheront automatiquement) :
 `parenthese.jpg`, `revard.jpg`. Le logo est déjà recréé en vectoriel
 (`logo-light.svg` / `logo-dark.svg`).
 
+## Page d'administration (`/admin`)
+
+Rendez-vous sur `https://VOTRE-SITE.pages.dev/admin.html` et connectez-vous avec
+`ADMIN_PASSWORD`. Quatre onglets, sans toucher au code :
+- **Réservations** : toutes vos résas directes (dates, voyageur, montant, taxe, statut).
+- **Tarifs & réductions** : prix/nuit, ménage, nuits min, voyageurs max ; réduction **hebdo**
+  (≥ N nuits), **mensuelle** (≥ N nuits), **dernière minute** (arrivée sous X jours) ;
+  réglages de la **taxe de séjour**.
+- **Codes promo** : `%` ou montant fixe, validité (dates), séjour minimum, nombre d'usages.
+- **Saisons** : un prix/nuit différent (et un min de nuits) sur une période donnée.
+
+Toutes ces valeurs sont stockées dans la base D1 (tables `settings`, `promo_codes`,
+`season_rates`) et prises en compte immédiatement dans les devis du site.
+
 ## Taxe de séjour
 
-Désactivée par défaut (`TAXE_CENTS=0`, réglée « en supplément » comme aujourd'hui).
-Pour l'intégrer au prix, mettre le montant **en centimes par personne et par nuit**
-(ex. `TAXE_CENTS="110"` pour 1,10 €).
+Calculée **au réel**, par personne et par nuit :
+`min(taux % × prix nuit ÷ nb personnes, plafond) × (1 + taxes additionnelles %)`.
+Valeurs par défaut (réglables dans l'admin) : **5 %**, plafond **4,27 €**, additionnelles **+10 %**.
+Décochez « Activer la taxe de séjour » dans l'admin pour la laisser « en supplément sur place ».
 
 ## Passage en production
 
@@ -132,14 +149,20 @@ Carte de test Stripe : `4242 4242 4242 4242`, date future, CVC quelconque.
 
 ```
 index.html / extras.html / guide.html   Site (widget de résa dans index.html)
-assets/                                 site.css, booking.css/js, logos SVG, placeholder, photos
+admin.html                              Page d'administration (protégée)
+assets/   site.css, booking.css/js, admin.css/js, logos SVG, placeholder, photos
 functions/
-  api/availability.js   GET  dispo + tarifs (Airbnb ⋃ résas)
-  api/quote.js          POST devis validé côté serveur
+  api/availability.js   GET  dispo + réglages (Airbnb ⋃ résas)
+  api/quote.js          POST devis validé côté serveur (remises, taxe, promo)
   api/checkout.js       POST re-synchro live + hold 30 min + session Stripe
-  api/stripe-webhook.js POST confirmation + emails
+  api/stripe-webhook.js POST confirmation + emails + usage promo
   calendar.ics.js       GET  export .ics (à importer dans Airbnb)
-  _lib/                  ical.js · pricing.js · db.js
-schema.sql                              table bookings (D1)
-wrangler.toml                           config Pages + bindings + tarifs
+  api/admin/            login/logout/bookings/settings/promos/seasons (+ _middleware)
+  _lib/                 ical.js · pricing.js · db.js · auth.js
+schema.sql              tables bookings · settings · promo_codes · season_rates (D1)
+wrangler.toml           config Pages + bindings + valeurs initiales
 ```
+
+> Après un changement de `schema.sql`, ré-exécutez :
+> `wrangler d1 execute lba-bookings --remote --file=./schema.sql` (les tables existantes sont
+> conservées ; seules les nouvelles sont créées).
