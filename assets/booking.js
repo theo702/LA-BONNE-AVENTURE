@@ -1,0 +1,301 @@
+/* La Bonne Aventure — widget de réservation directe (vanilla JS, sans dépendance) */
+(function () {
+  'use strict';
+
+  var MOUNT = document.getElementById('booking-widget');
+  if (!MOUNT) return;
+
+  var API = (MOUNT.getAttribute('data-api') || '').replace(/\/$/, ''); // même origine par défaut
+  var MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  var DOW = ['L','M','M','J','V','S','D'];
+
+  // ---- utilitaires de dates (UTC, chaînes 'YYYY-MM-DD') ----
+  function pad(n){ return (n<10?'0':'')+n; }
+  function ymd(d){ return d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate()); }
+  function parse(s){ var p=s.split('-'); return new Date(Date.UTC(+p[0],+p[1]-1,+p[2])); }
+  function addDays(d,n){ var x=new Date(d.getTime()); x.setUTCDate(x.getUTCDate()+n); return x; }
+  function todayStr(){ return new Date().toISOString().slice(0,10); }
+  function nights(a,b){ return Math.round((parse(b)-parse(a))/86400000); }
+  function fmtLong(s){ var d=parse(s); return d.getUTCDate()+' '+MONTHS[d.getUTCMonth()].slice(0,4)+'.'; }
+  function euros(cents,cur){ try{ return new Intl.NumberFormat('fr-FR',{style:'currency',currency:(cur||'eur')}).format((cents||0)/100);}catch(e){ return ((cents||0)/100).toFixed(2)+' €'; } }
+
+  // ---- état ----
+  var state = {
+    cfg: null,
+    blockedNights: new Set(),   // 'YYYY-MM-DD' de chaque nuit occupée
+    view: null,                 // Date (1er du mois affiché)
+    checkin: null,
+    checkout: null,
+    quote: null,
+    submitting: false,
+  };
+
+  function buildBlockedSet(ranges){
+    var set = new Set();
+    (ranges||[]).forEach(function(r){
+      if(!r.from || !r.to) return;
+      var d = parse(r.from), end = parse(r.to), guard=0;
+      while(d < end && guard < 800){ set.add(ymd(d)); d = addDays(d,1); guard++; }
+    });
+    return set;
+  }
+
+  // Une nuit est-elle réservable ? (ni passée, ni occupée)
+  function isFreeNight(s){ return s >= todayStr() && !state.blockedNights.has(s); }
+
+  // Toutes les nuits de [a,b) sont-elles libres ?
+  function rangeFree(a,b){
+    var d = parse(a), end = parse(b), guard=0;
+    while(d < end && guard < 800){ if(state.blockedNights.has(ymd(d))) return false; d=addDays(d,1); guard++; }
+    return true;
+  }
+
+  // ---- rendu ----
+  function el(html){ var t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
+
+  function skeleton(msg){
+    MOUNT.innerHTML = '<div class="bw"><div class="bw-skeleton"><div class="bw-spin"></div>'+(msg||'Chargement du calendrier…')+'</div></div>';
+  }
+
+  function banner(){
+    var q = new URLSearchParams(location.search).get('reservation');
+    if(q==='confirmee') return '<div class="bw-banner ok">'+icon('check')+'Merci ! Votre réservation est confirmée — un email vient de vous être envoyé.</div>';
+    if(q==='annulee') return '<div class="bw-banner warn">'+icon('info')+'Paiement annulé — vos dates n’ont pas été réservées. Vous pouvez réessayer.</div>';
+    return '';
+  }
+
+  function icon(name){
+    var p = {
+      prev:'<path d="M15 18l-6-6 6-6"/>', next:'<path d="M9 6l6 6-6 6"/>',
+      check:'<path d="M20 6L9 17l-5-5"/>', info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/>',
+      lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
+      arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>', card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>'
+    };
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(p[name]||'')+'</svg>';
+  }
+
+  function render(){
+    var wrap = document.createElement('div');
+    wrap.className = 'bw';
+    wrap.innerHTML = banner();
+
+    // calendrier
+    var v = state.view;
+    var y = v.getUTCFullYear(), m = v.getUTCMonth();
+    var firstStr = todayStr().slice(0,8)+'01';
+    var atMinMonth = (y+'-'+pad(m+1)) <= firstStr.slice(0,7);
+
+    var head = el('<div class="bw-cal-head"><div class="bw-cal-title">'+MONTHS[m]+' '+y+'</div>'+
+      '<div class="bw-nav"><button data-nav="-1" '+(atMinMonth?'disabled':'')+' aria-label="Mois précédent">'+icon('prev')+'</button>'+
+      '<button data-nav="1" aria-label="Mois suivant">'+icon('next')+'</button></div></div>');
+    wrap.appendChild(head);
+
+    var dow = '<div class="bw-dow">'; DOW.forEach(function(d){ dow+='<span>'+d+'</span>'; }); dow+='</div>';
+    wrap.appendChild(el(dow));
+
+    var grid = document.createElement('div'); grid.className='bw-grid';
+    var first = new Date(Date.UTC(y,m,1));
+    var lead = (first.getUTCDay()+6)%7; // lundi = 0
+    for(var i=0;i<lead;i++){ grid.appendChild(el('<div class="bw-cell empty"></div>')); }
+    var daysInMonth = new Date(Date.UTC(y,m+1,0)).getUTCDate();
+    for(var day=1; day<=daysInMonth; day++){
+      var ds = y+'-'+pad(m+1)+'-'+pad(day);
+      grid.appendChild(dayCell(ds, day));
+    }
+    wrap.appendChild(grid);
+
+    wrap.appendChild(el('<div class="bw-legend">'+
+      '<span><i class="free"></i>Libre</span><span><i class="sel"></i>Votre séjour</span><span><i class="busy"></i>Occupé</span></div>'));
+
+    // récapitulatif + formulaire
+    wrap.appendChild(summaryNode());
+
+    MOUNT.innerHTML = '';
+    MOUNT.appendChild(wrap);
+    bind();
+  }
+
+  function dayCell(ds, day){
+    var past = ds < todayStr();
+    var blockedNight = state.blockedNights.has(ds);
+    var choosingArrival = (!state.checkin || state.checkout); // phase 1 si rien / si séjour déjà complet
+    var cls = 'bw-cell';
+    var selectable = false;
+
+    if(past){
+      cls += ' past';
+    } else if(choosingArrival){
+      // phase 1 : choisir l'arrivée → toute nuit libre
+      selectable = !blockedNight;
+    } else {
+      // phase 2 : arrivée posée, on choisit le départ (ou on recommence)
+      if(ds === state.checkin) selectable = true;                          // recliquer
+      else if(ds > state.checkin && rangeFree(state.checkin, ds)) selectable = true; // départ valide
+      else if(ds < state.checkin && !blockedNight) selectable = true;      // nouvelle arrivée plus tôt
+    }
+
+    if(blockedNight) cls += ' blocked';
+    if(selectable && !blockedNight) cls += ' selectable';
+
+    // surlignage de la sélection
+    if(state.checkin && state.checkout){
+      if(ds === state.checkin || ds === state.checkout){ cls += ' end-start ' + (ds === state.checkin ? 'start' : 'end'); }
+      else if(ds > state.checkin && ds < state.checkout){ cls += ' in-range'; }
+    } else if(state.checkin && ds === state.checkin){
+      cls += ' end-start single';
+    }
+
+    return el('<button class="'+cls+'" data-day="'+ds+'">'+day+'</button>');
+  }
+
+  function summaryNode(){
+    var s = document.createElement('div');
+    var ci = state.checkin, co = state.checkout;
+    var box = '<div class="bw-summary"><div class="bw-dates">'+
+      '<div class="bw-date-box"><div class="lab">Arrivée</div><div class="val'+(ci?'':' empty')+'">'+(ci?fmtLong(ci):'—')+'</div></div>'+
+      '<div class="bw-arrow">'+icon('arrow')+'</div>'+
+      '<div class="bw-date-box"><div class="lab">Départ</div><div class="val'+(co?'':' empty')+'">'+(co?fmtLong(co):'—')+'</div></div></div>';
+
+    if(state.quote && state.quote.ok){
+      var q = state.quote;
+      box += '<div class="bw-line"><span>'+euros(q.nightlyCents,q.currency)+' × '+q.nights+' nuits</span><b>'+euros(q.lodgingCents,q.currency)+'</b></div>';
+      box += '<div class="bw-line"><span>Frais de ménage</span><b>'+euros(q.cleaningCents,q.currency)+'</b></div>';
+      if(q.taxeCents>0) box += '<div class="bw-line"><span>Taxe de séjour</span><b>'+euros(q.taxeCents,q.currency)+'</b></div>';
+      box += '<div class="bw-total"><span class="t">Total</span><span class="v">'+euros(q.totalCents,q.currency)+'</span></div>';
+    } else {
+      var hint = 'Sélectionnez vos dates (min. '+(state.cfg?state.cfg.minNights:2)+' nuits).';
+      if(state.quote && !state.quote.ok) hint = state.quote.message;
+      box += '<div class="bw-line" style="justify-content:center;color:var(--ink-soft)">'+hint+'</div>';
+    }
+
+    // formulaire (visible quand un devis valide existe)
+    if(state.quote && state.quote.ok){
+      var maxG = state.cfg ? state.cfg.maxGuests : 2;
+      var opts=''; for(var g=1; g<=maxG; g++){ opts += '<option value="'+g+'"'+(g===state.quote.guests?' selected':'')+'>'+g+' voyageur'+(g>1?'s':'')+'</option>'; }
+      box += '<div class="bw-form">'+
+        '<div class="bw-field"><label>Nom complet</label><input id="bwName" type="text" placeholder="Camille Dupont" autocomplete="name"></div>'+
+        '<div class="bw-row2">'+
+          '<div class="bw-field"><label>Email</label><input id="bwEmail" type="email" placeholder="vous@email.com" autocomplete="email"></div>'+
+          '<div class="bw-field"><label>Téléphone</label><input id="bwPhone" type="tel" placeholder="06 12 34 56 78" autocomplete="tel"></div>'+
+        '</div>'+
+        '<div class="bw-field"><label>Voyageurs</label><select id="bwGuests">'+opts+'</select></div>'+
+        '<button class="bw-pay" id="bwPay"'+(state.submitting?' disabled':'')+'>'+icon('card')+(state.submitting?'Redirection…':'Réserver et payer '+euros(state.quote.totalCents,state.quote.currency))+'</button>'+
+        '<div class="bw-err" id="bwErr"></div>'+
+        '<div class="bw-secure">'+icon('lock')+'Paiement sécurisé par Stripe · confirmation immédiate</div>'+
+      '</div>';
+    }
+
+    box += '</div>';
+    s.appendChild(el(box));
+    return s.firstChild;
+  }
+
+  // ---- interactions ----
+  function bind(){
+    MOUNT.querySelectorAll('[data-nav]').forEach(function(b){
+      b.addEventListener('click', function(){ shiftMonth(parseInt(b.getAttribute('data-nav'),10)); });
+    });
+    MOUNT.querySelectorAll('.bw-cell.selectable').forEach(function(c){
+      c.addEventListener('click', function(){ pickDay(c.getAttribute('data-day')); });
+    });
+    var guests = document.getElementById('bwGuests');
+    if(guests) guests.addEventListener('change', function(){ refreshQuote(); });
+    var pay = document.getElementById('bwPay');
+    if(pay) pay.addEventListener('click', pay_);
+  }
+
+  function shiftMonth(delta){
+    var v = state.view;
+    state.view = new Date(Date.UTC(v.getUTCFullYear(), v.getUTCMonth()+delta, 1));
+    render();
+  }
+
+  function pickDay(ds){
+    if(!state.checkin || state.checkout){
+      // (re)commencer : arrivée
+      state.checkin = ds; state.checkout = null; state.quote = null;
+      render();
+    } else {
+      if(ds <= state.checkin){ state.checkin = ds; state.checkout = null; state.quote=null; render(); return; }
+      if(!rangeFree(state.checkin, ds)){ return; }
+      state.checkout = ds;
+      refreshQuote();
+    }
+  }
+
+  function refreshQuote(){
+    if(!state.checkin || !state.checkout){ render(); return; }
+    var guestsSel = document.getElementById('bwGuests');
+    var guests = guestsSel ? parseInt(guestsSel.value,10) : 1;
+
+    // calcul client immédiat (retour instantané)
+    var n = nights(state.checkin, state.checkout);
+    var cfg = state.cfg;
+    if(n < cfg.minNights){
+      state.quote = { ok:false, message:'Séjour minimum de '+cfg.minNights+' nuits.' };
+      render(); return;
+    }
+    var lodging = n*cfg.nightlyCents;
+    var taxe = (cfg.taxeCents||0)*guests*n;
+    state.quote = { ok:true, checkin:state.checkin, checkout:state.checkout, nights:n, guests:guests,
+      currency:cfg.currency, nightlyCents:cfg.nightlyCents, cleaningCents:cfg.cleaningCents,
+      lodgingCents:lodging, taxeCents:taxe, totalCents:lodging+cfg.cleaningCents+taxe };
+    render();
+
+    // validation serveur en arrière-plan (dispo + prix officiel)
+    fetch(API+'/api/quote', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ checkin:state.checkin, checkout:state.checkout, guests:guests }) })
+      .then(function(r){ return r.json().then(function(j){ return {status:r.status, j:j}; }); })
+      .then(function(res){
+        if(res.j && res.j.ok){ state.quote = res.j; render(); }
+        else if(res.j){ state.quote = res.j; render(); }
+      }).catch(function(){ /* on garde le calcul client */ });
+  }
+
+  function pay_(){
+    var name = (document.getElementById('bwName')||{}).value || '';
+    var email = (document.getElementById('bwEmail')||{}).value || '';
+    var phone = (document.getElementById('bwPhone')||{}).value || '';
+    var guests = parseInt((document.getElementById('bwGuests')||{}).value,10) || 1;
+    var err = document.getElementById('bwErr');
+    err.textContent = '';
+
+    if(!name.trim()){ err.textContent='Merci d’indiquer votre nom.'; return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){ err.textContent='Email invalide.'; return; }
+
+    state.submitting = true; render();
+
+    fetch(API+'/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ checkin:state.checkin, checkout:state.checkout, guests:guests,
+        name:name.trim(), email:email.trim(), phone:phone.trim() }) })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if(j && j.ok && j.url){ window.location.href = j.url; return; }
+        state.submitting = false; render();
+        var e2 = document.getElementById('bwErr');
+        if(e2) e2.textContent = (j && j.message) || 'Une erreur est survenue. Réessayez.';
+      })
+      .catch(function(){
+        state.submitting = false; render();
+        var e2 = document.getElementById('bwErr'); if(e2) e2.textContent='Connexion impossible. Réessayez.';
+      });
+  }
+
+  // ---- démarrage ----
+  function start(){
+    skeleton();
+    fetch(API+'/api/availability')
+      .then(function(r){ return r.json(); })
+      .then(function(cfg){
+        state.cfg = cfg;
+        state.blockedNights = buildBlockedSet(cfg.blocked);
+        state.view = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1));
+        render();
+      })
+      .catch(function(){
+        MOUNT.innerHTML = '<div class="bw"><div class="bw-skeleton">Le calendrier est momentanément indisponible.<br><small>Réessayez dans un instant, ou écrivez-nous sur WhatsApp.</small></div></div>';
+      });
+  }
+
+  start();
+})();

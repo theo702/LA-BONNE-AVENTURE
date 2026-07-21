@@ -1,0 +1,15 @@
+# Copie ce fichier en « .dev.vars » (non versionné) pour le développement local.
+# En production, ces valeurs se règlent via : wrangler pages secret put <NOM>
+# Remplace chaque « ... » par ta vraie valeur (ne jamais versionner .dev.vars).
+
+# Lien(s) iCal Airbnb (export du calendrier). Plusieurs URLs possibles, séparées par des virgules.
+AIRBNB_ICAL_URL="https://www.airbnb.fr/calendar/ical/....ics?s=..."
+
+# Stripe — clé secrète (commence par sk_test_ en test, sk_live_ en production).
+STRIPE_SECRET_KEY="...ta_cle_secrete_stripe..."
+
+# Stripe — secret de signature du webhook (commence par whsec_).
+STRIPE_WEBHOOK_SECRET="...ton_secret_webhook..."
+
+# Resend — clé API pour l'envoi des emails (commence par re_).
+RESEND_API_KEY="...ta_cle_resend..."

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>La Bonne Aventure — Livret d'accueil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <button id="langToggle" onclick="toggleLang()" aria-label="Language" style="background:transparent;border:1px solid var(--line);color:var(--green);cursor:pointer;font-family:'Jost';font-weight:600;font-size:12px;letter-spacing:.05em;padding:7px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg>
+      <span id="langLabel">EN</span>
+    </button>
+    <span class="tb-brand"><svg class="brand-frond" viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/></svg><span class="brand-name">La Bonne Aventure</span></span>
+</div>
+
+  <nav class="nav">
+    <button class="on" data-p="p-home" onclick="go(this)"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l9-8 9 8M5 9v11a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9"/></svg></span>Accueil</button>
+    <button data-p="p-info" onclick="go(this)"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg></span>Infos</button>
+    <button data-p="p-rules" onclick="go(this)"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12l2 2 4-4m-9 9h12a1 1 0 001-1V6a1 1 0 00-1-1H6a1 1 0 00-1 1v13a1 1 0 001 1z"/></svg></span>Règles</button>
+    <button data-p="p-spots" onclick="go(this)"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>Adresses</button>
+    <button data-p="p-sos" onclick="go(this)"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3l-8-14a2 2 0 00-3.4 0z"/></svg></span>Urgences</button>
+    <button class="ext-link" onclick="location.href='extras.html'"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 21V7M12 7c-2.5 0-4.5-1.5-4.5-3S9 2 10.5 2 12 4 12 7zm0 0c2.5 0 4.5-1.5 4.5-3S15 2 13.5 2 12 4 12 7z"/></svg></span>Extras</button>
+  </nav>
+
+  <div class="scroll" id="scroll">
+
+    <!-- ============ ACCUEIL ============ -->
+    <section class="page active" id="p-home">
+      <div class="hero">
+        <div class="bg"><img src="assets/aix-aerial.jpg" onerror="this.onerror=null;this.src='assets/placeholder.svg'" alt="Aix-les-Bains — centre-ville et montagnes"></div>
+        <div class="wash"></div>
+        <div class="frond"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/><path d="M62 82 C80 76 88 68 92 56"/><path d="M61 64 C46 58 39 50 36 40"/><path d="M62 48 C77 42 83 36 86 28"/></svg></div>
+        <div class="inner">
+          <img class="hero-logo" src="assets/logo-light.svg" alt="La Bonne Aventure">
+          <div class="kick">Maison d'hôtes · Aix-les-Bains</div>
+          <div class="rule"></div>
+          <p>Selamat datang — bienvenue. Posez vos valises, ce livret vous accompagne tout au long de votre séjour.</p>
+        </div>
+        <div class="scrollcue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9l6 6 6-6"/></svg></div>
+      </div>
+
+      <div class="body">
+        <div class="section-head reveal" style="--i:0"><span class="kicker">Le mot de l'hôte</span></div>
+        <p class="pull reveal" style="--i:1"><span class="drop">B</span>ienvenue chez nous. Vous trouverez dans ce livret tout le nécessaire : l'accès au logement, les infos pratiques, les règles de la maison, mes adresses coups de cœur et les numéros utiles.</p>
+        <div class="sign reveal" style="--i:2">— Théo</div>
+
+        <div class="stat-wrap reveal" style="--i:3">
+          <div class="stat"><div class="sk">Arrivée</div><div class="sv">16:00</div><div class="sx">à partir de</div></div>
+          <div class="stat"><div class="sk">Départ</div><div class="sv">12:00</div><div class="sx">avant</div></div>
+        </div>
+
+        <a class="cta reveal" style="--i:4" onclick="openBot()" href="javascript:void(0)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l1.6-4.6A8.5 8.5 0 1121 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg>
+          Poser une question</a>
+        <a class="cta ghost reveal" style="--i:5" href="extras.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          Réserver un extra</a>
+        <div class="note reveal" style="--i:6">Arrivée anticipée, départ tardif, kit petit-déjeuner, vidéoprojecteur… À réserver et régler en ligne <b style="font-weight:500">au moins 24&nbsp;h à l'avance</b>. Paiement sécurisé.</div>
+        <div class="note reveal" style="--i:7">L'assistant du livret répond à vos questions à tout moment.</div>
+      </div>
+    </section>
+
+    <!-- ============ INFOS ============ -->
+    <section class="page" id="p-info">
+      <div class="body" style="padding-top:30px">
+        <div class="section-head reveal" style="--i:0"><span class="no">01</span><span class="kicker">Infos pratiques</span></div>
+        <h2 class="reveal" style="--i:0">Tout sous la <span class="it">main</span></h2>
+
+        <div class="divider reveal" style="--i:2"><span class="lab">Accès au logement</span><span class="ln"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg></div>
+        <h2 class="reveal" style="--i:2;font-size:26px">Arrivée <span class="it">autonome</span></h2>
+        <p class="lede reveal" style="--i:2">En quelques étapes simples, le jour comme le soir.</p>
+
+        <div class="path closed reveal" style="--i:3">
+          <div class="steps timeline">
+            <div class="step"><div class="num">1</div><div><b>La veille, vous recevez le code</b><span>Je vous envoie par message le code de la boîte à clés, la veille de votre arrivée.</span></div></div>
+            <div class="step"><div class="num">2</div><div><b>Trouvez l'entrée</b><span>En suivant l'adresse, vous arrivez dans une cour extérieure. Au fond à gauche, l'immeuble portant le numéro&nbsp;9. Mon appartement est au rez-de-chaussée.</span></div></div>
+            <div class="step"><div class="num">3</div><div><b>Récupérez les clés</b><span>La boîte à clés se trouve dans la boîte aux lettres du bas — trois boîtes blanches empilées, déjà ouverte. Entrez le code pour récupérer les deux clés (porte d'entrée + portail).</span></div></div>
+            <div class="step"><div class="num">4</div><div><b>Le portail</b><span>Il est ouvert la plupart du temps. S'il est fermé, ouvrez-le avec la clé du portail — de l'intérieur, il s'ouvre simplement à la poignée.</span></div></div>
+          </div>
+        </div>
+
+        <div class="tag reveal" style="--i:3">
+          <div class="hole"></div>
+          <div class="frond"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg></div>
+          <div class="lab">Les clés</div>
+          <div class="net" style="font-size:16px;letter-spacing:.02em;line-height:1.5;font-weight:400">Tête ronde&nbsp;: la porte d'entrée<br>Tête triangulaire&nbsp;: le portail</div>
+          <hr class="perf">
+          <div class="pwlab">Wi-Fi</div>
+          <div class="pw" style="font-size:17px;font-weight:400;font-family:'Jost';line-height:1.5">Réseau&nbsp;: <b style="font-weight:600">SFR_LBA</b><br>Mot de passe&nbsp;: <b style="font-weight:600">LABONNEAVENTURE</b></div>
+          <svg class="wifiglyph" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 7a2 2 0 012 2m4-1a6 6 0 01-7.7 5.7l-2.5 2.5a2 2 0 01-1 .5l-3 .6a1 1 0 01-1.2-1.1l.6-3a2 2 0 01.5-1l5.4-5.4A6 6 0 0121 8z"/></svg>
+        </div>
+
+        <div class="callout reveal" style="--i:4">
+          <div class="ci"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 8v5m0 3h.01"/></svg></div>
+          <p><b>Au départ</b>, remettez les clés dans la boîte à clés, refermez-la, brouillez les chiffres du code, puis refermez la boîte aux lettres. Merci&nbsp;!</p>
+        </div>
+
+        <div class="divider reveal" style="--i:5"><span class="lab">Au quotidien</span><span class="ln"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg></div>
+        <div class="card reveal" style="--i:5">
+          <div class="row"><div class="tok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 13l2-7h14l2 7M5 13h14v5a1 1 0 01-1 1h-1a1 1 0 01-1-1v-1H8v1a1 1 0 01-1 1H6a1 1 0 01-1-1v-5z"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/></svg></div><div><div class="k">Parking</div><div class="v sm">Stationnement gratuit et payant dans les rues à proximité (selon les zones — voir « Se garer en ville » ci-dessous)</div></div></div>
+          <div class="row"><div class="tok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7h18M3 7l1.5 12a1 1 0 001 1h11a1 1 0 001-1L19 7M9 7V4h6v3"/></svg></div><div><div class="k">Poubelles</div><div class="v sm">Conteneurs à proximité du logement — pas de tri sélectif, tout va dans le même sac</div></div></div>
+          <div class="row"><div class="tok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16M7 7V5a1 1 0 011-1h8a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/></svg></div><div><div class="k">Côté cuisine</div><div class="v sm">Réfrigérateur-congélateur, plaques à induction (2 feux), four à micro-ondes, bouilloire, cafetière Nespresso, vaisselle, verres et nécessaire de cuisine</div></div></div>
+          <div class="row"><div class="tok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v2m0 14v2M5 12H3m18 0h-2M6 6l1.5 1.5M18 6l-1.5 1.5"/><circle cx="12" cy="12" r="3.5"/></svg></div><div><div class="k">Confort</div><div class="v sm">Climatisation / chauffage réversible (pompe à chaleur), stores occultants, linge de lit en coton, cintres. Gel douche, shampoing et savon fournis</div></div></div>
+          <div class="row"><div class="tok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12h18M3 12a9 9 0 0118 0M3 12a9 9 0 0018 0"/></svg></div><div><div class="k">Extérieur &amp; services</div><div class="v sm">Patio / balcon privé avec mobilier, laverie automatique à proximité</div></div></div>
+        </div>
+
+        <div class="divider reveal" style="--i:7"><span class="lab">Se garer en ville</span><span class="ln"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg></div>
+        <div class="card reveal" style="--i:7">
+          <p style="font-size:13.5px;color:#6B6353;font-weight:300;margin-bottom:8px">Stationnement en voirie en 2 zones. Les <b style="font-weight:600;color:var(--ink)">30 premières minutes sont gratuites</b> (1×/demi-journée, à l'horodateur ou via l'appli Flowbird).</p>
+          <div class="zone"><span class="zdot" style="background:#96650A"></span><div><div class="k">Zone orange · hyper-centre</div><div class="v">1 €/h · durée max 2h30</div></div></div>
+          <div class="zone"><span class="zdot" style="background:var(--sage)"></span><div><div class="k">Zone verte · autour du centre</div><div class="v">0,50 €/h · durée max 8h</div></div></div>
+          <div class="zone"><span class="zdot" style="background:#B07C10"></span><div><div class="k">Horaires payants</div><div class="v">Lun–ven 9h–12h &amp; 14h–19h · samedi 9h–12h</div></div></div>
+          <div class="zone"><span class="zdot" style="background:var(--sage-soft)"></span><div><div class="k">Gratuit</div><div class="v" style="font-size:13.5px">12h–14h &amp; 19h–9h chaque jour · samedi après-midi, dimanche &amp; fériés · souvent gratuit en périphérie</div></div></div>
+        </div>
+        <p class="note reveal" style="--i:7">L'appli <b style="font-weight:500">Flowbird</b> permet de payer et prolonger depuis le téléphone · <a href="https://www.aixlesbains.fr/mon-quotidien/mobilite-et-transports/en-voiture/stationnement-sur-voirie" target="_blank">fiche complète de la ville</a></p>
+
+        <div class="card reveal" style="--i:7">
+          <div class="row"><div class="tok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 17V8h3.5a2.5 2.5 0 010 5H9"/></svg></div><div><div class="k">Parking de la Chaudanne <span style="font-weight:400;color:var(--sage)">· couvert, 24h/24</span></div><div class="v sm">Place de la Chaudanne, à quelques minutes à pied. Idéal pour stationner à l'abri sans contrainte d'horaire.</div></div></div>
+          <div class="zone"><span class="zdot" style="background:#3C6FB0"></span><div><div class="k">Tarifs essentiels</div><div class="v">30 min gratuites · ~0,80 €/h · 18 € la journée · 9 € la nuit</div></div></div>
+        </div>
+
+        <div class="divider reveal" style="--i:8"><span class="lab">Services en option</span><span class="ln"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg></div>
+        <a class="emg host reveal" style="--i:8" href="extras.html">
+          <div class="big"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+          <div class="et"><b>Réserver un extra</b><span>Arrivée anticipée, départ tardif, petit-déjeuner…</span></div>
+          <div class="go">›</div>
+        </a>
+        <div class="note reveal" style="--i:8">Réservation et paiement en ligne, <b style="font-weight:500">au moins 24&nbsp;h avant</b> la prestation. Sous réserve de disponibilité.</div>
+        <div class="divider reveal" style="--i:8"><span class="lab">Votre hôte</span><span class="ln"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg></div>
+        <a class="emg host reveal" style="--i:8" onclick="openBot()" href="javascript:void(0)">
+          <div class="big"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l1.6-4.6A8.5 8.5 0 1121 11.5z"/></svg></div>
+          <div class="et"><b>Une question ?</b><span>L'assistant du livret vous répond à tout moment</span></div>
+          <div class="go">›</div>
+        </a>
+        <div class="note reveal" style="--i:8">En cas d'urgence, tous les numéros utiles sont dans l'onglet Urgences.</div>
+      </div>
+    </section>
+
+    <!-- ============ RÈGLES ============ -->
+    <section class="page" id="p-rules">
+      <div class="body" style="padding-top:30px">
+        <div class="section-head reveal" style="--i:0"><span class="no">02</span><span class="kicker">Règles de la maison</span></div>
+        <h2 class="reveal" style="--i:0">Pour le confort <span class="it">de tous</span></h2>
+        <p class="lede reveal" style="--i:0">Quelques règles simples pour que chacun passe un séjour serein.</p>
+
+        <div class="card reveal" style="--i:1">
+          <div class="rule-item"><div class="rdot no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18"/></svg></div><div><b>Pas de bruit</b><span>Merci de préserver la tranquillité du voisinage, surtout en soirée</span></div></div>
+          <div class="rule-item"><div class="rdot no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18"/></svg></div><div><b>Non-fumeur à l'intérieur</b><span>Vous pouvez fumer en terrasse / au jardin</span></div></div>
+          <div class="rule-item"><div class="rdot no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6l12 12M18 6L6 18"/></svg></div><div><b>Pas de fête ni d'événement</b><span>Le logement est en zone résidentielle</span></div></div>
+          <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Animaux bienvenus</b><span>Vos compagnons sont acceptés — merci d'en prendre soin comme chez vous</span></div></div>
+          <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Pas de tri sélectif</b><span>Tout va dans le même sac — c'est plus simple&#8239;!</span></div></div>
+          <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Esprit pieds nus</b><span>Comme à Bali — faites-vous plaisir</span></div></div>
+        </div>
+
+        <div class="callout reveal" style="--i:2">
+          <div class="ci"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18h6M10 21h4M12 2a6 6 0 00-4 10.5c.6.6 1 1.3 1 2.1V15h6v-.4c0-.8.4-1.5 1-2.1A6 6 0 0012 2z"/></svg></div>
+          <p>Un <b>détecteur de bruit</b> (et de fumée) est installé pour la sécurité et le confort de tous. Il mesure uniquement le niveau sonore — jamais de conversation, aucun enregistrement.</p>
+        </div>
+
+        <div class="callout reveal" style="--i:2">
+          <div class="ci"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></div>
+          <p><b>Le soir</b>, pensez à fermer les stores et les volets : cela réduit le bruit et garde la chambre fraîche et tranquille pour la nuit.</p>
+        </div>
+
+        <div class="divider reveal" style="--i:3"><span class="lab">Avant de partir</span><span class="ln"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg></div>
+        <div class="card card-tint reveal" style="--i:3">
+          <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Faire la vaisselle</b><span>Lavez-la, séchez-la et rangez-la à sa place</span></div></div>
+          <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Fermer les volets de la porte d'entrée</b></div></div>
+          <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Fermer le portail commun</b><span>Derrière vous, par courtoisie pour le voisinage</span></div></div>
+          <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Couper la clim / le chauffage</b><span>C'est la même unité — pensez à bien l'éteindre. Et fermez les fenêtres.</span></div></div>
+          <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Clés dans la boîte</b><span>Comme à votre arrivée</span></div></div>
+        </div>
+        <div class="note reveal" style="--i:4">Merci de prendre soin du logement comme s'il était le vôtre.</div>
+        <div style="text-align:center;margin-top:26px;padding:22px 18px;border:1px solid var(--line-soft);border-radius:16px">
+          <p style="font-family:'Fraunces',serif;font-style:italic;color:var(--green);font-size:18px;margin-bottom:6px">Avant de partir, un dernier mot&nbsp;?</p>
+          <p style="font-size:13.5px;color:#6B6353;font-weight:300;line-height:1.5;margin-bottom:14px;max-width:340px;margin-left:auto;margin-right:auto">
+            5 questions, 2 minutes. Vos réponses me sont adressées <b style="font-weight:600;color:var(--ink)">directement et en privé</b> — ce n'est pas l'avis public Airbnb. C'est ce qui m'aide vraiment à améliorer le logement, alors soyez francs&nbsp;!<br>
+            <span style="display:inline-block;margin-top:8px">🎁 En remerciement&nbsp;: <b style="font-weight:600;color:var(--clay)">−15&nbsp;% sur votre prochain séjour</b>.</span>
+          </p>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLScG_RvXe3Wld4H_f797Iem1F8Sa1VCHPredezuiblF55MoRLA/viewform" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:var(--clay);color:#fff;text-decoration:none;font-family:'Jost';font-weight:500;font-size:14px;padding:11px 22px;border-radius:30px;box-shadow:var(--sh)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7c.6.5 1 1.2 1 2h6c0-.8.4-1.5 1-2A7 7 0 0012 2z"/></svg>
+            Donner mon retour
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ADRESSES ============ -->
+    <section class="page" id="p-spots">
+      <div class="body" style="padding-top:30px">
+        <div class="section-head reveal" style="--i:0"><span class="no">03</span><span class="kicker">Nos coups de cœur</span></div>
+        <h2 class="reveal" style="--i:0">Les bonnes <span class="it">adresses</span></h2>
+        <p class="lede reveal" style="--i:0">Sélectionnées avec soin, autour du logement et du lac.</p>
+
+        <div class="map-hint reveal" style="--i:1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>Touchez un point sur la carte pour lancer l'itinéraire.</div>
+        <div id="map" class="reveal" style="--i:1"></div>
+        <div class="legend reveal" style="--i:1">
+          <span><i style="background:#C0563B"></i>Restaurant</span>
+          <span><i style="background:#3F7A4E"></i>Activité</span>
+          <span><i style="background:#3C6FB0"></i>Parking</span>
+        </div>
+
+        <div class="photo-band reveal" style="--i:1">
+          <img src="assets/centre-ville.jpg" onerror="this.onerror=null;this.src='assets/placeholder.svg'" alt="Le centre-ville d'Aix-les-Bains">
+          <div class="cap"><em>Au cœur d'Aix-les-Bains</em></div>
+        </div>
+
+        <div class="grid2">
+        <div class="place feature-place reveal" style="--i:2">
+          <div class="cat">Où manger</div>
+          <h3>T-EmoTions</h3>
+          <img src="assets/t-emotions.jpg" onerror="this.onerror=null;this.src='assets/placeholder.svg'" alt="Devanture du restaurant T-EmoTions à Aix-les-Bains" style="width:100%;max-width:400px;height:auto;border-radius:12px;margin:10px 0 12px;display:block">
+          <p>Restaurant-café gourmand près du Musée Aqualis. Snacks faits maison (sandwichs, paninis, quiches, focaccias), poke bowls, desserts maison, cafés &amp; thés. Sur place ou à emporter — excellent rapport qualité/prix.</p>
+          <div class="meta"><span class="chip">€€</span><span class="chip">Click &amp; collect</span><a class="walk" href="https://www.google.com/maps/place/T-EmoTions/@45.6914829,5.9129504,17z" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>Carte</a></div>
+          <div class="meta"><a class="chip solid" href="tel:+33987494560">09 87 49 45 60</a><a class="chip outline" href="https://boutique.t-emotions.fr/" target="_blank">Commander</a></div>
+        </div>
+
+        <div class="place feature-place reveal" style="--i:3">
+          <div class="cat">Culture · au bord du lac</div>
+          <h3>Aqualis — l'expérience Lac</h3>
+          <img src="assets/aqualis.jpg" onerror="this.onerror=null;this.src='assets/placeholder.svg'" alt="Salle d'exposition du musée Aqualis, brochet géant" style="width:100%;max-width:400px;height:auto;border-radius:12px;margin:10px 0 12px;display:block">
+          <p>Centre d'interprétation du lac du Bourget, installé au Petit Port dans un bâtiment des années 30. Une visite immersive pour comprendre le lac, sa faune et son écosystème — pensée autant pour les curieux que pour les familles. Ateliers, visites guidées et escape game selon la saison.</p>
+          <div class="meta"><span class="chip">Famille</span><span class="chip">Réservation recommandée</span><a class="walk" href="https://g.page/aqualislacdubourget?gm" target="_blank" rel="noopener"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>Carte</a></div>
+          <div class="meta"><span class="chip">52 esplanade Jean Murguet, Le Petit Port</span></div>
+          <div class="meta"><a class="chip solid" href="https://aqualis-lacdubourget.fr/visiter-aqualis" target="_blank" rel="noopener">Réserver ma visite</a><a class="chip outline" href="https://aqualis-lacdubourget.fr/contact" target="_blank" rel="noopener">Horaires &amp; tarifs</a></div>
+        </div>
+
+        <div class="place feature-place reveal" style="--i:3">
+          <div class="cat">Détente · incontournable</div>
+          <h3>Spa Thermal Chevalley</h3>
+          <img src="assets/chevalley.jpg" onerror="this.onerror=null;this.src='assets/placeholder.svg'" alt="Bassin intérieur des Thermes Chevalley" style="width:100%;max-width:400px;height:auto;border-radius:12px;margin:10px 0 12px;display:block">
+          <p>Sur les hauteurs d'Aix, vue sur la ville et le lac. Bassin intérieur naturellement chaud (34°C), bassin extérieur chauffé toute l'année, hammams, saunas, solarium. Institut de soins, massages et modelages.</p>
+          <div class="meta"><span class="chip">≈ 25 €/jour</span><span class="chip">Sans réservation</span><span class="walk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>7j/7 · 10h–19h</span></div>
+          <div class="meta"><span class="chip">🩴 Bonnet + sandales requis</span></div>
+          <div class="meta"><a class="chip solid" href="tel:+33479356866">04 79 35 68 66</a><a class="chip outline" href="https://www.valvital.fr/Nos-stations-thermales/Aix-les-Bains-Station-thermale-d-Aix-les-Bains" target="_blank">Infos &amp; tarifs</a></div>
+        </div>
+
+        <div class="place feature-place reveal" style="--i:3">
+          <div class="cat">Bien-être · soins Sothys</div>
+          <h3>Spa La Parenthèse</h3>
+          <img src="assets/parenthese.jpg" onerror="this.onerror=null;this.src='assets/placeholder.svg'" alt="Espace aqua-détente du spa La Parenthèse" style="width:100%;max-width:400px;height:auto;border-radius:12px;margin:10px 0 12px;display:block">
+          <p>Au cœur d'Aix (16 av. Charles de Gaulle), 3 niveaux dédiés au lâcher-prise : espace aqua-détente (piscine à jets, jacuzzis, sauna, hammam), bassin extérieur chauffé, soins et massages Sothys. Restaurant L'Alchimiste sur place.</p>
+          <div class="meta"><span class="chip">Lun–jeu 10h–19h</span><span class="chip">Ven–sam jusqu'à 20h</span><span class="chip">Dim 10h–17h</span></div>
+          <div class="meta"><span class="chip">Réservation conseillée (obligatoire le week-end)</span></div>
+          <div class="meta"><a class="chip solid" href="tel:+33479340905">04 79 34 09 05</a><a class="chip outline" href="https://www.spa-parenthese-aix-les-bains.com/fr/" target="_blank">Soins &amp; réservation</a></div>
+        </div>
+
+        <div class="place reveal" style="--i:4">
+          <div class="cat">Randonnée · panorama</div>
+          <h3>Belvédère du Mont Revard</h3>
+          <img src="assets/revard.jpg" onerror="this.onerror=null;this.src='assets/placeholder.svg'" alt="Passerelle du belvédère du Mont Revard surplombant le lac" style="width:100%;max-width:400px;height:auto;border-radius:12px;margin:10px 0 12px;display:block">
+          <p>Le balcon mythique au-dessus du lac (~1 530 m), accessible en voiture par la route du Revard. Vue à 360° sur le lac du Bourget, les Bauges et la Chartreuse — idéal au coucher du soleil.</p>
+          <div class="meta"><span class="chip">Accès voiture</span><span class="chip">Coucher de soleil</span><a class="walk" href="https://www.google.com/maps/dir/?api=1&amp;destination=45.6647,5.9986" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>Itinéraire</a></div>
+        </div>
+        </div>
+        <div class="note reveal" style="--i:7">Astuce : touchez un point sur la carte pour ouvrir l'itinéraire dans votre application.</div>
+      </div>
+    </section>
+
+    <!-- ============ URGENCES ============ -->
+    <section class="page" id="p-sos">
+      <div class="up-hero">
+        <div class="frond"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg></div>
+        <div class="up-no" style="font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:30px;color:var(--clay-soft);line-height:1;margin-bottom:10px">04</div>
+        <div class="kick">En cas de besoin</div>
+        <h1>Urgences &amp;<em>numéros utiles</em></h1>
+        <p>Touchez un numéro pour appeler directement.</p>
+      </div>
+      <div class="body" style="padding-top:24px">
+        <div class="kicker reveal" style="--i:0">Numéros d'urgence</div>
+        <div class="grid2">
+        <a class="emg red reveal" style="--i:1" href="tel:15"><div class="big">15</div><div class="et"><b>SAMU</b><span>Urgence médicale vitale</span></div><div class="go">›</div></a>
+        <a class="emg red reveal" style="--i:1" href="tel:18"><div class="big">18</div><div class="et"><b>Pompiers</b><span>Incendie, accident, secours</span></div><div class="go">›</div></a>
+        <a class="emg red reveal" style="--i:2" href="tel:17"><div class="big">17</div><div class="et"><b>Police / Gendarmerie</b><span>Forces de l'ordre</span></div><div class="go">›</div></a>
+        <a class="emg reveal" style="--i:2" href="tel:112"><div class="big">112</div><div class="et"><b>Numéro d'urgence européen</b><span>Depuis tout téléphone, partout en Europe</span></div><div class="go">›</div></a>
+        <a class="emg reveal" style="--i:3" href="tel:114"><div class="big" style="font-size:18px">114</div><div class="et"><b>Urgences — sourds &amp; malentendants</b><span>Par SMS ou visio</span></div><div class="go">›</div></a>
+
+        </div>
+        <div class="divider reveal" style="--i:4"><span class="lab">Santé à proximité</span><span class="ln"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg></div>
+        <div class="svc reveal" style="--i:4">
+          <div class="sh"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg></div><div><h4>Hôpital Grand Port — Urgences</h4><div class="sub">49 av. du Grand Port, 73100 Aix-les-Bains · ouvert 24h/24</div></div></div>
+          <div class="acts"><a class="call" href="tel:0479886111"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11 11 0 003.5.56 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11 11 0 00.56 3.5 1 1 0 01-.24 1z"/></svg>Appeler</a><a class="site" href="https://www.google.com/maps/dir/?api=1&amp;destination=Hopital+Grand+Port+Aix-les-Bains" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>Itinéraire</a></div>
+        </div>
+
+        <div class="svc reveal" style="--i:5">
+          <div class="sh"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M19 8h-3V5a1 1 0 00-1-1H9a1 1 0 00-1 1v3H5a1 1 0 00-1 1v6a1 1 0 001 1h3v3a1 1 0 001 1h6a1 1 0 001-1v-3h3a1 1 0 001-1V9a1 1 0 00-1-1z"/></svg></div><div><h4>Pharmacie de garde</h4><div class="sub">La pharmacie ouverte la plus proche, jour et nuit</div></div></div>
+          <div class="acts"><a class="call" href="tel:3237"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11 11 0 003.5.56 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11 11 0 00.56 3.5 1 1 0 01-.24 1z"/></svg>Appeler le 3237</a><a class="site" href="https://www.aixlesbains.fr/mon-quotidien/solidarite-et-sante/pharmacies-de-garde" target="_blank"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></svg>Voir le planning</a></div>
+        </div>
+
+        <div class="svc reveal" style="--i:6">
+          <div class="sh"><div class="si"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M19 14c1.5-1.5 2-3.5 2-5a5 5 0 00-9-3 5 5 0 00-9 3c0 1.5.5 3.5 2 5l7 7z"/></svg></div><div><h4>Médecin de garde</h4><div class="sub">Conseil médical non vital (soir, week-end, jours fériés)</div></div></div>
+          <div class="acts"><a class="call" href="tel:116117"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.6 10.8a15 15 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11 11 0 003.5.56 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11 11 0 00.56 3.5 1 1 0 01-.24 1z"/></svg>Appeler le 116 117</a></div>
+        </div>
+
+        <div class="divider reveal" style="--i:7"><span class="lab">Votre hôte</span><span class="ln"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg></div>
+        <a class="emg host reveal" style="--i:7" href="https://wa.me/33650929827" target="_blank"><div class="big"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l2.2-5.3A8.5 8.5 0 1121 11.5z"/></svg></div><div class="et"><b>Contacter Théo</b><span>Pour tout souci dans le logement — réponse par message</span></div><div class="go">›</div></a>
+        <div class="note reveal" style="--i:8">Autres numéros : Enfance en danger 119 · Violences femmes 3919 · Centre antipoison (Lyon) 04 72 11 69 11.</div>
+        <div class="footer-credit reveal" style="--i:8">La Bonne Aventure <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg> Aix-les-Bains</div>
+      </div>
+    </section>
+
+    
+
+
+  </div>
+
+  <!-- ============ ASSISTANT ============ -->
+  <button class="bot-fab" onclick="openBot()" aria-label="Poser une question">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l1.6-4.6A8.5 8.5 0 1121 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg>
+  </button>
+  <div class="bot-panel" id="botPanel">
+    <div class="bot-head">
+      <div class="av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg></div>
+      <div><h4>Assistant La Bonne Aventure</h4><div class="st">Réponses instantanées 7j/7</div></div>
+      <button class="x" onclick="closeBot()" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="bot-body" id="botBody"></div>
+    <div class="chips" id="botChips">
+      <button onclick="askBot('Comment accéder au logement ?')">Accès &amp; clés</button>
+      <button onclick="askBot('Où se garer ?')">Parking</button>
+      <button onclick="askBot('Y a-t-il le wifi ?')">Wi-Fi</button>
+      <button onclick="askBot('Heure d arrivée et de départ ?')">Horaires</button>
+      <button onclick="askBot('Que faire dans les environs ?')">À voir</button>
+    </div>
+    <div class="bot-input">
+      <input id="botInput" type="text" placeholder="Écrivez votre question…" onkeydown="if(event.key==='Enter')sendBot()">
+      <button onclick="sendBot()" aria-label="Envoyer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+  /* ===== Assistant rule-based ===== */
+  var BOT_KB=[
+    {k:["sèche-cheveux","seche-cheveux","seche cheveux","sechoir","séchoir","cheveux"],a:"Oui, un sèche-cheveux est à votre disposition dans le logement."},
+    {k:["fer","repasser","fer à repasser","fer a repasser","défroisseur","defroisseur","froissé","froisse","steamer"],a:"Il n\'y a pas de fer à repasser, mais un défroisseur vapeur est à votre disposition pour vos vêtements."},
+    {k:["accès","acces","marche","marches","escalier","escaliers","ascenseur","plain-pied","étage","etage","pmr","handicap","accessible","fauteuil","mobilité","mobilite"],a:"L\'accès au logement se fait par quatre petites marches au total. Il n\'y a pas d\'ascenseur. Le logement n\'est pas adapté aux personnes à mobilité réduite."},
+    {k:["enfant","enfants","bébé","bebe","lit parapluie","chaise haute","nourrisson","poussette","famille avec enfant"],a:"Le logement n\'est pas adapté pour accueillir des enfants en bas âge — il n\'y a pas d\'équipement bébé (lit parapluie, chaise haute)."},
+    {k:["eau chaude","chauffe-eau","chauffe eau","ballon","ballon d\'eau","douche chaude","pas d\'eau chaude"],a:"Rien de particulier à savoir : l\'eau chaude est disponible dès le début de votre réservation, dans la cuisine comme dans la salle d\'eau."},
+    {k:["problème","probleme","panne","coupure","disjoncteur","électricité","electricite","courant","plomberie","fuite","ça marche pas","ca marche pas","souci","bug","cassé","casse","ne fonctionne pas","marche pas"],a:"En cas de souci technique dans le logement (électricité, eau, équipement…), le plus simple est de me contacter directement — je vous réponds au plus vite et on règle ça ensemble. Mon contact est dans l\'onglet Urgences."},
+    {k:["commerce","commerces","supermarché","supermarche","courses","magasin","épicerie","epicerie","boulangerie","boulangeries","monoprix","acheter","pain","provisions","supérette","superette"],a:"Vous êtes en plein centre-ville, donc tout est à portée de main. Un Monoprix se trouve à environ 200 m sur la gauche, et plusieurs boulangeries sont à proximité immédiate."},
+    {k:["wifi","wi-fi","wi fi","internet","connexion","réseau","reseau"],a:"Le logement dispose du Wi-Fi. Réseau : SFR_LBA — Mot de passe : LABONNEAVENTURE. Vous retrouvez ces identifiants dans l'onglet Infos."},
+    {k:["clé","cles","clés","clef","boite","boîte","code","entrer","entrée","entree","acces","accès","rentrer","serrure","ouvrir la porte"],a:"L'arrivée est autonome : dans la cour, immeuble n° 9, appartement au rez-de-chaussée. La boîte à clés est dans la boîte aux lettres du bas (3 boîtes blanches empilées, déjà ouverte). Le code vous est envoyé par message la veille de votre arrivée. Au départ, remettez les clés, refermez la boîte à clés, brouillez le code et refermez la boîte aux lettres."},
+    {k:["portail"],a:"Le portail est ouvert la plupart du temps. S'il est fermé, ouvrez-le avec la clé du portail (dans la boîte à clés) ; de l'intérieur, il s'ouvre simplement à la poignée."},
+    {k:["parking","garer","stationnement","voiture","se garer","stationner"],a:"Stationnement gratuit et payant dans les rues à proximité. Pour du couvert : le Parking de la Chaudanne (souterrain, 24h/24) — 30 min gratuites, ~0,80 €/h, 18 € la journée, 9 € la nuit. En voirie : 30 min gratuites puis zone orange 1 €/h ou zone verte 0,50 €/h (appli Flowbird)."},
+    {k:["horaire","horaires","heure","quelle heure","quel heure","check","règlement","arrivée et départ","arrivee et depart","arrivée et de départ","heure d'arrivée et de départ","arrivée départ"],a:"Arrivée à partir de 16h00 et départ avant 12h00. L'arrivée est autonome grâce à la boîte à clés, donc vous pouvez arriver tard sans souci."},
+    {k:["arrivée","arrivee","arriver","arrivé","arrive","checkin","check-in","check in","quelle heure arriv","heure d","peux arriv"],a:"L'arrivée se fait à partir de 16h00, en autonomie via la boîte à clés. Vous pouvez arriver tard sans problème."},
+    {k:["départ","depart","partir","parti","checkout","check-out","check out","rendre","quitter","libérer","liberer"],a:"Le départ se fait avant 12h00. Avant de partir : faites la vaisselle (lavée, séchée et rangée), coupez la clim/chauffage (même unité), fermez fenêtres, volets et portail, et remettez les clés dans la boîte à clés (code brouillé)."},
+    {k:["animaux","animal","chien","chat"],a:"Oui, les animaux sont les bienvenus ! Merci d'en prendre soin comme si le logement était le vôtre."},
+    {k:["fumer","cigarette","fumeur","vapoter","clope"],a:"Le logement est non-fumeur à l'intérieur. Vous pouvez fumer en terrasse / au jardin."},
+    {k:["bruit","calme","silence","voisin","fête","fete","soirée","soiree","tapage"],a:"Merci de préserver le calme, surtout en soirée (zone résidentielle). Un détecteur mesure uniquement le niveau sonore (jamais de conversation). Le soir, pensez à fermer stores et volets pour réduire le bruit."},
+    {k:["vaisselle","lave-vaisselle","laver les assiettes"],a:"Merci de faire la vaisselle : lavez-la, séchez-la et rangez-la à sa place (il n'y a pas de lave-vaisselle)."},
+    {k:["poubelle","ordures","tri","déchets","dechets","sac"],a:"Des conteneurs se trouvent à proximité du logement. Pas de tri sélectif : tout va dans le même sac."},
+    {k:["clim","climatisation","chauffage","chaud","froid","température","temperature","pompe à chaleur","chauffer","refroidir"],a:"La climatisation et le chauffage sont assurés par la même unité (pompe à chaleur réversible). Pensez à bien l'éteindre en quittant le logement."},
+    {k:["café","cafe","cafetière","cafetiere","nespresso","capsule","dosette","machine à café","machine a cafe"],a:"Une cafetière Nespresso est à votre disposition dans la kitchenette. Pour l'utiliser : 1) vérifiez qu'il y a de l'eau dans le réservoir, 2) allumez la machine et attendez que le voyant soit fixe, 3) levez le levier, insérez une capsule, rabaissez le levier, 4) placez votre tasse et appuyez sur le bouton. Jetez la capsule usagée après le café."},
+    {k:["cuisine","cuisiner","plaque","induction","four","micro-onde","micro onde","frigo","réfrigérateur","refrigerateur","congélateur","congelateur","bouilloire","manger sur place"],a:"La kitchenette est équipée : réfrigérateur-congélateur, plaques à induction (2 feux), four à micro-ondes, bouilloire, cafetière Nespresso, vaisselle, verres et nécessaire de cuisine."},
+    {k:["tv","télé","tele","television","télévision","netflix"],a:"Il n'y a pas de télévision dans le logement pour le moment."},
+    {k:["que faire","à faire","a faire","environs","alentours","aux alentours","dans le coin","visiter","activité","activite","activités","activites","découvrir","decouvrir","à voir","a voir","sortir","tourisme","à visiter"],a:"Plein de choses à faire autour du logement ! Côté nature : le lac du Bourget (~5 min en voiture) et une belle montée au Mont Revard. Côté détente : les spas thermaux (Chevalley et La Parenthèse). Et une bonne table : T-EmoTions. Retrouvez tout, avec la carte et les itinéraires, dans l'onglet Adresses."},
+    {k:["restaurant","resto","manger","déjeuner","dejeuner","dîner","diner","où manger","bonne adresse"],a:"Coup de cœur : T-EmoTions, restaurant-café gourmand près du Musée Aqualis (snacks maison, poke bowls, desserts). Retrouvez-le sur la carte de l'onglet Adresses."},
+    {k:["spa","bien-être","bien etre","massage","détente","detente","thermes","hammam","sauna","piscine"],a:"Deux belles adresses : le Spa Thermal Chevalley (bassins thermaux, vue lac) et le Spa La Parenthèse (16 av. Charles de Gaulle, soins Sothys, aqua-détente). Détails dans l'onglet Adresses."},
+    {k:["rando","randonnée","randonnee","balade","marcher","montagne","belvédère","belvedere","point de vue","revard","panorama"],a:"À ne pas manquer : le Belvédère du Mont Revard (panorama à 360°, magique au coucher du soleil). Itinéraire dans l'onglet Adresses."},
+    {k:["lac","baignade","plage","bourget","nager"],a:"Le lac du Bourget est à environ 5 minutes en voiture — parfait pour la baignade et les balades au bord de l'eau."},
+    {k:["urgence","pharmacie","médecin","medecin","docteur","hôpital","hopital","malade","secours","pompier","police","samu","15","112"],a:"En cas d'urgence : 15 (SAMU), 18 (pompiers), 17 (police), 112 (n° européen). Hôpital Grand Port (urgences 24h/24), pharmacie de garde au 3237. Tout est détaillé dans l'onglet Urgences."},
+    {k:["eau","potable","robinet","boire"],a:"L'eau du robinet est potable dans tout le logement (cuisine et salle d'eau)."},
+    {k:["adresse","où est","ou est","situé","situe","localisation","trouver le logement","gps"],a:"Le logement est à Aix-les-Bains. En suivant l'adresse, vous arrivez dans une cour ; au fond à gauche, immeuble n° 9, appartement au rez-de-chaussée. L'adresse exacte vous est communiquée à la réservation."},
+    {k:["linge","serviette","drap","draps","lit"],a:"Le logement dispose d'un grand lit Queen size. Le linge de lit (coton) est fourni, ainsi que gel douche, shampoing et savon. Un sèche-cheveux et un défroisseur sont également à disposition (pas de fer à repasser)."},
+    {k:["laverie","laver le linge","machine à laver","machine a laver","lessive"],a:"Il n'y a pas de lave-linge dans le logement, mais plusieurs laveries automatiques se trouvent à proximité."},
+    {k:["merci","super","top","génial","genial","parfait","cool"],a:"Avec plaisir 🌴 Bon séjour à La Bonne Aventure !"},
+    {k:["vélo","velo","vélos","velos","bike","porte-vélo","porte velo","cycliste","rangement vélo"],a:"Oui ! Un porte-vélo est à votre disposition pour ranger vos vélos. Aix-les-Bains et le lac du Bourget sont parfaits à vélo (véloroute, Bauges). Pensez à un antivol, le porte-vélo n'étant pas dans un local fermé."},
+    {k:["bonjour","salut","hello","coucou","hey","bonsoir"],a:"Bonjour et bienvenue à La Bonne Aventure 🌴 Posez-moi votre question : accès, parking, équipements, bonnes adresses…"}
+  ];
+  function botFallback(q){
+    var msg="Bonjour Théo, une question depuis le livret La Bonne Aventure : « "+q+" »";
+    var url="https://wa.me/33650929827?text="+encodeURIComponent(msg);
+    return "Je n'ai pas la réponse exacte à cette question. Écrivez directement à Théo : <a href='"+url+"' target='_blank'>envoyer ma question sur WhatsApp</a> (elle est déjà pré-remplie), il vous répondra dès que possible.";
+  }
+  var botStarted=false;
+  function openBot(){var p=document.getElementById('botPanel');p.classList.add('open');if(!botStarted){botStarted=true;botSay("Bonjour 🌴 Je suis l'assistant de La Bonne Aventure. Posez-moi une question, ou choisissez un sujet ci-dessous.");}setTimeout(function(){var i=document.getElementById('botInput');if(window.innerWidth>=700)i.focus();},120);}
+  function closeBot(){document.getElementById('botPanel').classList.remove('open');}
+  function botSay(html,me){var b=document.getElementById('botBody');var d=document.createElement('div');d.className='msg '+(me?'me':'bot');d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;}
+  function botAnswer(q){
+    var t=q.toLowerCase();
+    var best=null,score=0;
+    BOT_KB.forEach(function(e){var s=0;e.k.forEach(function(w){if(t.indexOf(w)>-1)s++;});if(s>score){score=s;best=e;}});
+    var _a=(best&&score>0)?best.a:botFallback(q);
+    return (window.LANG==='en' && window.BOT_AN_EN[_a])?window.BOT_AN_EN[_a]:_a;
+  }
+  function askBot(q){botSay(q,true);setTimeout(function(){botSay(botAnswer(q));},280);}
+  function sendBot(){var i=document.getElementById('botInput');var q=i.value.trim();if(!q)return;i.value='';askBot(q);}
+
+  function goPage(id){
+    document.querySelectorAll('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===id)});
+    document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+    document.getElementById(id).classList.add('active');
+    try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+  }
+  function go(btn){
+    document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('on')});
+    btn.classList.add('on');
+    document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+    document.getElementById(btn.dataset.p).classList.add('active');
+    document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});
+    try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
+    if(btn.dataset.p==='p-spots'){setTimeout(initMap,90);}
+  }
+
+  var _map=null;
+  function initMap(){
+    if(_map){ _map.invalidateSize(); return; }
+    var places=[
+      {name:"T-EmoTions", cat:"Restaurant", color:"#C0563B", lat:45.69148, lng:5.91295},
+      {name:"Aqualis — musée du lac", cat:"Activité", color:"#3F7A4E", lat:45.69265, lng:5.90862},
+      {name:"Spa Thermal Chevalley", cat:"Activité", color:"#3F7A4E", lat:45.6930, lng:5.9178},
+      {name:"Spa La Parenthèse", cat:"Activité", color:"#3F7A4E", lat:45.688858, lng:5.9110198},
+      {name:"Belvédère du Mont Revard", cat:"Activité", color:"#3F7A4E", lat:45.6647, lng:5.9986},
+      {name:"Parking de la Chaudanne", cat:"Parking", color:"#3C6FB0", lat:45.6889, lng:5.9088}
+    ];
+    _map=L.map("map",{scrollWheelZoom:false}).setView([45.70,5.92],11);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap"}).addTo(_map);
+    var pts=[];
+    places.forEach(function(p){
+      var icon=L.divIcon({className:"pin",html:"<span style='background:"+p.color+"'></span>",iconSize:[26,26],iconAnchor:[13,24],popupAnchor:[0,-22]});
+      var dir="https://www.google.com/maps/dir/?api=1&destination="+p.lat+","+p.lng;
+      var html="<div class='pop'><div class='pc' style='color:"+p.color+"'>"+p.cat+"</div><h4>"+p.name+"</h4>"+
+        "<a href='"+dir+"' style='background:"+p.color+"' target='_blank'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M5 12h14M13 6l6 6-6 6'/></svg>Itinéraire</a></div>";
+      L.marker([p.lat,p.lng],{icon:icon}).addTo(_map).bindPopup(html);
+      pts.push([p.lat,p.lng]);
+    });
+    _map.fitBounds(pts,{padding:[40,40]});
+    setTimeout(function(){_map.invalidateSize();},250);
+  }
+
+
+  /* ---- Demande d'extra à l'hôte (WhatsApp) ---- */
+  function toggleAsk(){
+    var b = document.getElementById('askBox');
+    var open = b.style.display === 'block';
+    b.style.display = open ? 'none' : 'block';
+    if(!open){ b.scrollIntoView({behavior:'smooth', block:'center'}); }
+  }
+  function fmtFR(v){
+    if(!v) return '';
+    var p = v.split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  function sendAsk(){
+    var name = document.getElementById('askName').value.trim();
+    var din  = document.getElementById('askIn').value;
+    var what = document.getElementById('askWhat').value;
+    var err  = document.getElementById('askErr');
+
+    if(!name){
+      err.textContent = 'Merci d\'indiquer votre prénom.';
+      err.style.display = 'block'; return;
+    }
+    if(!din){
+      err.textContent = 'Merci d\'indiquer votre date d\'arrivée.';
+      err.style.display = 'block'; return;
+    }
+    err.style.display = 'none';
+
+    var msg = 'Bonjour Théo, je m\'appelle ' + name + '. '
+            + 'J\'arrive le ' + fmtFR(din) + '. '
+            + 'J\'aimerais savoir si ' + what + ' pour mon séjour. Merci !';
+    window.open('https://wa.me/33650929827?text=' + encodeURIComponent(msg), '_blank');
+  }
+
+
+  /* ---- Navigation programmatique vers un onglet ---- */
+  function goTo(id){
+    var btn = document.querySelector('.nav button[data-p="' + id + '"]');
+    if(btn) go(btn);
+  }
+
+  /* ---- Demande ciblée par produit ---- */
+
+</script>
+
+<script>
+(function(){
+  window.LANG = 'fr';
+  window.I18N = {"Maison d'hôtes · Aix-les-Bains": "Guesthouse · Aix-les-Bains", "Selamat datang — bienvenue. Posez vos valises, ce livret vous accompagne tout au long de votre séjour.": "Selamat datang — welcome. Drop your bags; this guide is with you throughout your stay.", "Le mot de l'hôte": "A word from your host", "ienvenue chez nous. Vous trouverez dans ce livret tout le nécessaire : l'accès au logement, les infos pratiques, les règles de la maison, mes adresses coups de cœur et les numéros utiles.": "elcome to our home. In this guide you'll find everything you need: how to get in, practical info, house rules, my favourite local spots and useful numbers.", "Arrivée": "Check-in", "à partir de": "from", "Départ": "Check-out", "avant": "before", "Poser une question": "Ask a question", "Réserver un extra": "Book an extra", "Arrivée anticipée, départ tardif, kit petit-déjeuner, vidéoprojecteur… À réserver et régler en ligne": "Early check-in, late check-out, breakfast kit, projector… Book and pay online", ". Paiement sécurisé.": ". Secure payment.", "au moins 24 h à l'avance": "at least 24 h in advance", "L'assistant du livret répond à vos questions à tout moment.": "The guide's assistant answers your questions anytime.", "Infos pratiques": "Practical info", "Tout sous la": "Everything at", "main": "hand", "Accès au logement": "Getting in", "autonome": "self check-in", "En quelques étapes simples, le jour comme le soir.": "A few simple steps, day or night.", "La veille, vous recevez le code": "The day before, you get the code", "Je vous envoie par message le code de la boîte à clés, la veille de votre arrivée.": "I'll message you the lockbox code the day before you arrive.", "Trouvez l'entrée": "Find the entrance", "En suivant l'adresse, vous arrivez dans une cour extérieure. Au fond à gauche, l'immeuble portant le numéro 9. Mon appartement est au rez-de-chaussée.": "Following the address, you reach an outdoor courtyard. At the far left, the building numbered 9. My flat is on the ground floor.", "Récupérez les clés": "Get the keys", "La boîte à clés se trouve dans la boîte aux lettres du bas — trois boîtes blanches empilées, déjà ouverte. Entrez le code pour récupérer les deux clés (porte d'entrée + portail).": "The lockbox is in the lower mailbox — three stacked white boxes, already open. Enter the code to get the two keys (front door + gate).", "Le portail": "The gate", "Il est ouvert la plupart du temps. S'il est fermé, ouvrez-le avec la clé du portail — de l'intérieur, il s'ouvre simplement à la poignée.": "It's open most of the time. If it's locked, use the gate key — from the inside it opens simply with the handle.", "Les clés": "The keys", "Tête ronde : la porte d'entrée": "Round head: the front door", "Tête triangulaire : le portail": "Triangular head: the gate", "Réseau :": "Network:", "Mot de passe :": "Password:", ", remettez les clés dans la boîte à clés, refermez-la, brouillez les chiffres du code, puis refermez la boîte aux lettres. Merci !": ", put the keys back in the lockbox, close it, scramble the code digits, then close the mailbox. Thank you!", "Au départ": "On departure", "Équipements": "Amenities", "Ce qu'il faut savoir": "Good to know", "Poubelles": "Bins", "Conteneurs à proximité du logement — pas de tri sélectif, tout va dans le même sac.": "Containers near the flat — no sorting, everything goes in the same bag.", "Conteneurs à proximité du logement — pas de tri sélectif, tout va dans le même sac": "Containers near the flat — no sorting, everything goes in the same bag", "Côté cuisine": "In the kitchen", "Réfrigérateur-congélateur, plaques à induction (2 feux), four à micro-ondes, bouilloire, cafetière Nespresso, vaisselle, verres et nécessaire de cuisine": "Fridge-freezer, induction hob (2 rings), microwave, kettle, Nespresso machine, crockery, glasses and kitchen essentials", "Confort": "Comfort", "Climatisation / chauffage réversible (pompe à chaleur), stores occultants, linge de lit en coton, cintres. Gel douche, shampoing et savon fournis": "Reversible A/C / heating (heat pump), blackout blinds, cotton bed linen, hangers. Shower gel, shampoo and soap provided", "Extérieur & services": "Outdoor & services", "Patio / balcon privé avec mobilier, laverie automatique à proximité": "Private patio / balcony with furniture, launderette nearby", "Se garer en ville": "Parking in town", "Stationnement en voirie en 2 zones. Les": "On-street parking in 2 zones. The", "(1×/demi-journée, à l'horodateur ou via l'appli Flowbird).": "(once per half-day, at the meter or via the Flowbird app).", "30 premières minutes sont gratuites": "first 30 minutes are free", "Zone orange · hyper-centre": "Orange zone · town centre", "1 €/h · durée max 2h30": "€1/h · max 2h30", "Zone verte · autour du centre": "Green zone · around the centre", "0,50 €/h · durée max 8h": "€0.50/h · max 8h", "Horaires payants": "Paid hours", "Lun–ven 9h–12h & 14h–19h · samedi 9h–12h": "Mon–Fri 9am–12 & 2–7pm · Sat 9am–12", "Gratuit": "Free", "12h–14h & 19h–9h chaque jour · samedi après-midi, dimanche & fériés · souvent gratuit en périphérie": "12–2pm & 7pm–9am daily · Sat afternoon, Sun & holidays · often free on the outskirts", "L'appli": "The", "permet de payer et prolonger depuis le téléphone ·": "app lets you pay and extend from your phone ·", "fiche complète de la ville": "full city info", "Parking de la Chaudanne": "La Chaudanne car park", "· couvert, 24h/24": "· covered, 24/7", "Place de la Chaudanne, à quelques minutes à pied. Idéal pour stationner à l'abri sans contrainte d'horaire.": "Place de la Chaudanne, a few minutes' walk. Ideal for covered parking with no time limit.", "Tarifs essentiels": "Key rates", "30 min gratuites · ~0,80 €/h · 18 € la journée · 9 € la nuit": "30 min free · ~€0.80/h · €18/day · €9/night", "Services en option": "Optional services", "Arrivée anticipée, départ tardif, petit-déjeuner…": "Early check-in, late check-out, breakfast…", "Réservation et paiement en ligne,": "Booking and payment online,", "la prestation. Sous réserve de disponibilité.": "the service. Subject to availability.", "au moins 24 h avant": "at least 24 h before", "Votre hôte": "Your host", "Une question ?": "A question?", "L'assistant du livret vous répond à tout moment": "The guide's assistant answers you anytime", "En cas d'urgence, tous les numéros utiles sont dans l'onglet Urgences.": "In an emergency, all useful numbers are in the Emergencies tab.", "Règles de la maison": "House rules", "Pour le confort": "For everyone's", "de tous": "comfort", "Quelques règles simples pour que chacun passe un séjour serein.": "A few simple rules so everyone enjoys a peaceful stay.", "Pas de bruit": "No noise", "Merci de préserver la tranquillité du voisinage, surtout en soirée": "Please respect the neighbours' peace, especially in the evening", "Non-fumeur à l'intérieur": "No smoking indoors", "Vous pouvez fumer en terrasse / au jardin": "You may smoke on the terrace / in the garden", "Pas de fête ni d'événement": "No parties or events", "Le logement est en zone résidentielle": "The flat is in a residential area", "Animaux bienvenus": "Pets welcome", "Vos compagnons sont acceptés — merci d'en prendre soin comme chez vous": "Your companions are welcome — please look after them as at home", "Pas de tri sélectif": "No waste sorting", "Tout va dans le même sac — c'est plus simple !": "Everything in one bag — simpler!", "Esprit pieds nus": "Barefoot spirit", "Comme à Bali — faites-vous plaisir": "Bali style — enjoy", "Un": "A", "(et de fumée) est installé pour la sécurité et le confort de tous. Il mesure uniquement le niveau sonore — jamais de conversation, aucun enregistrement.": "(and smoke) detector is installed for everyone's safety and comfort. It only measures sound level — never conversations, no recording.", "détecteur de bruit": "noise detector", ", pensez à fermer les stores et les volets : cela réduit le bruit et garde la chambre fraîche et tranquille pour la nuit.": ", remember to close the blinds and shutters: it cuts noise and keeps the room cool and quiet for the night.", "Le soir": "In the evening", "Avant de partir": "Before you leave", "Faire la vaisselle": "Do the dishes", "Lavez-la, séchez-la et rangez-la à sa place": "Wash, dry and put it back in its place", "Fermer les volets de la porte d'entrée": "Close the front-door shutters", "Fermer le portail commun": "Close the shared gate", "Derrière vous, par courtoisie pour le voisinage": "Behind you, out of courtesy to the neighbours", "Couper la clim / le chauffage": "Turn off the A/C / heating", "C'est la même unité — pensez à bien l'éteindre. Et fermez les fenêtres.": "It's the same unit — make sure it's off. And close the windows.", "Clés dans la boîte": "Keys in the lockbox", "Comme à votre arrivée": "Just like on arrival", "Merci de prendre soin du logement comme s'il était le vôtre.": "Please treat the flat as if it were your own.", "Avant de partir, un dernier mot ?": "Before you go, one last word?", "5 questions, 2 minutes. Vos réponses me sont adressées": "5 questions, 2 minutes. Your answers go to me", "— ce n'est pas l'avis public Airbnb. C'est ce qui m'aide vraiment à améliorer le logement, alors soyez francs !": "— this isn't the public Airbnb review. It's what truly helps me improve the flat, so be honest!", "directement et en privé": "directly and privately", "🎁 En remerciement :": "🎁 As a thank-you:", "−15 % sur votre prochain séjour": "−15% on your next stay", "Donner mon retour": "Give my feedback", "Nos coups de cœur": "Our favourites", "Les bonnes": "The best", "adresses": "spots", "Sélectionnées avec soin, autour du logement et du lac.": "Hand-picked, around the flat and the lake.", "Touchez un point sur la carte pour lancer l'itinéraire.": "Tap a point on the map to start directions.", "Restaurant": "Restaurant", "Activité": "Activity", "Au cœur d'Aix-les-Bains": "In the heart of Aix-les-Bains", "Où manger": "Where to eat", "T-EmoTions": "T-EmoTions", "Restaurant-café gourmand près du Musée Aqualis. Snacks faits maison (sandwichs, paninis, quiches, focaccias), poke bowls, desserts maison, cafés & thés. Sur place ou à emporter — excellent rapport qualité/prix.": "Gourmet café-restaurant near the Aqualis museum. Homemade snacks (sandwiches, paninis, quiches, focaccias), poke bowls, homemade desserts, coffee & tea. Eat in or take away — excellent value.", "Click & collect": "Click & collect", "Carte": "Map", "Commander": "Order", "Culture · au bord du lac": "Culture · by the lake", "Aqualis — l'expérience Lac": "Aqualis — the Lake experience", "Centre d'interprétation du lac du Bourget, installé au Petit Port dans un bâtiment des années 30. Une visite immersive pour comprendre le lac, sa faune et son écosystème — pensée autant pour les curieux que pour les familles. Ateliers, visites guidées et escape game selon la saison.": "Lake Bourget interpretation centre, set at Petit Port in a 1930s building. An immersive visit to understand the lake, its wildlife and ecosystem — made for the curious and for families alike. Workshops, guided tours and an escape game depending on the season.", "Famille": "Family", "Réservation recommandée": "Booking recommended", "52 esplanade Jean Murguet, Le Petit Port": "52 esplanade Jean Murguet, Le Petit Port", "Réserver ma visite": "Book my visit", "Horaires & tarifs": "Hours & prices", "Détente · incontournable": "Relaxation · a must", "Spa Thermal Chevalley": "Chevalley Thermal Spa", "Sur les hauteurs d'Aix, vue sur la ville et le lac. Bassin intérieur naturellement chaud (34°C), bassin extérieur chauffé toute l'année, hammams, saunas, solarium. Institut de soins, massages et modelages.": "On the heights of Aix, overlooking the town and lake. Naturally warm indoor pool (34°C), outdoor pool heated year-round, hammams, saunas, solarium. Treatment centre, massages and body treatments.", "≈ 25 €/jour": "≈ €25/day", "Sans réservation": "No booking needed", "7j/7 · 10h–19h": "7 days · 10am–7pm", "🩴 Bonnet + sandales requis": "🩴 Swim cap + sandals required", "Infos & tarifs": "Info & prices", "Bien-être · soins Sothys": "Wellness · Sothys treatments", "Spa La Parenthèse": "Spa La Parenthèse", "Au cœur d'Aix (16 av. Charles de Gaulle), 3 niveaux dédiés au lâcher-prise : espace aqua-détente (piscine à jets, jacuzzis, sauna, hammam), bassin extérieur chauffé, soins et massages Sothys. Restaurant L'Alchimiste sur place.": "In the heart of Aix (16 av. Charles de Gaulle), 3 floors devoted to letting go: aqua-relaxation area (jet pool, jacuzzis, sauna, hammam), heated outdoor pool, Sothys treatments and massages. L'Alchimiste restaurant on site.", "Lun–jeu 10h–19h": "Mon–Thu 10am–7pm", "Ven–sam jusqu'à 20h": "Fri–Sat until 8pm", "Dim 10h–17h": "Sun 10am–5pm", "Réservation conseillée (obligatoire le week-end)": "Booking advised (required at weekends)", "Soins & réservation": "Treatments & booking", "Randonnée · panorama": "Hiking · panorama", "Belvédère du Mont Revard": "Mont Revard Belvedere", "Le balcon mythique au-dessus du lac (~1 530 m), accessible en voiture par la route du Revard. Vue à 360° sur le lac du Bourget, les Bauges et la Chartreuse — idéal au coucher du soleil.": "The legendary balcony above the lake (~1,530 m), reachable by car via the Revard road. 360° view over Lake Bourget, the Bauges and the Chartreuse — ideal at sunset.", "Accès voiture": "Car access", "Coucher de soleil": "Sunset", "Itinéraire": "Directions", "Astuce : touchez un point sur la carte pour ouvrir l'itinéraire dans votre application.": "Tip: tap a point on the map to open directions in your app.", "En cas de besoin": "If you need help", "Urgences &": "Emergencies &", "numéros utiles": "useful numbers", "Touchez un numéro pour appeler directement.": "Tap a number to call directly.", "Numéros d'urgence": "Emergency numbers", "SAMU": "SAMU (ambulance)", "Urgence médicale vitale": "Life-threatening medical emergency", "Pompiers": "Fire brigade", "Incendie, accident, secours": "Fire, accident, rescue", "Police / Gendarmerie": "Police / Gendarmerie", "Forces de l'ordre": "Law enforcement", "Numéro d'urgence européen": "European emergency number", "Depuis tout téléphone, partout en Europe": "From any phone, anywhere in Europe", "Urgences — sourds & malentendants": "Emergencies — deaf & hard of hearing", "Par SMS ou visio": "By SMS or video", "Santé à proximité": "Healthcare nearby", "Hôpital Grand Port — Urgences": "Grand Port Hospital — A&E", "49 av. du Grand Port, 73100 Aix-les-Bains · ouvert 24h/24": "49 av. du Grand Port, 73100 Aix-les-Bains · open 24/7", "Appeler": "Call", "Pharmacie de garde": "On-call pharmacy", "La pharmacie ouverte la plus proche, jour et nuit": "The nearest open pharmacy, day and night", "Appeler le 3237": "Call 3237", "Voir le planning": "See schedule", "Médecin de garde": "On-call doctor", "Conseil médical non vital (soir, week-end, jours fériés)": "Non-urgent medical advice (evening, weekend, holidays)", "Appeler le 116 117": "Call 116 117", "Contacter Théo": "Contact Théo", "Pour tout souci dans le logement — réponse par message": "For any issue in the flat — reply by message", "Autres numéros : Enfance en danger 119 · Violences femmes 3919 · Centre antipoison (Lyon) 04 72 11 69 11.": "Other numbers: Child protection 119 · Violence against women 3919 · Poison control (Lyon) 04 72 11 69 11.", "Aix-les-Bains": "Aix-les-Bains", "Petits plus": "Little extras", "Vos": "Your", "extras": "extras", "Prolongez le plaisir : réservez et payez vos options en ligne, en quelques secondes.": "Extend the pleasure: book and pay for your options online, in seconds.", "Départ tardif": "Late check-out", "Pas besoin de se presser ! Profitez de votre hébergement": "No need to rush! Enjoy your accommodation", "le jour du départ.": "on departure day.", "2 heures de plus": "2 extra hours", "*Sous réserve de disponibilité": "*Subject to availability", "/ séjour": "/ stay", "Réserver": "Book", "Arrivée anticipée": "Early check-in", "Envie d'arriver plus tôt ? Accédez au logement": "Want to arrive earlier? Access the flat", "l'horaire habituel.": "the usual time.", "2 heures avant": "2 hours before", "Envoyez d'abord un message à Théo pour vérifier la disponibilité, puis réglez en ligne — paiement sécurisé. La confirmation vous est envoyée dans la foulée.": "First message Théo to check availability, then pay online — secure payment. Confirmation is sent right after.", "Comment ça marche ?": "How does it work?", "Vérifier la disponibilité": "Check availability", "Votre prénom": "Your first name", "Date d'arrivée": "Arrival date", "Votre demande": "Your request", "Les deux": "Both", "Envoyer sur WhatsApp": "Send on WhatsApp", "Le message s'ouvrira pré-rempli — vous pourrez le relire avant de l'envoyer.": "The message opens pre-filled — you can review it before sending.", "Accueil": "Home", "Infos": "Info", "Règles": "Rules", "Adresses": "Spots", "Urgences": "Emergencies", "Extras": "Extras", "Accès & clés": "Access & keys", "Parking": "Parking", "Horaires": "Hours", "À voir": "What to see", "Assistant La Bonne Aventure": "La Bonne Aventure Assistant", "Réponses instantanées 7j/7": "Instant answers, 24/7", "Envoyer ma demande": "Send my request", "Nombre de voyageurs": "Number of guests"};
+  window.BOT_AN_EN = {"Le logement dispose du Wi-Fi. Réseau : SFR_LBA — Mot de passe : LABONNEAVENTURE. Vous retrouvez ces identifiants dans l'onglet Infos.": "The flat has Wi-Fi. Network: SFR_LBA — Password: LABONNEAVENTURE. You'll also find these in the Info tab.", "L'arrivée est autonome : dans la cour, immeuble n° 9, appartement au rez-de-chaussée. La boîte à clés est dans la boîte aux lettres du bas (3 boîtes blanches empilées, déjà ouverte). Le code vous est envoyé par message la veille de votre arrivée. Au départ, remettez les clés, refermez la boîte à clés, brouillez le code et refermez la boîte aux lettres.": "Check-in is self-service: in the courtyard, building no. 9, ground-floor flat. The lockbox is in the lower mailbox (3 stacked white boxes, already open). The code is messaged to you the day before arrival. On departure, put the keys back, close the lockbox, scramble the code and close the mailbox.", "Le portail est ouvert la plupart du temps. S'il est fermé, ouvrez-le avec la clé du portail (dans la boîte à clés) ; de l'intérieur, il s'ouvre simplement à la poignée.": "The gate is open most of the time. If it's locked, use the gate key (in the lockbox); from the inside it opens simply with the handle.", "Stationnement gratuit et payant dans les rues à proximité. Pour du couvert : le Parking de la Chaudanne (souterrain, 24h/24) — 30 min gratuites, ~0,80 €/h, 18 € la journée, 9 € la nuit. En voirie : 30 min gratuites puis zone orange 1 €/h ou zone verte 0,50 €/h (appli Flowbird).": "Free and paid parking on nearby streets. For covered parking: La Chaudanne car park (underground, 24/7) — 30 min free, ~€0.80/h, €18/day, €9/night. On-street: 30 min free then orange zone €1/h or green zone €0.50/h (Flowbird app).", "Arrivée à partir de 16h00 et départ avant 12h00. L'arrivée est autonome grâce à la boîte à clés, donc vous pouvez arriver tard sans souci.": "Check-in from 4:00 pm and check-out before 12:00 pm. Check-in is self-service via the lockbox, so you can arrive late with no problem.", "L'arrivée se fait à partir de 16h00, en autonomie via la boîte à clés. Vous pouvez arriver tard sans problème.": "Check-in is from 4:00 pm, self-service via the lockbox. You can arrive late without any issue.", "Le départ se fait avant 12h00. Avant de partir : faites la vaisselle (lavée, séchée et rangée), coupez la clim/chauffage (même unité), fermez fenêtres, volets et portail, et remettez les clés dans la boîte à clés (code brouillé).": "Check-out is before 12:00 pm. Before leaving: do the dishes (washed, dried and put away), turn off the A/C-heating (same unit), close windows, shutters and gate, and put the keys back in the lockbox (code scrambled).", "Oui, les animaux sont les bienvenus ! Merci d'en prendre soin comme si le logement était le vôtre.": "Yes, pets are welcome! Please look after them as if the flat were your own.", "Le logement est non-fumeur à l'intérieur. Vous pouvez fumer en terrasse / au jardin.": "The flat is non-smoking indoors. You may smoke on the terrace / in the garden.", "Merci de préserver le calme, surtout en soirée (zone résidentielle). Un détecteur mesure uniquement le niveau sonore (jamais de conversation). Le soir, pensez à fermer stores et volets pour réduire le bruit.": "Please keep things quiet, especially in the evening (residential area). A detector only measures sound level (never conversations). In the evening, close blinds and shutters to reduce noise.", "Merci de faire la vaisselle : lavez-la, séchez-la et rangez-la à sa place (il n'y a pas de lave-vaisselle).": "Please do the dishes: wash, dry and put them back in their place (there's no dishwasher).", "Des conteneurs se trouvent à proximité du logement. Pas de tri sélectif : tout va dans le même sac.": "Containers are located near the flat. No waste sorting: everything goes in the same bag.", "La climatisation et le chauffage sont assurés par la même unité (pompe à chaleur réversible). Pensez à bien l'éteindre en quittant le logement.": "A/C and heating come from the same unit (reversible heat pump). Remember to switch it off fully when you leave.", "Une cafetière Nespresso est à votre disposition dans la kitchenette. Pour l'utiliser : 1) vérifiez qu'il y a de l'eau dans le réservoir, 2) allumez la machine et attendez que le voyant soit fixe, 3) levez le levier, insérez une capsule, rabaissez le levier, 4) placez votre tasse et appuyez sur le bouton. Jetez la capsule usagée après le café.": "A Nespresso machine is available in the kitchenette. To use it: 1) check there's water in the tank, 2) turn the machine on and wait for a steady light, 3) lift the lever, insert a capsule, lower the lever, 4) place your cup and press the button. Discard the used capsule after your coffee.", "La kitchenette est équipée : réfrigérateur-congélateur, plaques à induction (2 feux), four à micro-ondes, bouilloire, cafetière Nespresso, vaisselle, verres et nécessaire de cuisine.": "The kitchenette is equipped: fridge-freezer, induction hob (2 rings), microwave, kettle, Nespresso machine, crockery, glasses and kitchen essentials.", "Il n'y a pas de télévision dans le logement pour le moment.": "There's no television in the flat at the moment.", "Plein de choses à faire autour du logement ! Côté nature : le lac du Bourget (~5 min en voiture) et une belle montée au Mont Revard. Côté détente : les spas thermaux (Chevalley et La Parenthèse). Et une bonne table : T-EmoTions. Retrouvez tout, avec la carte et les itinéraires, dans l'onglet Adresses.": "Plenty to do around the flat! Nature: Lake Bourget (~5 min by car) and a lovely climb up Mont Revard. Relaxation: the thermal spas (Chevalley and La Parenthèse). And a great place to eat: T-EmoTions. Find it all, with the map and directions, in the Spots tab.", "Coup de cœur : T-EmoTions, restaurant-café gourmand près du Musée Aqualis (snacks maison, poke bowls, desserts). Retrouvez-le sur la carte de l'onglet Adresses.": "A favourite: T-EmoTions, a gourmet café-restaurant near the Aqualis museum (homemade snacks, poke bowls, desserts). Find it on the map in the Spots tab.", "Deux belles adresses : le Spa Thermal Chevalley (bassins thermaux, vue lac) et le Spa La Parenthèse (16 av. Charles de Gaulle, soins Sothys, aqua-détente). Détails dans l'onglet Adresses.": "Two lovely options: Chevalley Thermal Spa (thermal pools, lake view) and Spa La Parenthèse (16 av. Charles de Gaulle, Sothys treatments, aqua-relaxation). Details in the Spots tab.", "À ne pas manquer : le Belvédère du Mont Revard (panorama à 360°, magique au coucher du soleil). Itinéraire dans l'onglet Adresses.": "Not to be missed: the Mont Revard Belvedere (360° panorama, magical at sunset). Directions in the Spots tab.", "Le lac du Bourget est à environ 5 minutes en voiture — parfait pour la baignade et les balades au bord de l'eau.": "Lake Bourget is about 5 minutes by car — perfect for swimming and lakeside walks.", "En cas d'urgence : 15 (SAMU), 18 (pompiers), 17 (police), 112 (n° européen). Hôpital Grand Port (urgences 24h/24), pharmacie de garde au 3237. Tout est détaillé dans l'onglet Urgences.": "In an emergency: 15 (ambulance), 18 (fire), 17 (police), 112 (European number). Grand Port Hospital (A&E 24/7), on-call pharmacy at 3237. Everything is detailed in the Emergencies tab.", "L'eau du robinet est potable dans tout le logement (cuisine et salle d'eau).": "Tap water is drinkable throughout the flat (kitchen and bathroom).", "Le logement est à Aix-les-Bains. En suivant l'adresse, vous arrivez dans une cour ; au fond à gauche, immeuble n° 9, appartement au rez-de-chaussée. L'adresse exacte vous est communiquée à la réservation.": "The flat is in Aix-les-Bains. Following the address, you reach a courtyard; at the far left, building no. 9, ground-floor flat. The exact address is shared at booking.", "Le linge de lit (coton) est fourni. Gel douche, shampoing et savon sont également à disposition.": "Bed linen (cotton) is provided. Shower gel, shampoo and soap are also available.", "Une laverie automatique se trouve à proximité du logement.": "A launderette is located near the flat.", "Avec plaisir 🌴 Bon séjour à La Bonne Aventure !": "My pleasure 🌴 Enjoy your stay at La Bonne Aventure!", "Oui ! Un porte-vélo est à votre disposition pour ranger vos vélos. Aix-les-Bains et le lac du Bourget sont parfaits à vélo (véloroute, Bauges). Pensez à un antivol, le porte-vélo n'étant pas dans un local fermé.": "Yes! A bike rack is available to store your bikes. Aix-les-Bains and Lake Bourget are perfect by bike (cycle route, Bauges). Bring a lock, as the rack isn't in a locked room.", "Bonjour et bienvenue à La Bonne Aventure 🌴 Posez-moi votre question : accès, parking, équipements, bonnes adresses…": "Hello and welcome to La Bonne Aventure 🌴 Ask me anything: access, parking, amenities, good spots…", "Il n'y a pas de lave-linge dans le logement, mais plusieurs laveries automatiques se trouvent à proximité.": "There's no washing machine in the flat, but several launderettes are located nearby.", "Le logement dispose d'un grand lit Queen size. Le linge de lit (coton) est fourni, ainsi que gel douche, shampoing et savon. Un sèche-cheveux et un défroisseur sont également à disposition (pas de fer à repasser).": "The flat has a large Queen-size bed. Bed linen (cotton) is provided, along with shower gel, shampoo and soap. A hairdryer and a garment steamer are also available (no iron).", "Oui, un sèche-cheveux est à votre disposition dans le logement.": "Yes, a hairdryer is available in the flat.", "Il n'y a pas de fer à repasser, mais un défroisseur vapeur est à votre disposition pour vos vêtements.": "There's no iron, but a garment steamer is available for your clothes.", "L'accès au logement se fait par quatre petites marches au total. Il n'y a pas d'ascenseur. Le logement n'est pas adapté aux personnes à mobilité réduite.": "Access to the flat is via four small steps in total. There's no lift. The flat isn't suitable for people with reduced mobility.", "Le logement n'est pas adapté pour accueillir des enfants en bas âge — il n'y a pas d'équipement bébé (lit parapluie, chaise haute).": "The flat isn't suitable for hosting young children — there's no baby equipment (travel cot, high chair).", "Rien de particulier à savoir : l'eau chaude est disponible dès le début de votre réservation, dans la cuisine comme dans la salle d'eau.": "Nothing special to know: hot water is available from the start of your booking, in both the kitchen and the bathroom.", "En cas de souci technique dans le logement (électricité, eau, équipement…), le plus simple est de me contacter directement — je vous réponds au plus vite et on règle ça ensemble. Mon contact est dans l'onglet Urgences.": "If there's a technical issue in the flat (electricity, water, equipment…), the simplest is to contact me directly — I'll reply as fast as I can and we'll sort it out together. My contact is in the Emergencies tab.", "Vous êtes en plein centre-ville, donc tout est à portée de main. Un Monoprix se trouve à environ 200 m sur la gauche, et plusieurs boulangeries sont à proximité immédiate.": "You're right in the town centre, so everything is close by. A Monoprix is about 200 m to the left, and several bakeries are right nearby."};
+  var REV = {}; for(var k in I18N){ REV[I18N[k]] = k; }
+  var norm = function(s){ return s.replace(/\s+/g,' ').trim(); };
+  var cache = [];  // {node, fr}
+
+  function collect(){
+    var roots = [document.getElementById('scroll'),
+                 document.getElementById('botPanel'),
+                 document.querySelector('.nav')];
+    roots.forEach(function(root){
+      if(!root) return;
+      var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode:function(n){
+          if(!n.nodeValue || !norm(n.nodeValue)) return NodeFilter.FILTER_REJECT;
+          var p = n.parentNode, tag = p && p.nodeName;
+          if(tag==='SCRIPT'||tag==='STYLE') return NodeFilter.FILTER_REJECT;
+          // ignorer l'intérieur des SVG
+          var e = p;
+          while(e){ if(e.nodeName==='svg') return NodeFilter.FILTER_REJECT; e = e.parentNode; }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      var n; while((n = w.nextNode())){ cache.push({node:n, fr:n.nodeValue}); }
+    });
+  }
+
+  function apply(lang){
+    cache.forEach(function(it){
+      var raw = it.fr, key = norm(raw);
+      if(lang==='en'){
+        var t = I18N[key];
+        if(t!==undefined){
+          // préserver les espaces de début/fin
+          var lead = raw.match(/^\s*/)[0], trail = raw.match(/\s*$/)[0];
+          it.node.nodeValue = lead + t + trail;
+        }
+      } else {
+        it.node.nodeValue = it.fr;
+      }
+    });
+    // Lettrine "B"ienvenue -> "W"elcome
+    var drop = document.querySelector('.drop');
+    if(drop) drop.textContent = (lang==='en') ? 'W' : 'B';
+    // Placeholders
+    var bi = document.getElementById('botInput');
+    if(bi) bi.placeholder = (lang==='en') ? 'Type your question…' : 'Écrivez votre question…';
+    var nm = document.getElementById('askName');
+    if(nm) nm.placeholder = (lang==='en') ? 'Alex Martin' : 'Camille';
+    var bn = document.getElementById('bkName');
+    if(bn) bn.placeholder = (lang==='en') ? 'Alex Martin' : 'Camille Dupont';
+    document.documentElement.lang = lang;
+  }
+
+  window.toggleLang = function(){
+    window.LANG = (window.LANG==='fr') ? 'en' : 'fr';
+    apply(window.LANG);
+    var lab = document.getElementById('langLabel');
+    if(lab) lab.textContent = (window.LANG==='fr') ? 'EN' : 'FR';
+    try{ localStorage.setItem('lba_lang', window.LANG); }catch(e){}
+  };
+
+  function init(){
+    collect();
+    var saved = null;
+    try{ saved = localStorage.getItem('lba_lang'); }catch(e){}
+    if(saved==='en'){ window.toggleLang(); }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+
+</body>
+</html>

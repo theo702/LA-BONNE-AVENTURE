@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Photo à venir">
+  <rect width="800" height="500" fill="#F4ECDC"/>
+  <g fill="none" stroke="#C0563B" stroke-width="4" stroke-linecap="round" opacity="0.55">
+    <path d="M400 380 C400 300 396 190 408 20"/>
+    <path d="M402 320 C360 306 336 290 320 254"/>
+    <path d="M404 290 C448 278 472 262 488 226"/>
+    <path d="M400 254 C360 242 340 226 328 190"/>
+    <path d="M404 226 C444 214 464 198 476 166"/>
+    <path d="M402 190 C366 178 348 160 340 130"/>
+  </g>
+  <text x="400" y="452" text-anchor="middle" font-family="'Fraunces', Georgia, serif" font-style="italic" font-size="26" fill="#8A7F6A">La Bonne Aventure</text>
+</svg>

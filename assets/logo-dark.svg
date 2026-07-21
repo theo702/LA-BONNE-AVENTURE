@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 460" fill="none" stroke="#2A2A2A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="200" cy="170" r="150"/>
+  <circle cx="200" cy="92" r="17"/>
+  <path d="M150 96c8-10 20-10 28-2M222 94c8-8 20-8 28 2"/>
+  <path d="M120 300c-4-56-6-104-2-150"/>
+  <path d="M118 156c-16-10-24-22-26-38M120 168c14-12 20-24 20-40M118 182c-14-8-22-18-26-30M120 196c12-10 18-20 18-32"/>
+  <path d="M280 300c4-56 6-104 2-150"/>
+  <path d="M282 156c16-10 24-22 26-38M280 168c-14-12-20-24-20-40M282 182c14-8 22-18 26-30M280 196c-12-10-18-20-18-32"/>
+  <path d="M156 300V148h88v152"/>
+  <path d="M150 148h100"/>
+  <rect x="170" y="166" width="14" height="20"/>
+  <rect x="193" y="166" width="14" height="20"/>
+  <rect x="216" y="166" width="14" height="20"/>
+  <path d="M150 210h100"/>
+  <rect x="168" y="232" width="22" height="30"/>
+  <rect x="210" y="232" width="22" height="30"/>
+  <path d="M188 300v-52h24v52"/>
+  <path d="M150 262h100"/>
+  <path d="M150 300h100" stroke-dasharray="14 10"/>
+  <path d="M162 314h30M212 314h30"/>
+  <path d="M180 326h40"/>
+  <text x="200" y="410" text-anchor="middle" font-family="Jost, 'Century Gothic', sans-serif" font-size="46" font-weight="300" letter-spacing="6" stroke="none" fill="#2A2A2A">LA BONNE</text>
+  <text x="200" y="452" text-anchor="middle" font-family="Jost, 'Century Gothic', sans-serif" font-size="46" font-weight="300" letter-spacing="6" stroke="none" fill="#2A2A2A">AVENTURE</text>
+</svg>

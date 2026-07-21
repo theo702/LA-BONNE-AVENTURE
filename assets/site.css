@@ -1,0 +1,392 @@
+/* ==========================================================================
+   La Bonne Aventure — feuille de style partagée (site.css)
+   Reconstituée à partir des pages index / extras / guide.
+   Identité : chaleureuse, tropicale-alpine. Fraunces (serif) + Jost (sans).
+   ========================================================================== */
+
+:root{
+  --cream:#FBF7EE;
+  --cream2:#F4ECDC;
+  --paper:#FFFFFF;
+  --ink:#33302A;
+  --ink-soft:#6B6353;
+  --green:#37564A;
+  --green-deep:#2A4239;
+  --clay:#C0563B;
+  --clay-soft:#D98E68;
+  --sage:#6F8F6E;
+  --sage-soft:#AEC4A6;
+  --line:#E7DECB;
+  --line-soft:#F0E9DB;
+  --sh:0 14px 34px rgba(74,58,34,.13);
+  --sh-soft:0 6px 18px rgba(74,58,34,.08);
+  --r:16px;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:#EDE6D6;
+  color:var(--ink);
+  font-family:'Jost',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-weight:400;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+
+/* ---------- Cadre application (mobile-first, centré) ---------- */
+.app{
+  position:relative;
+  max-width:468px;
+  margin:0 auto;
+  min-height:100vh;
+  background:var(--cream);
+  box-shadow:0 0 60px rgba(60,45,25,.14);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.app.doc{min-height:100vh}
+
+/* ---------- Barre supérieure ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:12px 16px;
+  background:rgba(251,247,238,.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-soft);
+}
+.tb-brand{display:inline-flex;align-items:center;gap:8px;color:var(--green);font-weight:500}
+.brand-frond{width:16px;height:26px;color:var(--clay)}
+.brand-name{font-family:'Fraunces',serif;font-size:15px;letter-spacing:.01em}
+.tb-act{
+  display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+  color:var(--green);font-weight:500;font-size:13px;
+  padding:7px 13px;border:1px solid var(--line);border-radius:22px;background:var(--paper);
+}
+.tb-act svg{width:16px;height:16px}
+
+/* ---------- Navigation à onglets (guide) ---------- */
+.nav{
+  position:sticky;top:0;z-index:35;
+  display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;
+  padding:8px 10px;background:rgba(251,247,238,.92);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-soft);
+}
+.nav::-webkit-scrollbar{display:none}
+.nav button{
+  flex:0 0 auto;display:inline-flex;flex-direction:column;align-items:center;gap:3px;
+  border:0;background:transparent;cursor:pointer;color:var(--ink-soft);
+  font-family:'Jost';font-weight:500;font-size:11px;letter-spacing:.02em;
+  padding:6px 12px;border-radius:12px;transition:.2s;
+}
+.nav button .ico{display:inline-flex}
+.nav button svg{width:19px;height:19px;stroke-width:1.7}
+.nav button.on{color:var(--clay);background:rgba(192,86,59,.09)}
+.nav button.ext-link{color:var(--green)}
+
+/* ---------- Zone défilante & pages ---------- */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.page{display:none;animation:pageIn .4s ease}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0}to{opacity:1}}
+
+.body{padding:24px 20px 60px}
+
+/* ---------- Titres & introductions ---------- */
+.section-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.section-head .no{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+  font-size:15px;color:var(--clay);letter-spacing:.02em;
+}
+.kicker{
+  font-family:'Jost';font-weight:600;text-transform:uppercase;
+  letter-spacing:.16em;font-size:11.5px;color:var(--green);
+}
+h1,h2,h3,h4{margin:0;font-family:'Fraunces',serif;color:var(--ink);font-weight:400}
+h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
+.it{font-style:italic;color:var(--clay);font-weight:300}
+.lede{font-size:15px;color:var(--ink-soft);font-weight:300;margin:0 0 16px;max-width:40ch}
+
+.pull{font-size:16.5px;line-height:1.6;color:var(--ink);margin:8px 0 6px}
+.pull .drop{
+  float:left;font-family:'Fraunces',serif;font-size:52px;line-height:.8;
+  color:var(--clay);padding:6px 10px 0 0;font-weight:400;
+}
+.sign{font-family:'Fraunces',serif;font-style:italic;color:var(--green);font-size:18px;margin:2px 0 18px}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;min-height:78vh;display:flex;color:#FBF7EE}
+.hero .bg,.hero .bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero .wash{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(28,40,32,.28) 0%,rgba(28,40,32,.15) 40%,rgba(24,35,28,.82) 100%);
+}
+.hero .frond{position:absolute;top:-10px;right:-14px;width:120px;height:200px;color:rgba(251,247,238,.32);opacity:.9}
+.hero .frond svg{width:100%;height:100%}
+.hero .inner{position:relative;z-index:2;margin-top:auto;padding:26px 22px 40px;width:100%}
+.hero-logo{width:120px;height:auto;margin-bottom:16px;filter:drop-shadow(0 4px 14px rgba(0,0,0,.35))}
+.hero .kick{
+  font-family:'Jost';font-weight:600;text-transform:uppercase;letter-spacing:.15em;
+  font-size:11.5px;color:rgba(251,247,238,.86);margin-bottom:12px;
+}
+.hero h1{
+  color:#FBF7EE;font-size:46px;line-height:1;letter-spacing:-.02em;
+  display:flex;flex-direction:column;
+}
+.hero h1 .a{font-style:italic;color:var(--clay-soft);font-weight:300}
+.hero h1 em{font-style:italic;color:var(--clay-soft);font-weight:300}
+.hero .rule{width:54px;height:2px;background:var(--clay);margin:16px 0;border-radius:2px}
+.hero p{font-size:15px;font-weight:300;color:rgba(251,247,238,.92);max-width:34ch;margin:0}
+.scrollcue{
+  position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;
+  color:rgba(251,247,238,.8);animation:bob 1.8s ease-in-out infinite;
+}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,7px)}}
+
+/* Hero réduit (page Urgences) */
+.up-hero{
+  position:relative;overflow:hidden;padding:38px 22px 26px;
+  background:linear-gradient(160deg,var(--green) 0%,var(--green-deep) 100%);color:#FBF7EE;
+}
+.up-hero .frond{position:absolute;top:-8px;right:-10px;width:110px;height:190px;color:rgba(251,247,238,.16)}
+.up-hero .frond svg{width:100%;height:100%}
+.up-hero .kick{font-family:'Jost';font-weight:600;text-transform:uppercase;letter-spacing:.14em;font-size:11px;color:rgba(251,247,238,.8);margin-bottom:6px}
+.up-hero h1{color:#FBF7EE;font-size:31px;line-height:1.05}
+.up-hero h1 em{font-style:italic;color:var(--clay-soft);font-weight:300;display:block}
+.up-hero p{font-size:13.5px;font-weight:300;color:rgba(251,247,238,.85);margin:10px 0 0}
+
+/* ---------- Boutons / CTA ---------- */
+.cta{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;margin-top:14px;text-decoration:none;cursor:pointer;
+  font-family:'Jost';font-weight:500;font-size:14.5px;
+  padding:14px 20px;border-radius:30px;
+  background:var(--clay);color:#fff;box-shadow:var(--sh);border:0;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+.cta:hover{transform:translateY(-1px)}
+.cta svg{width:18px;height:18px}
+.cta.ghost{background:transparent;color:var(--green);border:1px solid var(--line);box-shadow:none}
+
+.note{font-size:12.5px;color:var(--ink-soft);font-weight:300;line-height:1.5;margin:12px 2px 0}
+.fineprint{font-size:12px;color:var(--ink-soft);font-weight:300;text-align:center;margin:12px 0 0}
+
+/* ---------- Statistiques (arrivée/départ) ---------- */
+.stat-wrap{display:flex;gap:12px;margin:20px 0 6px}
+.stat{flex:1;text-align:center;padding:16px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper)}
+.stat .sk{font-family:'Jost';text-transform:uppercase;letter-spacing:.12em;font-size:10.5px;color:var(--green);font-weight:600}
+.stat .sv{font-family:'Fraunces',serif;font-size:27px;color:var(--ink);margin:3px 0}
+.stat .sx{font-size:11px;color:var(--ink-soft);font-weight:300}
+
+/* ---------- Amenities (grille studio) ---------- */
+.amen{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+.amen .a{padding:15px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper)}
+.amen .ai{width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:rgba(55,86,74,.09);color:var(--green);margin-bottom:8px}
+.amen .ai svg{width:19px;height:19px}
+.amen b{display:block;font-family:'Jost';font-weight:600;font-size:13.5px;color:var(--ink);margin-bottom:2px}
+.amen span{font-size:12px;color:var(--ink-soft);font-weight:300;line-height:1.45}
+
+/* ---------- Bloc « pourquoi réserver en direct » ---------- */
+.why{position:relative;overflow:hidden;margin:22px 0;padding:24px 20px;border-radius:20px;
+  background:linear-gradient(155deg,var(--green) 0%,var(--green-deep) 100%);color:#FBF7EE}
+.why .frond{position:absolute;top:-14px;right:-12px;width:96px;height:170px;color:rgba(251,247,238,.14)}
+.why .frond svg{width:100%;height:100%}
+.why h3{color:#FBF7EE;font-size:22px;position:relative}
+.why h3 .it{color:var(--clay-soft)}
+.why p{font-size:13.5px;font-weight:300;color:rgba(251,247,238,.9);margin:8px 0 16px;position:relative}
+.why .pts{display:flex;gap:10px;position:relative}
+.why .pt{flex:1;text-align:center;padding:12px 6px;border:1px solid rgba(251,247,238,.22);border-radius:12px;background:rgba(251,247,238,.06)}
+.why .pt b{display:block;font-family:'Fraunces',serif;font-size:19px;color:#FBF7EE}
+.why .pt span{font-size:10.5px;color:rgba(251,247,238,.8);font-weight:300}
+
+/* ---------- Carte de réservation (widget) ---------- */
+.book-card{margin:8px 0 4px;padding:8px;border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:var(--sh-soft);min-height:120px}
+.book-fallback{padding:34px 16px;text-align:center;color:var(--ink-soft);font-size:13.5px;font-weight:300}
+.book-fallback small{color:#9a9384}
+
+/* ---------- Séparateur décoratif ---------- */
+.divider{display:flex;align-items:center;gap:10px;margin:26px 0 14px}
+.divider .lab{font-family:'Jost';font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--green);white-space:nowrap}
+.divider .ln{flex:1;height:1px;background:var(--line)}
+.divider svg{width:16px;height:16px;color:var(--clay);opacity:.8}
+
+/* ---------- Timeline d'arrivée ---------- */
+.path{margin:6px 0}
+.steps.timeline{position:relative;padding-left:6px}
+.step{display:flex;gap:14px;padding:0 0 18px 0;position:relative}
+.step:not(:last-child)::before{content:"";position:absolute;left:15px;top:32px;bottom:2px;width:2px;background:var(--line)}
+.step .num{flex:0 0 32px;width:32px;height:32px;border-radius:50%;background:var(--clay);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:15px;z-index:1}
+.step b{display:block;font-family:'Jost';font-weight:600;font-size:14px;color:var(--ink);margin-bottom:2px}
+.step span{font-size:12.5px;color:var(--ink-soft);font-weight:300;line-height:1.5}
+
+/* ---------- Étiquette « les clés » (carte perforée) ---------- */
+.tag{position:relative;overflow:hidden;margin:18px 0;padding:22px 20px;border-radius:18px;
+  background:var(--cream2);border:1px solid var(--line);box-shadow:var(--sh-soft)}
+.tag .hole{position:absolute;top:16px;left:16px;width:16px;height:16px;border-radius:50%;background:#EDE6D6;border:1px solid var(--line)}
+.tag .frond{position:absolute;top:-10px;right:-8px;width:80px;height:140px;color:rgba(55,86,74,.1)}
+.tag .frond svg{width:100%;height:100%}
+.tag .lab{font-family:'Jost';font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--clay);margin:0 0 8px 26px}
+.tag .net{color:var(--ink)}
+.tag .perf{border:0;border-top:2px dashed var(--line);margin:16px 0}
+.tag .pwlab{font-family:'Jost';font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--green);margin-bottom:4px}
+.tag .pw{color:var(--ink)}
+.tag .wifiglyph{position:absolute;bottom:18px;right:18px;color:var(--sage)}
+
+/* ---------- Encart callout ---------- */
+.callout{display:flex;gap:12px;margin:16px 0;padding:16px;border-radius:14px;background:rgba(111,143,110,.1);border:1px solid rgba(111,143,110,.22)}
+.callout .ci{flex:0 0 auto;color:var(--green)}
+.callout p{margin:0;font-size:13px;color:var(--ink);font-weight:300;line-height:1.55}
+.callout b{font-weight:600}
+
+/* ---------- Cartes génériques ---------- */
+.card{margin:14px 0;padding:8px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper)}
+.card-tint{background:var(--cream2)}
+.card .row{display:flex;gap:13px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+.card .row:last-child{border-bottom:0}
+.tok{flex:0 0 38px;width:38px;height:38px;border-radius:11px;background:rgba(55,86,74,.09);color:var(--green);display:flex;align-items:center;justify-content:center}
+.tok svg{width:20px;height:20px}
+.card .k{font-family:'Jost';font-weight:600;font-size:13.5px;color:var(--ink)}
+.card .v{font-size:12.5px;color:var(--ink-soft);font-weight:300;line-height:1.5}
+.card .v.sm{font-size:12px}
+
+/* Zones de stationnement */
+.zone{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line-soft)}
+.zone .zdot{flex:0 0 auto;width:12px;height:12px;border-radius:50%;margin-top:4px}
+.zone .k{font-family:'Jost';font-weight:600;font-size:13px;color:var(--ink)}
+.zone .v{font-size:12.5px;color:var(--ink-soft);font-weight:300}
+
+/* ---------- Lignes « emg » (urgences / hôte / liens) ---------- */
+.emg{display:flex;align-items:center;gap:13px;margin:9px 0;padding:14px 16px;border-radius:14px;
+  border:1px solid var(--line);background:var(--paper);text-decoration:none;color:var(--ink);transition:.15s}
+.emg:hover{transform:translateY(-1px);box-shadow:var(--sh-soft)}
+.emg .big{flex:0 0 auto;min-width:44px;height:44px;padding:0 8px;border-radius:12px;background:rgba(55,86,74,.09);color:var(--green);
+  display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:22px}
+.emg .et{flex:1}
+.emg .et b{display:block;font-family:'Jost';font-weight:600;font-size:14px;color:var(--ink)}
+.emg .et span{font-size:12px;color:var(--ink-soft);font-weight:300}
+.emg .go{color:var(--clay);font-size:22px;font-family:'Fraunces',serif}
+.emg.red .big{background:rgba(192,86,59,.12);color:var(--clay)}
+.emg.host{background:linear-gradient(150deg,rgba(55,86,74,.06),rgba(192,86,59,.05))}
+
+/* ---------- Services santé ---------- */
+.svc{margin:11px 0;padding:15px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper)}
+.svc .sh{display:flex;gap:12px;align-items:flex-start}
+.svc .si{flex:0 0 40px;width:40px;height:40px;border-radius:11px;background:rgba(192,86,59,.1);color:var(--clay);display:flex;align-items:center;justify-content:center}
+.svc h4{font-family:'Jost';font-weight:600;font-size:14.5px;color:var(--ink)}
+.svc .sub{font-size:12px;color:var(--ink-soft);font-weight:300;margin-top:2px}
+.svc .acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.svc .acts a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-family:'Jost';font-weight:500;font-size:12.5px;padding:9px 14px;border-radius:22px}
+.svc .acts svg{width:15px;height:15px}
+.svc .call{background:var(--clay);color:#fff}
+.svc .site{background:transparent;color:var(--green);border:1px solid var(--line)}
+
+/* ---------- Grille 2 colonnes ---------- */
+.grid2{display:grid;grid-template-columns:1fr;gap:14px}
+
+/* ---------- Adresses ---------- */
+.map-hint{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-soft);font-weight:300;margin:6px 0 10px}
+.map-hint svg{width:16px;height:16px;color:var(--clay)}
+#map{height:260px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--cream2)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0 4px;font-size:12px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+.photo-band{position:relative;margin:16px 0;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.photo-band img{width:100%;height:190px;object-fit:cover}
+.photo-band .cap{position:absolute;left:0;right:0;bottom:0;padding:22px 16px 12px;color:#FBF7EE;
+  background:linear-gradient(180deg,transparent,rgba(24,35,28,.7))}
+.photo-band .cap em{font-family:'Fraunces',serif;font-style:italic;font-size:16px}
+
+.place{padding:18px 16px;border:1px solid var(--line);border-radius:18px;background:var(--paper);margin-bottom:2px}
+.place .cat{font-family:'Jost';font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-size:10.5px;color:var(--clay);margin-bottom:5px}
+.place h3{font-size:20px;color:var(--ink);margin-bottom:6px}
+.place p{font-size:13px;color:var(--ink-soft);font-weight:300;line-height:1.55;margin:6px 0 10px}
+.place .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+.chip{display:inline-flex;align-items:center;gap:5px;font-family:'Jost';font-weight:500;font-size:11.5px;color:var(--green);
+  padding:6px 11px;border-radius:20px;background:var(--cream2);border:1px solid var(--line);text-decoration:none}
+.chip.solid{background:var(--clay);color:#fff;border-color:var(--clay)}
+.chip.outline{background:transparent;color:var(--green)}
+.walk{display:inline-flex;align-items:center;gap:5px;font-family:'Jost';font-weight:500;font-size:11.5px;color:var(--clay);text-decoration:none}
+.walk svg{width:13px;height:13px}
+.feature-place{background:linear-gradient(180deg,var(--paper),var(--cream))}
+
+/* ---------- Assistant (chatbot) ---------- */
+.bot-fab{position:fixed;right:16px;bottom:18px;z-index:60;width:54px;height:54px;border-radius:50%;
+  border:0;cursor:pointer;background:var(--clay);color:#fff;box-shadow:var(--sh);display:flex;align-items:center;justify-content:center}
+.bot-fab svg{width:24px;height:24px}
+.bot-panel{position:fixed;right:14px;bottom:14px;z-index:70;width:min(380px,calc(100vw - 28px));
+  max-height:76vh;display:none;flex-direction:column;background:var(--cream);border:1px solid var(--line);
+  border-radius:20px;box-shadow:0 24px 60px rgba(40,30,15,.3);overflow:hidden}
+.bot-panel.open{display:flex;animation:botIn .25s ease}
+@keyframes botIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.bot-head{display:flex;align-items:center;gap:10px;padding:13px 14px;background:linear-gradient(150deg,var(--green),var(--green-deep));color:#FBF7EE}
+.bot-head .av{width:34px;height:34px;border-radius:10px;background:rgba(251,247,238,.14);display:flex;align-items:center;justify-content:center;color:var(--clay-soft)}
+.bot-head h4{font-family:'Jost';font-weight:600;font-size:14px;color:#FBF7EE}
+.bot-head .st{font-size:11px;color:rgba(251,247,238,.8);font-weight:300}
+.bot-head .x{margin-left:auto;background:transparent;border:0;color:rgba(251,247,238,.85);cursor:pointer}
+.bot-head .x svg{width:20px;height:20px}
+.bot-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:120px}
+.bot-body .msg{max-width:84%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.5}
+.bot-body .msg.bot{align-self:flex-start;background:var(--paper);border:1px solid var(--line);color:var(--ink);border-bottom-left-radius:5px}
+.bot-body .msg.me{align-self:flex-end;background:var(--clay);color:#fff;border-bottom-right-radius:5px}
+.bot-body .msg a{color:var(--clay);font-weight:500}
+.bot-body .msg.me a{color:#fff;text-decoration:underline}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:8px 12px;scrollbar-width:none;border-top:1px solid var(--line-soft)}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:0 0 auto;border:1px solid var(--line);background:var(--paper);cursor:pointer;color:var(--green);
+  font-family:'Jost';font-weight:500;font-size:12px;padding:7px 12px;border-radius:18px;white-space:nowrap}
+.bot-input{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--line-soft);background:var(--cream)}
+.bot-input input{flex:1;border:1px solid var(--line);border-radius:22px;padding:10px 14px;font-family:'Jost';font-size:13px;background:var(--paper);color:var(--ink)}
+.bot-input input:focus{outline:none;border-color:var(--clay-soft)}
+.bot-input button{flex:0 0 auto;width:40px;height:40px;border-radius:50%;border:0;cursor:pointer;background:var(--clay);color:#fff;display:flex;align-items:center;justify-content:center}
+.bot-input button svg{width:18px;height:18px}
+
+/* ---------- Marqueurs Leaflet ---------- */
+.pin span{display:block;width:20px;height:20px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.leaflet-popup-content .pop .pc{font-family:'Jost';font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-size:10px}
+.leaflet-popup-content .pop h4{font-family:'Fraunces',serif;font-size:16px;margin:2px 0 8px;color:var(--ink)}
+.leaflet-popup-content .pop a{display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;font-family:'Jost';font-weight:500;font-size:12px;padding:7px 12px;border-radius:20px}
+.leaflet-popup-content .pop a svg{width:14px;height:14px}
+
+/* ---------- Extras (boutique) ---------- */
+.shop-item{position:relative;overflow:hidden;padding:20px 18px;border:1px solid var(--line);border-radius:20px;background:var(--paper);box-shadow:var(--sh-soft);margin-bottom:2px}
+.shop-item .frond{position:absolute;top:-12px;right:-10px;width:76px;height:130px;color:rgba(55,86,74,.09)}
+.shop-item .frond svg{width:100%;height:100%}
+.shop-top{display:flex;gap:13px;align-items:flex-start;position:relative}
+.shop-ic{flex:0 0 42px;width:42px;height:42px;border-radius:12px;background:rgba(192,86,59,.1);color:var(--clay);display:flex;align-items:center;justify-content:center}
+.shop-ic svg{width:22px;height:22px}
+.shop-item h3{font-size:19px;color:var(--ink)}
+.shop-item .desc{font-size:13px;color:var(--ink-soft);font-weight:300;line-height:1.55;margin:5px 0}
+.shop-item .cond{font-size:11px;color:#9a9384;font-style:italic}
+.shop-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft)}
+.shop-price{font-family:'Fraunces',serif;font-size:22px;color:var(--ink)}
+.shop-price small{font-family:'Jost';font-size:11px;color:var(--ink-soft);font-weight:300}
+.shop-buy{display:inline-flex;align-items:center;gap:7px;text-decoration:none;font-family:'Jost';font-weight:500;font-size:13.5px;
+  padding:11px 18px;border-radius:26px;background:var(--clay);color:#fff;box-shadow:var(--sh-soft)}
+.shop-buy svg{width:17px;height:17px}
+
+/* ---------- Pied de page ---------- */
+.footer-credit{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:34px;
+  font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--green)}
+.footer-credit svg{width:16px;height:16px;color:var(--clay)}
+
+/* ---------- Animations d'apparition ---------- */
+.reveal{opacity:0;transform:translateY(16px);animation:revealUp .6s ease forwards;animation-delay:calc(var(--i,0) * .08s)}
+@keyframes revealUp{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .reveal{animation:none;opacity:1;transform:none}
+  .scrollcue,.bot-panel{animation:none}
+}
+
+/* ---------- Larges écrans ---------- */
+@media(min-width:520px){
+  .amen{gap:14px}
+  .grid2{grid-template-columns:1fr 1fr}
+  .grid2 .place.feature-place,.grid2 .emg{grid-column:auto}
+}

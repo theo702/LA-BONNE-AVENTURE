@@ -1,0 +1,38 @@
+# La Bonne Aventure — configuration Cloudflare Pages + Functions
+# Le site statique (index/extras/guide + assets) est servi tel quel ;
+# le dossier functions/ fournit l'API du moteur de réservation.
+
+name = "la-bonne-aventure"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "."
+
+# --- Base de données D1 (réservations) ---
+# Créer : wrangler d1 create lba-bookings  → copier database_id ci-dessous.
+[[d1_databases]]
+binding = "DB"
+database_name = "lba-bookings"
+database_id = "A_REMPLIR_APRES_CREATION"
+
+# --- Cache KV (calendrier iCal Airbnb, TTL 30 min) ---
+# Créer : wrangler kv namespace create CACHE  → copier id ci-dessous.
+[[kv_namespaces]]
+binding = "CACHE"
+id = "A_REMPLIR_APRES_CREATION"
+
+# --- Variables non secrètes (ajustables) ---
+# Les tarifs sont en CENTIMES. Laisser TAXE_CENTS=0 pour désactiver la taxe de séjour.
+[vars]
+CURRENCY = "eur"
+NIGHTLY_CENTS = "6000"    # 60,00 € / nuit
+CLEANING_CENTS = "4500"   # 45,00 € de ménage / séjour
+MIN_NIGHTS = "2"
+MAX_GUESTS = "2"
+TAXE_CENTS = "0"          # taxe de séjour €/personne/nuit en centimes (0 = désactivée)
+HOST_EMAIL = "theobonaventure1@gmail.com"
+FROM_EMAIL = "reservation@labonneaventure.fr"   # doit être un domaine vérifié dans Resend
+
+# --- Secrets (NE PAS mettre ici — voir README-deploiement.md) ---
+# wrangler pages secret put AIRBNB_ICAL_URL
+# wrangler pages secret put STRIPE_SECRET_KEY
+# wrangler pages secret put STRIPE_WEBHOOK_SECRET
+# wrangler pages secret put RESEND_API_KEY
