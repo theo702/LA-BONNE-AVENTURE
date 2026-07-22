@@ -306,20 +306,36 @@
       });
   }
 
-  // ---- démarrage ----
-  function start(){
-    skeleton();
-    fetch(API+'/api/availability')
+  function loadAvailability(){
+    return fetch(API+'/api/availability')
       .then(function(r){ return r.json(); })
       .then(function(cfg){
         state.cfg = cfg;
         state.blockedNights = buildBlockedSet(cfg.blocked);
         state.view = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1));
         render();
+        // Si on revient d'un paiement confirmé, amener l'utilisateur au bandeau vert.
+        if(new URLSearchParams(location.search).get('reservation')==='confirmee'){
+          try{ MOUNT.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}
+        }
       })
       .catch(function(){
         MOUNT.innerHTML = '<div class="bw"><div class="bw-skeleton">Le calendrier est momentanément indisponible.<br><small>Réessayez dans un instant, ou écrivez-nous sur WhatsApp.</small></div></div>';
       });
+  }
+
+  // ---- démarrage ----
+  function start(){
+    skeleton();
+    // Retour de paiement : on confirme la réservation (filet si le webhook n'a pas marché).
+    var sid = new URLSearchParams(location.search).get('session_id');
+    if(sid){
+      fetch(API+'/api/confirm?session_id='+encodeURIComponent(sid))
+        .catch(function(){})
+        .then(function(){ loadAvailability(); });
+    } else {
+      loadAvailability();
+    }
   }
 
   start();

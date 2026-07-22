@@ -50,7 +50,7 @@ export async function onRequestPost({ env, request }) {
   const origin = env.SITE_URL || new URL(request.url).origin;
   const form = new URLSearchParams();
   form.set('mode', 'payment');
-  form.set('success_url', `${origin}/?reservation=confirmee`);
+  form.set('success_url', `${origin}/?reservation=confirmee&session_id={CHECKOUT_SESSION_ID}`);
   form.set('cancel_url', `${origin}/?reservation=annulee`);
   form.set('customer_email', email);
   form.set('client_reference_id', id);
