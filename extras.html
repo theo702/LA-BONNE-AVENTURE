@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/booking.css">
 </head>
 <body class="page-doc">
 <div class="app doc">
@@ -28,79 +29,19 @@
         <h2 class="reveal" style="--i:0">Vos <span class="it">extras</span></h2>
         <p class="lede reveal" style="--i:0">Prolongez le plaisir&nbsp;: réservez et payez vos options en ligne, en quelques secondes.</p>
 
-        <div class="grid2">
-          <div class="shop-item reveal" style="--i:1">
-            <div class="frond"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg></div>
-            <div class="shop-top">
-              <div class="shop-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg></div>
-              <div>
-                <h3>Départ tardif</h3>
-                <p class="desc">Pas besoin de se presser&nbsp;! Profitez de votre hébergement <b style="font-weight:500;color:var(--ink)">2&nbsp;heures de plus</b> le jour du départ.</p>
-                <p class="cond">*Sous réserve de disponibilité</p>
-              </div>
-            </div>
-            <div class="shop-foot">
-              <div class="shop-price">15,00&nbsp;€ <small>/ séjour</small></div>
-              <a class="shop-buy" href="https://checkout.revolut.com/pay/985b3246-11d0-4bc6-8245-0e602203133e" target="_blank" rel="noopener">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6h15l-1.5 8.5H7.7L6 3H3M8 20a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
-                Réserver
-              </a>
-            </div>
-          </div>
-
-          <div class="shop-item reveal" style="--i:2">
-            <div class="frond"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg></div>
-            <div class="shop-top">
-              <div class="shop-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 18a5 5 0 00-10 0M12 9V2M4.2 10.2l1.4 1.4M1 18h2M21 18h2M18.4 11.6l1.4-1.4M23 22H1M16 6l-4 3-4-3"/></svg></div>
-              <div>
-                <h3>Arrivée anticipée</h3>
-                <p class="desc">Envie d'arriver plus tôt&nbsp;? Accédez au logement <b style="font-weight:500;color:var(--ink)">2&nbsp;heures avant</b> l'horaire habituel.</p>
-                <p class="cond">*Sous réserve de disponibilité</p>
-              </div>
-            </div>
-            <div class="shop-foot">
-              <div class="shop-price">15,00&nbsp;€ <small>/ séjour</small></div>
-              <a class="shop-buy" href="https://checkout.revolut.com/pay/6719921d-cbfa-4ce1-adc4-dc03c534cf88" target="_blank" rel="noopener">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6h15l-1.5 8.5H7.7L6 3H3M8 20a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>
-                Réserver
-              </a>
-            </div>
-          </div>
+        <div class="grid2" id="extras-list">
+          <div class="book-fallback">Chargement des extras…</div>
         </div>
 
         <div class="callout reveal" style="--i:3">
           <div class="ci"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg></div>
-          <p><b>Comment ça marche&nbsp;?</b> Envoyez d'abord un message à Théo pour vérifier la disponibilité, puis réglez en ligne — paiement sécurisé. La confirmation vous est envoyée dans la foulée.</p>
+          <p><b>Comment ça marche&nbsp;?</b> Choisissez votre extra et réglez en ligne — paiement sécurisé par Stripe. Votre confirmation vous est envoyée par email dans la foulée. La disponibilité des arrivées anticipées et départs tardifs est vérifiée <b>automatiquement</b> selon la date.</p>
         </div>
 
-        <div style="margin-top:18px">
-          <button type="button" onclick="toggleAsk()" class="cta" style="border:0;cursor:pointer">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l2.2-5.3A8.5 8.5 0 1121 11.5z"/></svg>
-            Vérifier la disponibilité
-          </button>
-        </div>
-
-        <div id="askBox" style="display:none;margin-top:12px;padding:18px;border:1px solid var(--line-soft);border-radius:16px;background:var(--cream)">
-          <label style="display:block;font-family:'Jost';font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--green);margin-bottom:5px">Votre prénom</label>
-          <input id="askName" type="text" placeholder="Camille" style="width:100%;font-family:'Jost';font-size:13.5px;color:var(--ink);padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:12px">
-
-          <label style="display:block;font-family:'Jost';font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--green);margin-bottom:5px">Date d'arrivée</label>
-          <input id="askIn" type="date" style="width:100%;font-family:'Jost';font-size:13.5px;color:var(--ink);padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:12px">
-
-          <label style="display:block;font-family:'Jost';font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--green);margin-bottom:5px">Votre demande</label>
-          <select id="askWhat" style="width:100%;font-family:'Jost';font-size:13.5px;color:var(--ink);padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:14px">
-            <option value="le départ tardif est disponible">Départ tardif</option>
-            <option value="l'arrivée anticipée est possible">Arrivée anticipée</option>
-            <option value="l'arrivée anticipée et le départ tardif sont possibles">Les deux</option>
-          </select>
-
-          <div id="askErr" style="display:none;font-family:'Jost';font-size:12.5px;color:#B3261E;margin-bottom:10px"></div>
-          <button type="button" onclick="sendAsk()" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--clay);color:#fff;border:0;cursor:pointer;font-family:'Jost';font-weight:500;font-size:14px;padding:12px;border-radius:30px;box-shadow:var(--sh)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l2.2-5.3A8.5 8.5 0 1121 11.5z"/></svg>
-            Envoyer sur WhatsApp
-          </button>
-          <p style="font-family:'Jost';font-weight:300;font-size:11.5px;color:#6B6353;text-align:center;margin-top:9px">Le message s'ouvrira pré-rempli — vous pourrez le relire avant de l'envoyer.</p>
-        </div>
+        <a class="cta reveal" style="--i:4;margin-top:18px" href="https://wa.me/33650929827" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l2.2-5.3A8.5 8.5 0 1121 11.5z"/></svg>
+          Une question ? Écrivez-moi sur WhatsApp
+        </a>
 
         <div class="footer-credit reveal" style="--i:5">La Bonne Aventure <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg> Aix-les-Bains</div>
       </div>
@@ -110,33 +51,9 @@
 </div>
 
 <script>
-  function goBack(){ if(history.length > 1){ history.back(); } else { location.href='guide.html'; } }
-
-  function toggleAsk(){
-    var b = document.getElementById('askBox');
-    var open = b.style.display === 'block';
-    b.style.display = open ? 'none' : 'block';
-    if(!open){ b.scrollIntoView({behavior:'smooth', block:'center'}); }
-  }
-  function fmtFR(v){
-    if(!v) return '';
-    var p = v.split('-');
-    return p[2] + '/' + p[1] + '/' + p[0];
-  }
-  function sendAsk(){
-    var name = document.getElementById('askName').value.trim();
-    var din  = document.getElementById('askIn').value;
-    var what = document.getElementById('askWhat').value;
-    var err  = document.getElementById('askErr');
-    if(!name){ err.textContent = "Merci d'indiquer votre prénom."; err.style.display = 'block'; return; }
-    if(!din){ err.textContent = "Merci d'indiquer votre date d'arrivée."; err.style.display = 'block'; return; }
-    err.style.display = 'none';
-    var msg = 'Bonjour Théo, je m\'appelle ' + name + '. '
-            + 'J\'arrive le ' + fmtFR(din) + '. '
-            + 'J\'aimerais savoir si ' + what + ' pour mon séjour. Merci !';
-    window.open('https://wa.me/33650929827?text=' + encodeURIComponent(msg), '_blank');
-  }
+  function goBack(){ if(history.length > 1){ history.back(); } else { location.href='guide'; } }
 </script>
 <script src="assets/reveal.js" defer></script>
+<script src="assets/extras.js" defer></script>
 </body>
 </html>

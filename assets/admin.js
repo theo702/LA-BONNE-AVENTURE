@@ -40,7 +40,9 @@
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadSeasons(); loadBlocks(); }
+  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadSeasons(); loadBlocks(); loadExtras(); }
+
+  var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée' };
 
   // dates : le stockage utilise date_to exclusif ; l'UI manipule des nuits incluses.
   const addDay = (s, n) => { const d = new Date(Date.parse(s)); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
@@ -193,6 +195,66 @@
     const { status, j } = await api('blocks', { method: 'POST', body: JSON.stringify(body) });
     if (status === 200) { f.reset(); msg('#blockMsg', 'Dates bloquées ✓'); loadBlocks(); }
     else msg('#blockMsg', (j && j.message) || 'Erreur', true);
+  });
+
+  // ---------- Extras ----------
+  async function loadExtras() {
+    const { j } = await api('extras');
+    const tb = $('#extraTable tbody'); tb.innerHTML = '';
+    const rows = (j && j.extras) || [];
+    $('#extraEmpty').hidden = rows.length > 0;
+    rows.forEach((x) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><b>${esc(x.title)}</b></td><td>${euro(x.price_cents)}</td>` +
+        `<td>${KIND_FR[x.kind] || '—'}</td>` +
+        `<td>${x.active ? '✓' : '—'}</td>` +
+        `<td style="white-space:nowrap"><button class="adm-ghost adm-edit" data-id="${x.id}" style="padding:5px 10px">Modifier</button> <button class="adm-del" data-id="${x.id}">✕</button></td>`;
+      tb.appendChild(tr);
+      tr.querySelector('.adm-edit').addEventListener('click', () => fillExtraForm(x));
+      tr.querySelector('.adm-del').addEventListener('click', async () => { await api('extras?id=' + x.id, { method: 'DELETE' }); loadExtras(); });
+    });
+
+    const ob = $('#orderTable tbody'); ob.innerHTML = '';
+    const orders = (j && j.orders) || [];
+    $('#orderEmpty').hidden = orders.length > 0;
+    orders.forEach((o) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${(o.created_at || '').slice(0, 10)}</td><td>${esc(o.title || '')}</td>` +
+        `<td>${o.service_date || '—'}</td><td>${esc(o.guest_name || '')}<br>${esc(o.email || '')}</td>` +
+        `<td>${euro(o.amount_cents)}</td><td><span class="adm-badge ${o.status === 'confirmed' ? 'confirmed' : 'pending'}">${o.status === 'confirmed' ? 'Payé' : 'En attente'}</span></td>`;
+      ob.appendChild(tr);
+    });
+  }
+
+  function fillExtraForm(x) {
+    const f = $('#extraForm');
+    f.id.value = x.id; f.title.value = x.title; f.price.value = (x.price_cents / 100).toFixed(2);
+    f.kind.value = x.kind || 'none'; f.position.value = x.position || 0;
+    f.description.value = x.description || ''; f.condition.value = x.condition || ''; f.active.checked = !!x.active;
+    $('#extraSubmit').textContent = 'Enregistrer les modifications';
+    $('#extraCancel').hidden = false;
+    document.querySelector('.adm-tabs button[data-tab="t-extra"]').scrollIntoView({ block: 'nearest' });
+  }
+  function resetExtraForm() {
+    const f = $('#extraForm'); f.reset(); f.id.value = '';
+    $('#extraSubmit').textContent = "Ajouter l'extra"; $('#extraCancel').hidden = true;
+  }
+  $('#extraCancel').addEventListener('click', resetExtraForm);
+
+  $('#extraForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const body = {
+      title: f.title.value, description: f.description.value, condition: f.condition.value,
+      price_cents: cents(f.price.value), kind: f.kind.value,
+      position: +f.position.value || 0, active: f.active.checked,
+    };
+    const id = f.id.value;
+    const res = id
+      ? await api('extras?id=' + id, { method: 'PUT', body: JSON.stringify(body) })
+      : await api('extras', { method: 'POST', body: JSON.stringify(body) });
+    if (res.status === 200) { resetExtraForm(); msg('#extraMsg', 'Enregistré ✓'); loadExtras(); }
+    else msg('#extraMsg', (res.j && res.j.message) || 'Erreur', true);
   });
 
   // ---------- utils ----------

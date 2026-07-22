@@ -1,5 +1,5 @@
 // Confirmation d'une réservation + emails (partagé par le webhook et le retour de paiement).
-import { getBooking, confirmBooking, incrementPromoUse } from './db.js';
+import { getBooking, confirmBooking, incrementPromoUse, getExtraOrder, confirmExtraOrder } from './db.js';
 
 function euros(cents, currency = 'eur') {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format((cents || 0) / 100);
@@ -59,6 +59,39 @@ async function sendEmails(env, booking) {
     send(booking.email, 'Votre réservation à La Bonne Aventure est confirmée', guestHtml),
     env.HOST_EMAIL ? send(env.HOST_EMAIL, `Nouvelle résa : ${booking.guest_name} (${booking.checkin})`, hostHtml) : null,
   ]);
+}
+
+async function sendExtraEmails(env, order) {
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return;
+  const from = `La Bonne Aventure <${env.FROM_EMAIL}>`;
+  const total = euros(order.amount_cents, order.currency);
+  const send = (to, subject, html) =>
+    fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to, subject, html }),
+    }).catch(() => {});
+  const header = `<div style="background:#0f2a4a;padding:20px 24px;text-align:center"><div style="color:#d9971a;font-size:18px;letter-spacing:4px;font-weight:600">LA BONNE AVENTURE</div></div>`;
+  const shell = (inner) => `<div style="background:#f1ece0;padding:24px 0;font-family:Arial,sans-serif"><div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e6e1d4">${header}<div style="padding:24px;color:#1f2838">${inner}</div></div></div>`;
+  await Promise.all([
+    order.email ? send(order.email, `Votre extra « ${order.title} » est confirmé`, shell(
+      `<h2 style="color:#0f2a4a;margin:0 0 6px">Extra confirmé ✅</h2><p>Bonjour ${order.guest_name || ''},</p>
+       <p>Votre option <b>${order.title}</b> (${total}) est bien réglée. Théo revient vers vous pour les détails. Merci !</p>`)) : null,
+    env.HOST_EMAIL ? send(env.HOST_EMAIL, `Extra payé : ${order.title} (${total})`, shell(
+      `<h2 style="color:#a9760f;margin:0 0 6px">Extra payé ✅</h2>
+       <p><b>${order.title}</b> — ${total}<br>${order.guest_name || '—'} · ${order.email || '—'}</p>`)) : null,
+  ]);
+}
+
+// Confirme une commande d'extra (idempotent) + emails. Renvoie l'order ou null.
+export async function confirmExtraAndNotify(env, orderId) {
+  if (!orderId) return null;
+  const order = await getExtraOrder(env, orderId);
+  if (!order) return null;
+  if (order.status === 'confirmed') return order;
+  await confirmExtraOrder(env, orderId);
+  await sendExtraEmails(env, { ...order, status: 'confirmed' });
+  return { ...order, status: 'confirmed' };
 }
 
 // Confirme une réservation (idempotent) et envoie les emails.

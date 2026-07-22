@@ -35,6 +35,55 @@ export async function deleteBlock(env, id) {
   await env.DB.prepare(`DELETE FROM manual_blocks WHERE id = ?1`).bind(id).run();
 }
 
+// ---------- Extras (catalogue) ----------
+export async function listExtras(env, activeOnly = false) {
+  const sql = `SELECT * FROM extras ${activeOnly ? 'WHERE active = 1' : ''} ORDER BY position, id`;
+  const { results } = await env.DB.prepare(sql).all();
+  return results || [];
+}
+export async function getExtra(env, id) {
+  return env.DB.prepare(`SELECT * FROM extras WHERE id = ?1`).bind(id).first();
+}
+export async function createExtra(env, e) {
+  await env.DB.prepare(
+    `INSERT INTO extras (title, description, condition, price_cents, kind, active, position, created_at)
+     VALUES (?1,?2,?3,?4,?5,?6,?7,?8)`
+  ).bind(e.title, e.description || '', e.condition || '', e.price_cents, e.kind || 'none', e.active ? 1 : 0, e.position || 0, new Date().toISOString()).run();
+}
+export async function updateExtra(env, id, e) {
+  await env.DB.prepare(
+    `UPDATE extras SET title=?1, description=?2, condition=?3, price_cents=?4, kind=?5, active=?6, position=?7 WHERE id=?8`
+  ).bind(e.title, e.description || '', e.condition || '', e.price_cents, e.kind || 'none', e.active ? 1 : 0, e.position || 0, id).run();
+}
+export async function deleteExtra(env, id) {
+  await env.DB.prepare(`DELETE FROM extras WHERE id = ?1`).bind(id).run();
+}
+
+// ---------- Commandes d'extras ----------
+export async function createExtraOrder(env, o) {
+  const id = crypto.randomUUID();
+  await env.DB.prepare(
+    `INSERT INTO extra_orders (id, extra_id, title, amount_cents, currency, guest_name, email, kind, service_date, status, created_at)
+     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,'pending',?10)`
+  ).bind(id, o.extra_id, o.title, o.amount_cents, o.currency, o.guest_name || '', o.email || '', o.kind || 'none', o.service_date || null, new Date().toISOString()).run();
+  return { id };
+}
+export async function attachExtraSession(env, id, sessionId) {
+  await env.DB.prepare(`UPDATE extra_orders SET stripe_session_id = ?1 WHERE id = ?2`).bind(sessionId, id).run();
+}
+export async function getExtraOrder(env, id) {
+  return env.DB.prepare(`SELECT * FROM extra_orders WHERE id = ?1`).bind(id).first();
+}
+export async function confirmExtraOrder(env, id) {
+  await env.DB.prepare(`UPDATE extra_orders SET status = 'confirmed' WHERE id = ?1`).bind(id).run();
+}
+export async function listExtraOrders(env, limit = 100) {
+  const { results } = await env.DB.prepare(
+    `SELECT * FROM extra_orders ORDER BY created_at DESC LIMIT ?1`
+  ).bind(limit).all();
+  return results || [];
+}
+
 // Réservations confirmées (pour l'export /calendar.ics).
 export async function getConfirmed(env) {
   const { results } = await env.DB.prepare(

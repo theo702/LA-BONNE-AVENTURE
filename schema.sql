@@ -82,3 +82,36 @@ CREATE TABLE IF NOT EXISTS manual_blocks (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_blocks_range ON manual_blocks(date_from, date_to);
+
+-- ---------- Extras (options payantes, gérées depuis l'admin) ----------
+CREATE TABLE IF NOT EXISTS extras (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  title       TEXT NOT NULL,
+  description TEXT,
+  condition   TEXT,
+  price_cents INTEGER NOT NULL,
+  kind        TEXT NOT NULL DEFAULT 'none',   -- none | late_checkout | early_checkin
+  active      INTEGER NOT NULL DEFAULT 1,
+  position    INTEGER NOT NULL DEFAULT 0,
+  created_at  TEXT NOT NULL
+);
+INSERT OR IGNORE INTO extras (id,title,description,condition,price_cents,kind,position,created_at) VALUES
+ (1,'Départ tardif','Profitez de votre hébergement 2 heures de plus le jour du départ.','Sous réserve de disponibilité',1500,'late_checkout',1,'seed'),
+ (2,'Arrivée anticipée','Accédez au logement 2 heures avant l''horaire habituel.','Sous réserve de disponibilité',1500,'early_checkin',2,'seed');
+
+-- ---------- Commandes d'extras ----------
+CREATE TABLE IF NOT EXISTS extra_orders (
+  id                TEXT PRIMARY KEY,          -- UUID
+  extra_id          INTEGER,
+  title             TEXT,
+  amount_cents      INTEGER NOT NULL,
+  currency          TEXT NOT NULL DEFAULT 'eur',
+  guest_name        TEXT,
+  email             TEXT,
+  kind              TEXT,                      -- none | late_checkout | early_checkin
+  service_date      TEXT,                      -- date concernée (départ/arrivée) si applicable
+  status            TEXT NOT NULL DEFAULT 'pending',  -- pending | confirmed
+  stripe_session_id TEXT,
+  created_at        TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_extra_orders_status ON extra_orders(status);

@@ -39,6 +39,7 @@
       <button data-tab="t-promo">Codes promo</button>
       <button data-tab="t-season">Saisons</button>
       <button data-tab="t-block">Blocages</button>
+      <button data-tab="t-extra">Extras</button>
     </nav>
 
     <main class="adm-main">
@@ -147,6 +148,49 @@
           <tbody></tbody>
         </table></div>
         <div id="blockEmpty" class="adm-empty" hidden>Aucun blocage.</div>
+      </section>
+
+      <!-- Extras -->
+      <section id="t-extra" class="adm-panel">
+        <h2>Extras</h2>
+        <p class="adm-hint">Les options payantes proposées sur la page « Nos extras ». Le type « Départ tardif » / « Arrivée anticipée » active la règle anti-rotation : un même jour ne peut pas avoir les deux (le système bloque automatiquement l'extra opposé une fois l'autre payé).</p>
+        <form id="extraForm" class="adm-form">
+          <input type="hidden" name="id">
+          <div class="adm-grid">
+            <label>Titre<input name="title" type="text" placeholder="Départ tardif" required></label>
+            <label>Prix (€)<input name="price" type="number" step="0.01" min="0" required></label>
+            <label>Type
+              <select name="kind">
+                <option value="none">Aucune contrainte</option>
+                <option value="late_checkout">Départ tardif (anti-rotation)</option>
+                <option value="early_checkin">Arrivée anticipée (anti-rotation)</option>
+              </select>
+            </label>
+            <label>Position<input name="position" type="number" min="0" value="0"></label>
+          </div>
+          <label style="margin-top:12px">Description<input name="description" type="text" placeholder="Profitez de votre hébergement 2 h de plus…"></label>
+          <label style="margin-top:12px">Mention (petit texte)<input name="condition" type="text" placeholder="Sous réserve de disponibilité"></label>
+          <label class="adm-check" style="margin-top:12px"><input name="active" type="checkbox" checked> Actif (visible sur le site)</label>
+          <div class="adm-actions">
+            <button type="submit" class="adm-btn" id="extraSubmit">Ajouter l'extra</button>
+            <button type="button" class="adm-ghost" id="extraCancel" hidden>Annuler</button>
+            <span id="extraMsg" class="adm-msg"></span>
+          </div>
+        </form>
+
+        <h2 style="font-size:19px;margin-top:22px">Liste des extras</h2>
+        <div class="adm-scroll"><table class="adm-table" id="extraTable">
+          <thead><tr><th>Titre</th><th>Prix</th><th>Type</th><th>Actif</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div id="extraEmpty" class="adm-empty" hidden>Aucun extra.</div>
+
+        <h2 style="font-size:19px;margin-top:22px">Commandes d'extras</h2>
+        <div class="adm-scroll"><table class="adm-table" id="orderTable">
+          <thead><tr><th>Date</th><th>Extra</th><th>Jour concerné</th><th>Client</th><th>Montant</th><th>Statut</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div id="orderEmpty" class="adm-empty" hidden>Aucune commande.</div>
       </section>
     </main>
   </div>
