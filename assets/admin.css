@@ -5,6 +5,7 @@
 /* Connexion */
 .adm-login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
 .adm-login-card{width:100%;max-width:360px;background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:28px 24px;box-shadow:var(--sh)}
+.adm-logo{display:block;width:150px;height:auto;margin:0 auto 16px}
 .adm-brand{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-size:17px;color:var(--green)}
 .adm-frond{filter:grayscale(.1)}
 .adm-login-card h1{font-family:'Fraunces',serif;font-size:26px;margin:14px 0 2px;color:var(--ink)}
