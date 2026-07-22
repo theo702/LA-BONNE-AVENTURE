@@ -324,15 +324,47 @@
       });
   }
 
+  function showThankYou(b){
+    var first = (b.guest_name || '').trim().split(' ')[0] || '';
+    var html = '<div class="bw-modal" id="bwModal"><div class="bw-modal-card">'
+      + '<button class="bw-modal-x" aria-label="Fermer">&times;</button>'
+      + '<div class="bw-modal-check">'+icon('check')+'</div>'
+      + '<h3>Merci'+(first ? ', '+esc(first) : '')+'&nbsp;!</h3>'
+      + '<p class="bw-modal-sub">Votre réservation est confirmée 🌴</p>'
+      + '<div class="bw-modal-recap">'
+      +   '<div><span>Arrivée</span><b>'+fmtLong(b.checkin)+'</b></div>'
+      +   '<div><span>Départ</span><b>'+fmtLong(b.checkout)+'</b></div>'
+      +   '<div><span>Nuits</span><b>'+b.nights+'</b></div>'
+      +   '<div><span>Total réglé</span><b>'+euros(b.amount_total_cents, b.currency)+'</b></div>'
+      + '</div>'
+      + '<p class="bw-modal-msg">Un email de confirmation vient de vous être envoyé'+(b.email ? ' à <b>'+esc(b.email)+'</b>' : '')+'. Je vous transmets le code de la boîte à clés la veille de votre arrivée. À très vite&nbsp;!</p>'
+      + '<button class="bw-modal-close">Parfait, merci&nbsp;!</button>'
+      + '</div></div>';
+    var node = el(html);
+    document.body.appendChild(node);
+    function close(){
+      try{ node.remove(); }catch(e){}
+      try{ history.replaceState({}, '', location.pathname); }catch(e){}
+    }
+    node.querySelector('.bw-modal-x').addEventListener('click', close);
+    node.querySelector('.bw-modal-close').addEventListener('click', close);
+    node.addEventListener('click', function(e){ if(e.target === node) close(); });
+  }
+
   // ---- démarrage ----
   function start(){
     skeleton();
-    // Retour de paiement : on confirme la réservation (filet si le webhook n'a pas marché).
+    // Retour de paiement : on confirme la réservation (filet si le webhook n'a pas marché)
+    // et on affiche un écran de remerciement.
     var sid = new URLSearchParams(location.search).get('session_id');
     if(sid){
       fetch(API+'/api/confirm?session_id='+encodeURIComponent(sid))
-        .catch(function(){})
-        .then(function(){ loadAvailability(); });
+        .then(function(r){ return r.json(); })
+        .catch(function(){ return null; })
+        .then(function(j){
+          loadAvailability();
+          if(j && j.ok && j.booking){ showThankYou(j.booking); }
+        });
     } else {
       loadAvailability();
     }

@@ -51,14 +51,15 @@ async function sendEmails(env, booking) {
   ]);
 }
 
-// Confirme une réservation (idempotent) et envoie les emails. Renvoie true si confirmée.
+// Confirme une réservation (idempotent) et envoie les emails.
+// Renvoie l'objet réservation confirmé, ou null.
 export async function confirmAndNotify(env, bookingId) {
-  if (!bookingId) return false;
+  if (!bookingId) return null;
   const booking = await getBooking(env, bookingId);
-  if (!booking) return false;
-  if (booking.status === 'confirmed') return true; // déjà fait (idempotent)
+  if (!booking) return null;
+  if (booking.status === 'confirmed') return booking; // déjà fait (idempotent)
   await confirmBooking(env, bookingId);
   if (booking.promo_code) await incrementPromoUse(env, booking.promo_code);
   await sendEmails(env, { ...booking, status: 'confirmed' });
-  return true;
+  return { ...booking, status: 'confirmed' };
 }

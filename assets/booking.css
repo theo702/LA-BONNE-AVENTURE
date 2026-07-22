@@ -79,6 +79,29 @@
 .bw-secure svg{width:13px;height:13px}
 .bw-err{font-size:12.5px;color:#B3261E;margin-top:8px;min-height:1px}
 
+/* Écran de remerciement (retour de paiement) */
+.bw-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:rgba(40,50,42,.55);backdrop-filter:blur(4px);animation:bwFade .25s ease}
+@keyframes bwFade{from{opacity:0}to{opacity:1}}
+.bw-modal-card{position:relative;width:100%;max-width:420px;background:var(--cream);border-radius:22px;
+  padding:34px 26px 28px;text-align:center;box-shadow:0 30px 70px rgba(30,25,15,.4);animation:bwPop .3s ease}
+@keyframes bwPop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.bw-modal-x{position:absolute;top:12px;right:14px;border:0;background:transparent;cursor:pointer;
+  font-size:26px;line-height:1;color:var(--ink-soft)}
+.bw-modal-check{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;background:var(--green);
+  color:#fff;display:flex;align-items:center;justify-content:center}
+.bw-modal-check svg{width:34px;height:34px;stroke-width:2.4}
+.bw-modal-card h3{font-family:'Fraunces',serif;font-size:28px;color:var(--ink);margin:0}
+.bw-modal-sub{font-family:'Jost';font-size:14.5px;color:var(--green);font-weight:500;margin:4px 0 18px}
+.bw-modal-recap{text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:6px 14px;margin-bottom:16px}
+.bw-modal-recap>div{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+.bw-modal-recap>div:last-child{border-bottom:0}
+.bw-modal-recap span{color:var(--ink-soft)}
+.bw-modal-recap b{font-family:'Fraunces',serif;font-weight:500;color:var(--ink);font-size:15px}
+.bw-modal-msg{font-size:13px;color:var(--ink-soft);font-weight:300;line-height:1.55;margin:0 0 20px}
+.bw-modal-close{width:100%;border:0;cursor:pointer;background:var(--clay);color:#fff;
+  font-family:'Jost';font-weight:500;font-size:15px;padding:14px;border-radius:30px;box-shadow:var(--sh)}
+
 .bw-skeleton{padding:40px 16px;text-align:center;color:var(--ink-soft);font-size:13.5px;font-weight:300}
 .bw-spin{width:22px;height:22px;border:2.5px solid var(--line);border-top-color:var(--clay);border-radius:50%;
   margin:0 auto 12px;animation:bwspin .8s linear infinite}

@@ -19,6 +19,19 @@ export async function onRequestGet({ env, request }) {
   }
 
   const bookingId = (session.metadata && session.metadata.booking_id) || session.client_reference_id;
-  const done = await confirmAndNotify(env, bookingId);
-  return Response.json({ ok: done }, { headers: { 'cache-control': 'no-store' } });
+  const booking = await confirmAndNotify(env, bookingId);
+  if (!booking) return Response.json({ ok: false, error: 'booking' }, { status: 404 });
+
+  return Response.json({
+    ok: true,
+    booking: {
+      guest_name: booking.guest_name,
+      email: booking.email,
+      checkin: booking.checkin,
+      checkout: booking.checkout,
+      nights: booking.nights,
+      amount_total_cents: booking.amount_total_cents,
+      currency: booking.currency,
+    },
+  }, { headers: { 'cache-control': 'no-store' } });
 }
