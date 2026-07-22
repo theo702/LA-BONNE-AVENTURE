@@ -6,20 +6,16 @@ name = "la-bonne-aventure"
 compatibility_date = "2024-11-01"
 pages_build_output_dir = "."
 
-# --- Base de données D1 + cache KV ---
-# À DÉCOMMENTER une fois la base D1 et le namespace KV créés dans le tableau de bord
-# Cloudflare, en collant leurs identifiants réels ci-dessous (remplacer les xxx).
-# Tant que ces blocs sont commentés, le site se déploie (calendrier + devis OK),
-# mais le paiement/enregistrement des réservations est inactif.
-#
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "lba-bookings"
-# database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-#
-# [[kv_namespaces]]
-# binding = "CACHE"
-# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# --- Base de données D1 (réservations) ---
+[[d1_databases]]
+binding = "DB"
+database_name = "lba-bookings"
+database_id = "fa63348c-6632-488c-bf85-19d3d85331c3"
+
+# --- Cache KV (calendrier iCal Airbnb, TTL 30 min) ---
+[[kv_namespaces]]
+binding = "CACHE"
+id = "fd03377bc50f4a7bba923f98dea29a17"
 
 # --- Variables non secrètes (ajustables) ---
 # Les tarifs sont en CENTIMES. Laisser TAXE_CENTS=0 pour désactiver la taxe de séjour.
