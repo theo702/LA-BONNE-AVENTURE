@@ -119,6 +119,9 @@ Rendez-vous sur `https://VOTRE-SITE.pages.dev/admin.html` et connectez-vous avec
   réglages de la **taxe de séjour**.
 - **Codes promo** : `%` ou montant fixe, validité (dates), séjour minimum, nombre d'usages.
 - **Saisons** : un prix/nuit différent (et un min de nuits) sur une période donnée.
+- **Blocages** : rendez des dates indisponibles à la main (travaux, séjour perso, résa reçue
+  ailleurs). Elles disparaissent du calendrier public **et** sont exportées vers Airbnb via
+  `/calendar.ics`.
 
 Toutes ces valeurs sont stockées dans la base D1 (tables `settings`, `promo_codes`,
 `season_rates`) et prises en compte immédiatement dans les devis du site.

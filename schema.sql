@@ -72,3 +72,13 @@ CREATE TABLE IF NOT EXISTS season_rates (
   created_at    TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_seasons_range ON season_rates(date_from, date_to);
+
+-- ---------- Blocages manuels (dates rendues indisponibles par l'hôte) ----------
+CREATE TABLE IF NOT EXISTS manual_blocks (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  date_from  TEXT NOT NULL,                   -- 'YYYY-MM-DD' (nuit incluse)
+  date_to    TEXT NOT NULL,                   -- 'YYYY-MM-DD' (jour de fin, exclu)
+  label      TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_blocks_range ON manual_blocks(date_from, date_to);

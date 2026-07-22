@@ -40,7 +40,11 @@
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadSeasons(); }
+  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadSeasons(); loadBlocks(); }
+
+  // dates : le stockage utilise date_to exclusif ; l'UI manipule des nuits incluses.
+  const addDay = (s, n) => { const d = new Date(Date.parse(s)); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+  const nightsOf = (from, to) => Math.round((Date.parse(to) - Date.parse(from)) / 86400000);
 
   async function loadBookings() {
     const { j } = await api('bookings');
@@ -159,6 +163,36 @@
     const { status, j } = await api('seasons', { method: 'POST', body: JSON.stringify(body) });
     if (status === 200) { f.reset(); msg('#seasonMsg', 'Ajouté ✓'); loadSeasons(); }
     else msg('#seasonMsg', (j && j.message) || 'Erreur', true);
+  });
+
+  async function loadBlocks() {
+    const { j } = await api('blocks');
+    const tb = $('#blockTable tbody'); tb.innerHTML = '';
+    const rows = (j && j.blocks) || [];
+    $('#blockEmpty').hidden = rows.length > 0;
+    rows.forEach((b) => {
+      const lastNight = addDay(b.date_to, -1);      // date_to est exclusif
+      const nights = nightsOf(b.date_from, b.date_to);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${b.date_from}</td><td>${lastNight}</td><td>${nights}</td>` +
+        `<td>${b.label ? esc(b.label) : '—'}</td>` +
+        `<td><button class="adm-del" data-id="${b.id}" title="Débloquer">✕</button></td>`;
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll('.adm-del').forEach((btn) => btn.addEventListener('click', async () => {
+      await api('blocks?id=' + btn.dataset.id, { method: 'DELETE' }); loadBlocks();
+    }));
+  }
+
+  $('#blockForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    if (!f.date_from.value || !f.date_to.value) return;
+    if (f.date_to.value < f.date_from.value) { msg('#blockMsg', 'La fin doit être après le début.', true); return; }
+    const body = { date_from: f.date_from.value, date_to: addDay(f.date_to.value, 1), label: f.label.value };
+    const { status, j } = await api('blocks', { method: 'POST', body: JSON.stringify(body) });
+    if (status === 200) { f.reset(); msg('#blockMsg', 'Dates bloquées ✓'); loadBlocks(); }
+    else msg('#blockMsg', (j && j.message) || 'Erreur', true);
   });
 
   // ---------- utils ----------

@@ -38,6 +38,7 @@
       <button data-tab="t-rates">Tarifs &amp; réductions</button>
       <button data-tab="t-promo">Codes promo</button>
       <button data-tab="t-season">Saisons</button>
+      <button data-tab="t-block">Blocages</button>
     </nav>
 
     <main class="adm-main">
@@ -128,6 +129,24 @@
           <tbody></tbody>
         </table></div>
         <div id="seasonEmpty" class="adm-empty" hidden>Aucun tarif saisonnier.</div>
+      </section>
+
+      <!-- Blocages manuels -->
+      <section id="t-block" class="adm-panel">
+        <h2>Blocages de dates</h2>
+        <p class="adm-hint">Rendez des dates indisponibles (travaux, séjour perso, résa reçue ailleurs…). Elles sont retirées du calendrier public <b>et</b> exportées vers Airbnb via <code>/calendar.ics</code>. « Du » = première nuit bloquée, « Au » = dernière nuit bloquée (incluse).</p>
+        <form id="blockForm" class="adm-form adm-inline">
+          <label>Du (1re nuit)<input name="date_from" type="date" required></label>
+          <label>Au (dernière nuit)<input name="date_to" type="date" required></label>
+          <label>Motif (optionnel)<input name="label" type="text" placeholder="Séjour perso"></label>
+          <button type="submit" class="adm-btn">Bloquer</button>
+        </form>
+        <div id="blockMsg" class="adm-msg"></div>
+        <div class="adm-scroll"><table class="adm-table" id="blockTable">
+          <thead><tr><th>Du</th><th>Au</th><th>Nuits</th><th>Motif</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div id="blockEmpty" class="adm-empty" hidden>Aucun blocage.</div>
       </section>
     </main>
   </div>

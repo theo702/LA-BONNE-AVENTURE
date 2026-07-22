@@ -5,7 +5,7 @@ export function overlaps(aFrom, aTo, bFrom, bTo) {
   return aFrom < bTo && bFrom < aTo;
 }
 
-// Plages occupées par nos réservations : confirmées + blocages temporaires encore valides.
+// Plages occupées : réservations (confirmées + holds valides) + blocages manuels.
 export async function getBusyRanges(env) {
   const nowIso = new Date().toISOString();
   const { results } = await env.DB.prepare(
@@ -13,7 +13,26 @@ export async function getBusyRanges(env) {
       WHERE status = 'confirmed'
          OR (status = 'pending' AND hold_expires_at > ?1)`
   ).bind(nowIso).all();
-  return (results || []).map((r) => ({ from: r.checkin, to: r.checkout, source: 'direct' }));
+  const ranges = (results || []).map((r) => ({ from: r.checkin, to: r.checkout, source: 'direct' }));
+  try {
+    const blocks = await env.DB.prepare(`SELECT date_from, date_to FROM manual_blocks`).all();
+    for (const b of blocks.results || []) ranges.push({ from: b.date_from, to: b.date_to, source: 'manual' });
+  } catch (e) { /* table absente en dev */ }
+  return ranges;
+}
+
+// ---------- Blocages manuels ----------
+export async function listBlocks(env) {
+  const { results } = await env.DB.prepare(`SELECT * FROM manual_blocks ORDER BY date_from`).all();
+  return results || [];
+}
+export async function createBlock(env, b) {
+  await env.DB.prepare(
+    `INSERT INTO manual_blocks (date_from, date_to, label, created_at) VALUES (?1,?2,?3,?4)`
+  ).bind(b.date_from, b.date_to, b.label || null, new Date().toISOString()).run();
+}
+export async function deleteBlock(env, id) {
+  await env.DB.prepare(`DELETE FROM manual_blocks WHERE id = ?1`).bind(id).run();
 }
 
 // Réservations confirmées (pour l'export /calendar.ics).
