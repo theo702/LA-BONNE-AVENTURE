@@ -391,20 +391,41 @@ h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
   .grid2 .place.feature-place,.grid2 .emg{grid-column:auto}
 }
 
-/* ---------- Bureau : le site s'élargit au lieu de rester en colonne mobile ---------- */
+/* ---------- Bureau / grand écran ---------- */
+/* Pages publiques (index, extras) : on enlève le « cadre » mobile et on remplit l'écran. */
 @media(min-width:760px){
-  .app,.app.doc{max-width:1040px}
-  /* bandeau héro pleine largeur, contenu textuel centré et lisible */
-  .hero{min-height:66vh}
-  .hero .inner{max-width:960px;margin-left:auto;margin-right:auto;padding-left:48px;padding-right:48px}
-  .hero h1{font-size:58px}
-  .body{max-width:780px;margin-left:auto;margin-right:auto}
-  .nav{justify-content:center}
-  .topbar{padding-left:32px;padding-right:32px}
+  body.page-doc{background:var(--cream)}
+  .page-doc .app.doc{max-width:none;box-shadow:none;width:100%}
+
+  .page-doc .topbar{padding-left:clamp(24px,4vw,90px);padding-right:clamp(24px,4vw,90px)}
+
+  /* Héro pleine largeur, bord à bord */
+  .page-doc .hero{min-height:84vh}
+  .page-doc .hero .inner{max-width:1360px;margin-left:auto;margin-right:auto;
+    padding-top:44px;padding-bottom:60px;
+    padding-left:clamp(24px,4vw,90px);padding-right:clamp(24px,4vw,90px)}
+  .page-doc .hero-logo{width:150px}
+  .page-doc .hero h1{font-size:clamp(56px,7vw,110px)}
+  .page-doc .hero .rule{width:72px}
+  .page-doc .hero p{font-size:clamp(15px,1.3vw,20px);max-width:46ch}
+  .page-doc .scrollcue{bottom:26px}
+
+  /* Contenu large, centré, avec de l'air */
+  .page-doc .body{max-width:1240px;margin-left:auto;margin-right:auto;
+    padding-left:clamp(24px,4vw,90px);padding-right:clamp(24px,4vw,90px)}
+  .page-doc h2{font-size:clamp(29px,3vw,44px)}
+  .page-doc .lede{max-width:58ch;font-size:16.5px}
+  .page-doc .amen{grid-template-columns:repeat(3,1fr);gap:16px}
+  .page-doc .book-card{max-width:560px;margin-left:auto;margin-right:auto}
+  .page-doc .grid2{gap:18px}
+
+  /* Guide : livret de lecture — centré et légèrement élargi (pas plein écran) */
+  .app:not(.doc){max-width:900px}
 }
-@media(min-width:760px){
-  /* trois cartes de front pour les équipements et les adresses */
-  .amen{grid-template-columns:1fr 1fr 1fr}
-  /* calendrier de réservation compact et centré (évite les cases géantes) */
-  .book-card{max-width:440px;margin-left:auto;margin-right:auto}
+
+/* Très grands écrans / TV : on élargit encore le contenu et le héro */
+@media(min-width:1500px){
+  .page-doc .body{max-width:1480px}
+  .page-doc .hero .inner{max-width:1600px}
+  .page-doc .amen{grid-template-columns:repeat(4,1fr)}
 }
