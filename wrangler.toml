@@ -27,7 +27,9 @@ MIN_NIGHTS = "2"
 MAX_GUESTS = "2"
 TAXE_CENTS = "0"          # taxe de séjour €/personne/nuit en centimes (0 = désactivée)
 HOST_EMAIL = "theobonaventure1@gmail.com"
-FROM_EMAIL = "reservation@labonneaventure.fr"   # doit être un domaine vérifié dans Resend
+FROM_EMAIL = "onboarding@resend.dev"   # adresse de test Resend (aucune vérification requise)
+# Une fois votre domaine vérifié dans Resend (Domains > Add domain > DNS),
+# remplacez par ex. "reservation@labonneaventure.fr"
 
 # Note : après le 1er déploiement, les tarifs/réductions/taxe se règlent depuis la page
 # /admin (stockés en base D1, table settings). Les [vars] ci-dessus ne servent que de
