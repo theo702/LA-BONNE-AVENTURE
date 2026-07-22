@@ -8,11 +8,17 @@ export async function extraAvailable(env, kind, date) {
   if (!OPPOSITE[kind]) return { available: true };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return { available: false, needsDate: true, message: 'Indiquez la date concernée.' };
 
+  // Bloque immédiatement : extra opposé déjà PAYÉ (confirmed) OU en cours de paiement
+  // (pending récent < 2 h — au-delà, une tentative abandonnée est ignorée).
+  const cutoff = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
   let row = null;
   try {
     row = await env.DB.prepare(
-      `SELECT 1 FROM extra_orders WHERE service_date = ?1 AND kind = ?2 AND status = 'confirmed' LIMIT 1`
-    ).bind(date, OPPOSITE[kind]).first();
+      `SELECT 1 FROM extra_orders
+        WHERE service_date = ?1 AND kind = ?2
+          AND (status = 'confirmed' OR (status = 'pending' AND created_at > ?3))
+        LIMIT 1`
+    ).bind(date, OPPOSITE[kind], cutoff).first();
   } catch (e) { row = null; }
 
   if (row) {
