@@ -5,21 +5,24 @@
    ========================================================================== */
 
 :root{
-  --cream:#FBF7EE;
-  --cream2:#F4ECDC;
+  /* Palette de marque : navy #0f2a4a + or #d9971a, fond crème */
+  --cream:#FBF7EF;
+  --cream2:#F1ECE0;
   --paper:#FFFFFF;
-  --ink:#33302A;
-  --ink-soft:#6B6353;
-  --green:#37564A;
-  --green-deep:#2A4239;
-  --clay:#C0563B;
-  --clay-soft:#D98E68;
-  --sage:#6F8F6E;
+  --ink:#1f2838;         /* texte principal (navy foncé) */
+  --ink-soft:#5f6675;
+  --green:#0f2a4a;       /* navy — surfaces profondes / marque */
+  --green-deep:#0a1f38;
+  --clay:#0f2a4a;        /* boutons principaux (navy, texte blanc) */
+  --clay-soft:#e6a92c;   /* accents dorés sur fond sombre (héros) */
+  --gold:#d9971a;        /* or de marque */
+  --gold-deep:#a9760f;   /* or foncé, lisible sur crème (grands accents) */
+  --sage:#5f8a6a;        /* vert discret (réductions) */
   --sage-soft:#AEC4A6;
-  --line:#E7DECB;
-  --line-soft:#F0E9DB;
-  --sh:0 14px 34px rgba(74,58,34,.13);
-  --sh-soft:0 6px 18px rgba(74,58,34,.08);
+  --line:#E6E1D4;
+  --line-soft:#F0ECE1;
+  --sh:0 14px 34px rgba(15,30,55,.14);
+  --sh-soft:0 6px 18px rgba(15,30,55,.08);
   --r:16px;
 }
 
@@ -124,7 +127,7 @@ h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
 .hero .bg,.hero .bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hero .wash{
   position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(28,40,32,.28) 0%,rgba(28,40,32,.15) 40%,rgba(24,35,28,.82) 100%);
+  background:linear-gradient(180deg,rgba(15,42,74,.32) 0%,rgba(15,42,74,.18) 40%,rgba(10,25,50,.88) 100%);
 }
 .hero .frond{position:absolute;top:-10px;right:-14px;width:120px;height:200px;color:rgba(251,247,238,.32);opacity:.9}
 .hero .frond svg{width:100%;height:100%}
@@ -376,12 +379,45 @@ h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
   font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--green)}
 .footer-credit svg{width:16px;height:16px;color:var(--clay)}
 
-/* ---------- Animations d'apparition ---------- */
-.reveal{opacity:0;transform:translateY(16px);animation:revealUp .6s ease forwards;animation-delay:calc(var(--i,0) * .08s)}
-@keyframes revealUp{to{opacity:1;transform:none}}
+/* ---------- Apparition au défilement (via reveal.js) ---------- */
+.reveal{opacity:0;transform:translateY(24px);
+  transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);
+  transition-delay:calc(var(--i,0) * .06s)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- Accents dorés (marque) ---------- */
+.it{color:var(--gold-deep)}
+.section-head .no{color:var(--gold-deep)}
+.brand-frond{color:var(--gold-deep)}
+.hero .rule{background:var(--gold)}
+.divider svg{color:var(--gold-deep)}
+.footer-credit svg{color:var(--gold-deep)}
+.place .cat{color:var(--gold-deep)}
+.map-hint svg{color:var(--gold-deep)}
+.bw-total .v{color:var(--gold-deep)}
+.why h3 .it,.up-hero h1 em,.hero h1 .a,.hero h1 em{color:var(--clay-soft)}
+.callout{background:rgba(217,151,26,.09);border-color:rgba(217,151,26,.28)}
+.callout .ci{color:var(--gold-deep)}
+
+/* ---------- Micro-animations & survols ---------- */
+.amen .a,.place,.shop-item,.stat,.emg,.svc,.why .pt{transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s ease}
+.amen .a:hover,.place:hover,.shop-item:hover,.stat:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.emg:hover{transform:translateY(-2px);box-shadow:var(--sh-soft)}
+.amen .ai,.shop-ic,.tok,.svc .si{transition:transform .28s cubic-bezier(.2,.7,.2,1)}
+.amen .a:hover .ai,.shop-item:hover .shop-ic{transform:scale(1.08) rotate(-4deg)}
+.cta,.bw-pay,.shop-buy,.chip.solid,.svc .call{transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+.cta:hover,.shop-buy:hover,.chip.solid:hover,.svc .call:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.chip{transition:transform .15s ease,background .15s ease}
+.chip:hover{transform:translateY(-1px)}
+.hero-logo{animation:floaty 5.5s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.tb-act:hover{background:var(--cream2)}
+.nav button{transition:color .2s ease,background .2s ease}
+
 @media (prefers-reduced-motion:reduce){
-  .reveal{animation:none;opacity:1;transform:none}
-  .scrollcue,.bot-panel{animation:none}
+  .reveal{opacity:1;transform:none;transition:none}
+  .scrollcue,.bot-panel,.hero-logo{animation:none}
+  *{transition:none!important}
 }
 
 /* ---------- Larges écrans ---------- */
