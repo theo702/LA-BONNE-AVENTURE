@@ -392,7 +392,7 @@ h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
 }
 
 /* ---------- Bureau : le site s'élargit au lieu de rester en colonne mobile ---------- */
-@media(min-width:900px){
+@media(min-width:760px){
   .app,.app.doc{max-width:1040px}
   /* bandeau héro pleine largeur, contenu textuel centré et lisible */
   .hero{min-height:66vh}
@@ -402,7 +402,7 @@ h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
   .nav{justify-content:center}
   .topbar{padding-left:32px;padding-right:32px}
 }
-@media(min-width:900px){
+@media(min-width:760px){
   /* trois cartes de front pour les équipements et les adresses */
   .amen{grid-template-columns:1fr 1fr 1fr}
   /* calendrier de réservation compact et centré (évite les cases géantes) */
