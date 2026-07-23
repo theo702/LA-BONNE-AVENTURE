@@ -455,8 +455,16 @@ h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
   .page-doc .book-card{max-width:560px;margin-left:auto;margin-right:auto}
   .page-doc .grid2{gap:18px}
 
-  /* Guide : livret de lecture — centré et légèrement élargi (pas plein écran) */
-  .app:not(.doc){max-width:900px}
+  /* Guide : plein écran comme les pages publiques */
+  .app:not(.doc){max-width:none;box-shadow:none;background:var(--cream)}
+  .app:not(.doc) .hero{min-height:78vh}
+  .app:not(.doc) .hero .inner{max-width:1200px;margin-left:auto;margin-right:auto;
+    padding-left:clamp(24px,4vw,80px);padding-right:clamp(24px,4vw,80px)}
+  .app:not(.doc) .hero-logo{width:190px}
+  .app:not(.doc) .nav{justify-content:center}
+  .app:not(.doc) .body{max-width:1140px;margin-left:auto;margin-right:auto;
+    padding-left:clamp(24px,4vw,70px);padding-right:clamp(24px,4vw,70px)}
+  .app:not(.doc) .up-hero{padding-left:clamp(24px,4vw,80px);padding-right:clamp(24px,4vw,80px)}
 }
 
 /* Très grands écrans / TV : on élargit encore le contenu et le héro */

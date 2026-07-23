@@ -201,3 +201,7 @@ export async function cancelBooking(env, id) {
   await env.DB.prepare(`UPDATE bookings SET status = 'cancelled' WHERE id = ?1 AND status = 'pending'`)
     .bind(id).run();
 }
+
+export async function deleteBookingById(env, id) {
+  await env.DB.prepare(`DELETE FROM bookings WHERE id = ?1`).bind(id).run();
+}

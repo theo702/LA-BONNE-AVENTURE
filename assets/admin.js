@@ -61,8 +61,14 @@
         `<td>${esc(r.email)}${r.phone ? '<br>' + esc(r.phone) : ''}</td>` +
         `<td>${r.guests}</td><td>${euro(r.amount_total_cents)}</td>` +
         `<td>${euro(r.taxe_cents)}</td><td>${r.promo_code ? esc(r.promo_code) : '—'}</td>` +
-        `<td><span class="adm-badge ${r.status}">${statusFr(r.status)}</span></td>`;
+        `<td><span class="adm-badge ${r.status}">${statusFr(r.status)}</span></td>` +
+        `<td><button class="adm-del" data-id="${r.id}" title="Supprimer">✕</button></td>`;
       tb.appendChild(tr);
+      tr.querySelector('.adm-del').addEventListener('click', async () => {
+        if (!confirm('Supprimer définitivement cette réservation ?')) return;
+        await api('bookings?id=' + encodeURIComponent(r.id), { method: 'DELETE' });
+        loadBookings();
+      });
     });
   }
 
