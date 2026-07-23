@@ -132,13 +132,13 @@ export async function updateSettings(env, s) {
        nightly_cents=?1, cleaning_cents=?2, min_nights=?3, max_guests=?4,
        weekly_pct=?5, weekly_min_nights=?6, monthly_pct=?7, monthly_min_nights=?8,
        lastmin_days=?9, lastmin_pct=?10, taxe_enabled=?11, taxe_rate_pct=?12,
-       taxe_cap_cents=?13, taxe_additional_pct=?14
+       taxe_cap_cents=?13, taxe_additional_pct=?14, cleaning_emails=?15
      WHERE id = 1`
   ).bind(
     s.nightly_cents, s.cleaning_cents, s.min_nights, s.max_guests,
     s.weekly_pct, s.weekly_min_nights, s.monthly_pct, s.monthly_min_nights,
     s.lastmin_days, s.lastmin_pct, s.taxe_enabled, s.taxe_rate_pct,
-    s.taxe_cap_cents, s.taxe_additional_pct
+    s.taxe_cap_cents, s.taxe_additional_pct, s.cleaning_emails || ''
   ).run();
 }
 

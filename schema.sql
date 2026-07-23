@@ -42,9 +42,12 @@ CREATE TABLE IF NOT EXISTS settings (
   taxe_rate_pct       REAL    NOT NULL DEFAULT 5.0, -- % du coût HT de la nuitée / personne
   taxe_cap_cents      INTEGER NOT NULL DEFAULT 427, -- plafond 4,27 € / personne / nuit
   taxe_additional_pct REAL    NOT NULL DEFAULT 10.0,-- taxes additionnelles (départementale…)
+  cleaning_emails     TEXT    NOT NULL DEFAULT '',  -- emails équipe ménage (séparés par virgule)
   currency            TEXT    NOT NULL DEFAULT 'eur'
 );
 INSERT OR IGNORE INTO settings (id) VALUES (1);
+-- Sur une base déjà créée, ajouter la colonne une seule fois :
+-- ALTER TABLE settings ADD COLUMN cleaning_emails TEXT NOT NULL DEFAULT '';
 
 -- ---------- Codes promo ----------
 CREATE TABLE IF NOT EXISTS promo_codes (

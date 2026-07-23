@@ -84,6 +84,7 @@
     f.taxe_rate_pct.value = s.taxe_rate_pct;
     f.taxe_cap_cents.value = (s.taxe_cap_cents / 100).toFixed(2);
     f.taxe_additional_pct.value = s.taxe_additional_pct;
+    if (f.cleaning_emails) f.cleaning_emails.value = s.cleaning_emails || '';
   }
 
   $('#ratesForm').addEventListener('submit', async (e) => {
@@ -97,6 +98,7 @@
       lastmin_pct: +f.lastmin_pct.value, lastmin_days: +f.lastmin_days.value,
       taxe_enabled: f.taxe_enabled.checked, taxe_rate_pct: +f.taxe_rate_pct.value,
       taxe_cap_cents: cents(f.taxe_cap_cents.value), taxe_additional_pct: +f.taxe_additional_pct.value,
+      cleaning_emails: f.cleaning_emails ? f.cleaning_emails.value : '',
     };
     const { status } = await api('settings', { method: 'PUT', body: JSON.stringify(body) });
     msg('#ratesMsg', status === 200 ? 'Enregistré ✓' : 'Erreur', status !== 200);

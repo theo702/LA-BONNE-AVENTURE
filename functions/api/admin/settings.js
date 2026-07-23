@@ -24,6 +24,7 @@ export async function onRequestPut({ env, request }) {
     taxe_rate_pct: Math.max(0, num(b.taxe_rate_pct, cur.taxe_rate_pct)),
     taxe_cap_cents: Math.max(0, Math.round(num(b.taxe_cap_cents, cur.taxe_cap_cents))),
     taxe_additional_pct: Math.max(0, num(b.taxe_additional_pct, cur.taxe_additional_pct)),
+    cleaning_emails: (b.cleaning_emails == null ? (cur.cleaning_emails || '') : String(b.cleaning_emails)).trim(),
   };
   await updateSettings(env, s);
   return Response.json({ ok: true, settings: { ...cur, ...s } });

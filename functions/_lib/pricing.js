@@ -14,6 +14,7 @@ export function defaults(env = {}) {
     monthly_pct: 0, monthly_min_nights: 28,
     lastmin_days: 0, lastmin_pct: 0,
     taxe_enabled: 1, taxe_rate_pct: 5.0, taxe_cap_cents: 427, taxe_additional_pct: 10.0,
+    cleaning_emails: '',
   };
 }
 

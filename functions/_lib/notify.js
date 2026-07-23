@@ -1,5 +1,5 @@
 // Confirmation d'une réservation + emails (partagé par le webhook et le retour de paiement).
-import { getBooking, confirmBooking, incrementPromoUse, getExtraOrder, confirmExtraOrder } from './db.js';
+import { getBooking, confirmBooking, incrementPromoUse, getExtraOrder, confirmExtraOrder, getSettings } from './db.js';
 
 function euros(cents, currency = 'eur') {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format((cents || 0) / 100);
@@ -59,6 +59,25 @@ async function sendEmails(env, booking) {
     send(booking.email, 'Votre réservation à La Bonne Aventure est confirmée', guestHtml),
     env.HOST_EMAIL ? send(env.HOST_EMAIL, `Nouvelle résa : ${booking.guest_name} (${booking.checkin})`, hostHtml) : null,
   ]);
+
+  // Notification à l'équipe ménage (adresses réglées dans l'admin).
+  try {
+    const s = await getSettings(env);
+    const list = ((s && s.cleaning_emails) || '').split(/[\n,; ]+/).map((x) => x.trim()).filter(Boolean);
+    if (list.length) {
+      const cleanHtml = wrap(`
+        <h2 style="color:#0f2a4a;margin:0 0 6px">Ménage à prévoir 🧹</h2>
+        <p>Nouvelle réservation à <b>La Bonne Aventure</b> :</p>
+        <table style="border-collapse:collapse;margin:14px 0">
+          ${row('Arrivée', booking.checkin + ' (dès 16h)')}
+          ${row('Départ — ménage', booking.checkout + ' (après 12h)')}
+          ${row('Nuits', booking.nights)}
+          ${row('Voyageurs', booking.guests)}
+        </table>
+        <p style="color:#5f6675;font-size:13px">Merci de prévoir le ménage pour le jour du départ.</p>`);
+      await Promise.all(list.map((to) => send(to, `Ménage à prévoir — séjour du ${booking.checkin} au ${booking.checkout}`, cleanHtml)));
+    }
+  } catch (e) { /* pas bloquant */ }
 }
 
 async function sendExtraEmails(env, order) {
