@@ -36,11 +36,12 @@
     b.addEventListener('click', () => {
       document.querySelectorAll('.adm-tabs button').forEach((x) => x.classList.toggle('on', x === b));
       document.querySelectorAll('.adm-panel').forEach((p) => p.classList.toggle('on', p.id === b.dataset.tab));
+      if (b.dataset.tab === 't-cal') loadCalendar(); // rafraîchir à l'ouverture
     });
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadSeasons(); loadBlocks(); loadExtras(); }
+  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadSeasons(); loadBlocks(); loadExtras(); loadCalendar(); }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée' };
 
@@ -91,6 +92,7 @@
     f.taxe_cap_cents.value = (s.taxe_cap_cents / 100).toFixed(2);
     f.taxe_additional_pct.value = s.taxe_additional_pct;
     if (f.cleaning_emails) f.cleaning_emails.value = s.cleaning_emails || '';
+    if (f.dynamic_pricing_enabled) f.dynamic_pricing_enabled.checked = !!s.dynamic_pricing_enabled;
   }
 
   $('#ratesForm').addEventListener('submit', async (e) => {
@@ -105,9 +107,11 @@
       taxe_enabled: f.taxe_enabled.checked, taxe_rate_pct: +f.taxe_rate_pct.value,
       taxe_cap_cents: cents(f.taxe_cap_cents.value), taxe_additional_pct: +f.taxe_additional_pct.value,
       cleaning_emails: f.cleaning_emails ? f.cleaning_emails.value : '',
+      dynamic_pricing_enabled: f.dynamic_pricing_enabled ? f.dynamic_pricing_enabled.checked : true,
     };
     const { status } = await api('settings', { method: 'PUT', body: JSON.stringify(body) });
     msg('#ratesMsg', status === 200 ? 'Enregistré ✓' : 'Erreur', status !== 200);
+    loadCalendar(); // le prix de base / l'activation peut avoir changé
   });
 
   async function loadPromos() {
@@ -310,6 +314,158 @@
     if (res.status === 200) { resetExtraForm(); msg('#extraMsg', 'Enregistré ✓'); loadExtras(); }
     else msg('#extraMsg', (res.j && res.j.message) || 'Erreur', true);
   });
+
+  // ---------- Calendrier interactif ----------
+  var CAL_MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  var CAL_DOW = ['L','M','M','J','V','S','D'];
+  var cal = { data: null, view: null, selected: null, loading: false };
+
+  const pad2 = (n) => (n < 10 ? '0' : '') + n;
+  const ymd = (d) => d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate());
+  const parseD = (s) => { const p = s.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); };
+  const today = () => new Date().toISOString().slice(0, 10);
+
+  // Ensemble des nuits couvertes par une liste de plages [from, to) (to exclusif).
+  function nightsSet(ranges) {
+    const set = new Set();
+    (ranges || []).forEach((r) => {
+      if (!r.from || !r.to) return;
+      let d = parseD(r.from); const end = parseD(r.to); let g = 0;
+      while (d < end && g < 1200) { set.add(ymd(d)); d = new Date(d.getTime() + 86400000); g++; }
+    });
+    return set;
+  }
+
+  // Prix d'une date (réplique nightlyForDate : période la plus spécifique sinon base).
+  function priceForDate(ds) {
+    const d = cal.data; if (!d) return 0;
+    if (d.dynamicEnabled) {
+      let best = null;
+      for (const s of d.seasons || []) {
+        if (ds >= s.date_from && ds <= s.date_to) {
+          const span = (Date.parse(s.date_to) - Date.parse(s.date_from));
+          if (!best || span < best.span) best = { cents: s.nightly_cents, span };
+        }
+      }
+      if (best) return best.cents;
+    }
+    return d.baseCents;
+  }
+  // Un override d'une seule journée existe-t-il pour cette date ?
+  function isCustomDate(ds) { return (cal.data.seasons || []).some((s) => s.date_from === ds && s.date_to === ds); }
+
+  async function loadCalendar() {
+    const host = $('#admCal'); if (!host) return;
+    const { j } = await api('calendar');
+    if (!j || !j.ok) { host.innerHTML = '<div class="adm-cal-loading">Calendrier momentanément indisponible.</div>'; return; }
+    cal.data = j;
+    cal.booked = nightsSet(j.bookings);
+    cal.external = nightsSet(j.external);
+    cal.blocked = nightsSet(j.blocks);
+    cal.bookByNight = {};
+    (j.bookings || []).forEach((b) => { let d = parseD(b.from); const e = parseD(b.to); let g = 0; while (d < e && g < 1200) { cal.bookByNight[ymd(d)] = b; d = new Date(d.getTime() + 86400000); g++; } });
+    if (!cal.view) { const n = new Date(); cal.view = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), 1)); }
+    renderCal();
+  }
+
+  function stateOf(ds) {
+    if (cal.booked.has(ds)) return 'book';
+    if (cal.external.has(ds)) return 'ext';
+    if (cal.blocked.has(ds)) return 'block';
+    return 'free';
+  }
+
+  function renderCal() {
+    const host = $('#admCal'); if (!host || !cal.data) return;
+    const y = cal.view.getUTCFullYear(), m = cal.view.getUTCMonth();
+    const cur = today().slice(0, 7);
+    const atMin = (y + '-' + pad2(m + 1)) <= cur;
+
+    let h = '<div class="adm-cal-top">' +
+      '<button class="adm-cal-nav" data-cnav="-1"' + (atMin ? ' disabled' : '') + '>‹</button>' +
+      '<div class="adm-cal-title">' + CAL_MONTHS[m] + ' ' + y + '</div>' +
+      '<button class="adm-cal-nav" data-cnav="1">›</button></div>';
+    h += '<div class="adm-cal-dow">' + CAL_DOW.map((d) => '<span>' + d + '</span>').join('') + '</div>';
+    h += '<div class="adm-cal-grid">';
+    const first = new Date(Date.UTC(y, m, 1));
+    const lead = (first.getUTCDay() + 6) % 7;
+    for (let i = 0; i < lead; i++) h += '<div class="adm-cell empty"></div>';
+    const days = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+    for (let day = 1; day <= days; day++) {
+      const ds = y + '-' + pad2(m + 1) + '-' + pad2(day);
+      const past = ds < today();
+      const st = stateOf(ds);
+      const custom = cal.data.dynamicEnabled && isCustomDate(ds);
+      let cls = 'adm-cell s-' + st;
+      if (past) cls += ' past';
+      if (custom) cls += ' custom';
+      if (ds === cal.selected) cls += ' sel';
+      const price = priceForDate(ds);
+      const priceHtml = past ? '' : '<span class="adm-cell-p">' + Math.round(price / 100) + '€</span>';
+      h += '<button class="' + cls + '" data-cday="' + ds + '"' + (past ? ' disabled' : '') + '><span class="adm-cell-d">' + day + '</span>' + priceHtml + '</button>';
+    }
+    h += '</div>';
+    h += '<div id="admCalEditor" class="adm-cal-editor" hidden></div>';
+    host.innerHTML = h;
+
+    host.querySelectorAll('[data-cnav]').forEach((b) => b.addEventListener('click', () => {
+      cal.view = new Date(Date.UTC(y, m + (+b.dataset.cnav), 1)); cal.selected = null; renderCal();
+    }));
+    host.querySelectorAll('[data-cday]').forEach((b) => b.addEventListener('click', () => selectDay(b.dataset.cday)));
+    if (cal.selected) renderEditor();
+  }
+
+  function selectDay(ds) { cal.selected = (cal.selected === ds ? null : ds); renderCal(); }
+
+  function renderEditor() {
+    const ed = $('#admCalEditor'); if (!ed) return;
+    const ds = cal.selected; if (!ds) { ed.hidden = true; return; }
+    ed.hidden = false;
+    const st = stateOf(ds);
+    const price = priceForDate(ds);
+    const custom = cal.data.dynamicEnabled && isCustomDate(ds);
+    const dObj = parseD(ds);
+    const human = dObj.getUTCDate() + ' ' + CAL_MONTHS[dObj.getUTCMonth()] + ' ' + dObj.getUTCFullYear();
+
+    let h = '<div class="adm-ed-head"><b>' + human + '</b> <span class="adm-badge ' + (st === 'book' ? 'confirmed' : st === 'ext' ? 'pending' : st === 'block' ? 'cancelled' : '') + '">' + { book: 'Réservé (direct)', ext: 'Airbnb', block: 'Bloqué', free: 'Libre' }[st] + '</span>'
+      + '<button class="adm-ed-x" title="Fermer">✕</button></div>';
+
+    if (st === 'book') {
+      const b = cal.bookByNight[ds];
+      h += '<p class="adm-hint">Réservation directe' + (b && b.guest ? ' — <b>' + esc(b.guest) + '</b>' : '') + (b && b.status === 'pending' ? ' (paiement en attente)' : '') + '. Gérez-la depuis l\'onglet Réservations.</p>';
+    } else if (st === 'ext') {
+      h += '<p class="adm-hint">Date importée depuis Airbnb (synchro iCal). Non modifiable ici — elle se libère automatiquement quand Airbnb la libère.</p>';
+    } else {
+      // Libre ou bloqué → actions
+      h += '<div class="adm-ed-row">';
+      if (st === 'block') h += '<button class="adm-btn" data-act="unblock">Libérer cette date</button>';
+      else h += '<button class="adm-ghost" data-act="block">Bloquer cette date</button>';
+      h += '</div>';
+      if (cal.data.dynamicEnabled) {
+        h += '<div class="adm-ed-row adm-ed-price"><label>Prix ce jour (€)<input id="admEdPrice" type="number" step="1" min="1" value="' + Math.round(price / 100) + '"></label>'
+          + '<button class="adm-btn" data-act="setPrice">Appliquer</button>'
+          + (custom ? '<button class="adm-ghost" data-act="clearPrice">Réinitialiser</button>' : '') + '</div>';
+        h += '<p class="adm-hint">' + (custom ? 'Prix personnalisé pour ce jour.' : 'Actuellement : ' + Math.round(price / 100) + ' € (tarif de période ou de base).') + '</p>';
+      } else {
+        h += '<p class="adm-hint">Tarification dynamique désactivée : ce jour est vendu au prix de base (' + Math.round(price / 100) + ' €). Activez-la dans l\'onglet Tarifs pour fixer un prix par date.</p>';
+      }
+    }
+    ed.innerHTML = h;
+
+    ed.querySelector('.adm-ed-x').addEventListener('click', () => { cal.selected = null; renderCal(); });
+    ed.querySelectorAll('[data-act]').forEach((btn) => btn.addEventListener('click', () => calAction(btn.dataset.act, ds)));
+  }
+
+  async function calAction(action, ds) {
+    const body = { action, date: ds };
+    if (action === 'setPrice') {
+      const inp = $('#admEdPrice'); const v = parseFloat(inp && inp.value);
+      if (!(v > 0)) return;
+      body.price_cents = Math.round(v * 100);
+    }
+    await api('calendar', { method: 'POST', body: JSON.stringify(body) });
+    await loadCalendar(); // recharge l'état (garde la date sélectionnée)
+  }
 
   // ---------- utils ----------
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }

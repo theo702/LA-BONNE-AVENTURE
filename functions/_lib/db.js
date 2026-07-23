@@ -132,13 +132,15 @@ export async function updateSettings(env, s) {
        nightly_cents=?1, cleaning_cents=?2, min_nights=?3, max_guests=?4,
        weekly_pct=?5, weekly_min_nights=?6, monthly_pct=?7, monthly_min_nights=?8,
        lastmin_days=?9, lastmin_pct=?10, taxe_enabled=?11, taxe_rate_pct=?12,
-       taxe_cap_cents=?13, taxe_additional_pct=?14, cleaning_emails=?15
+       taxe_cap_cents=?13, taxe_additional_pct=?14, cleaning_emails=?15,
+       dynamic_pricing_enabled=?16
      WHERE id = 1`
   ).bind(
     s.nightly_cents, s.cleaning_cents, s.min_nights, s.max_guests,
     s.weekly_pct, s.weekly_min_nights, s.monthly_pct, s.monthly_min_nights,
     s.lastmin_days, s.lastmin_pct, s.taxe_enabled, s.taxe_rate_pct,
-    s.taxe_cap_cents, s.taxe_additional_pct, s.cleaning_emails || ''
+    s.taxe_cap_cents, s.taxe_additional_pct, s.cleaning_emails || '',
+    s.dynamic_pricing_enabled ? 1 : 0
   ).run();
 }
 
@@ -185,6 +187,56 @@ export async function deleteSeason(env, id) {
 
 export async function deleteAllSeasons(env) {
   await env.DB.prepare(`DELETE FROM season_rates`).run();
+}
+
+// ---------- Calendrier admin : prix par date + blocage par date ----------
+const addDayStr = (s, n) => { const d = new Date(Date.parse(s)); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+
+// Réservations (directes) à afficher sur le calendrier admin : confirmées + holds valides.
+export async function listCalendarBookings(env) {
+  const nowIso = new Date().toISOString();
+  const { results } = await env.DB.prepare(
+    `SELECT id, checkin, checkout, guest_name, status FROM bookings
+      WHERE status = 'confirmed' OR (status = 'pending' AND hold_expires_at > ?1)
+      ORDER BY checkin`
+  ).bind(nowIso).all();
+  return results || [];
+}
+
+// Fixe un prix pour UNE date (override d'une seule journée). Remplace tout override
+// journalier existant sur cette date ; les périodes multi-jours restent intactes.
+export async function setDatePrice(env, date, cents, minNights) {
+  await env.DB.prepare(`DELETE FROM season_rates WHERE date_from = ?1 AND date_to = ?1`).bind(date).run();
+  await env.DB.prepare(
+    `INSERT INTO season_rates (label, date_from, date_to, nightly_cents, min_nights, created_at)
+     VALUES (?1,?2,?2,?3,?4,?5)`
+  ).bind('Prix du jour', date, cents, minNights || null, new Date().toISOString()).run();
+}
+
+// Supprime l'override journalier d'une date (retour au tarif de période ou au tarif de base).
+export async function clearDatePrice(env, date) {
+  await env.DB.prepare(`DELETE FROM season_rates WHERE date_from = ?1 AND date_to = ?1`).bind(date).run();
+}
+
+// Bloque une seule date (nuit). date_to est exclusif → date + 1 jour.
+export async function blockDate(env, date, label) {
+  await env.DB.prepare(
+    `INSERT INTO manual_blocks (date_from, date_to, label, created_at) VALUES (?1,?2,?3,?4)`
+  ).bind(date, addDayStr(date, 1), label || null, new Date().toISOString()).run();
+}
+
+// Débloque une seule date : retire ce jour des blocages manuels, en scindant au besoin
+// toute plage qui l'englobe (date_to exclusif).
+export async function unblockDate(env, date) {
+  const next = addDayStr(date, 1);
+  const { results } = await env.DB.prepare(
+    `SELECT id, date_from, date_to, label FROM manual_blocks WHERE date_from <= ?1 AND date_to > ?1`
+  ).bind(date).all();
+  for (const b of results || []) {
+    await env.DB.prepare(`DELETE FROM manual_blocks WHERE id = ?1`).bind(b.id).run();
+    if (b.date_from < date) await createBlock(env, { date_from: b.date_from, date_to: date, label: b.label });
+    if (next < b.date_to) await createBlock(env, { date_from: next, date_to: b.date_to, label: b.label });
+  }
 }
 
 export async function attachSession(env, id, sessionId) {

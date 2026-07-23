@@ -36,9 +36,9 @@
 
     <nav class="adm-tabs">
       <button class="on" data-tab="t-book">Réservations</button>
-      <button data-tab="t-rates">Tarifs &amp; réductions</button>
+      <button data-tab="t-cal">Calendrier</button>
+      <button data-tab="t-rates">Tarifs</button>
       <button data-tab="t-promo">Codes promo</button>
-      <button data-tab="t-season">Tarifs dynamiques</button>
       <button data-tab="t-block">Blocages</button>
       <button data-tab="t-extra">Extras</button>
     </nav>
@@ -54,9 +54,23 @@
         <div id="bookEmpty" class="adm-empty" hidden>Aucune réservation pour le moment.</div>
       </section>
 
-      <!-- Tarifs & réductions -->
+      <!-- Calendrier interactif -->
+      <section id="t-cal" class="adm-panel">
+        <h2>Calendrier</h2>
+        <p class="adm-hint">Vue temps réel : réservations directes, dates bloquées et synchro Airbnb. <b>Cliquez une date</b> pour la bloquer / libérer ou modifier son prix. Les jours réservés en direct ou via Airbnb ne sont pas modifiables.</p>
+        <div class="adm-cal-legend">
+          <span><i class="c-free"></i>Libre</span>
+          <span><i class="c-book"></i>Réservé (direct)</span>
+          <span><i class="c-ext"></i>Airbnb</span>
+          <span><i class="c-block"></i>Bloqué</span>
+          <span><i class="c-price"></i>Prix personnalisé</span>
+        </div>
+        <div id="admCal" class="adm-cal"><div class="adm-cal-loading">Chargement du calendrier…</div></div>
+      </section>
+
+      <!-- Tarifs (base + réductions + taxe + tarification dynamique) -->
       <section id="t-rates" class="adm-panel">
-        <h2>Tarifs &amp; réductions</h2>
+        <h2>Tarifs</h2>
         <form id="ratesForm" class="adm-form">
           <fieldset><legend>Tarifs de base</legend>
             <div class="adm-grid">
@@ -87,6 +101,10 @@
             </div>
             <p class="adm-hint">Formule appliquée : <code>min(taux % × prix nuit ÷ pers, plafond) × (1 + additionnelles %)</code>, par personne et par nuit.</p>
           </fieldset>
+          <fieldset><legend>Tarification dynamique</legend>
+            <label class="adm-check"><input name="dynamic_pricing_enabled" type="checkbox"> Activer les tarifs par période / par date</label>
+            <p class="adm-hint">Décochée, tous les jours sont vendus au <b>prix de base</b> ci-dessus (les périodes et prix par date sont ignorés, mais conservés). Cochée, les tarifs saisonniers et les prix par date (ci-dessous et dans l'onglet Calendrier) s'appliquent.</p>
+          </fieldset>
           <fieldset><legend>Équipe ménage</legend>
             <label>Emails des prestataires (séparés par une virgule)<input name="cleaning_emails" type="text" placeholder="menage1@email.com, menage2@email.com"></label>
             <p class="adm-hint">Ils recevront un email automatique à chaque nouvelle réservation (dates d'arrivée et de départ, ménage à prévoir).</p>
@@ -96,6 +114,40 @@
             <span id="ratesMsg" class="adm-msg"></span>
           </div>
         </form>
+
+        <h2 style="font-size:19px;margin-top:26px;border-top:1px solid var(--line);padding-top:22px">Tarifs par période (saisons &amp; événements)</h2>
+        <p class="adm-hint">Fixez un prix par période (saison, pont, festival…). Il remplace le prix de base pour toute nuit de la période et s'affiche sur le calendrier public. Nécessite la <b>tarification dynamique activée</b> ci-dessus.</p>
+
+        <form id="seasonBulkForm" class="adm-form">
+          <fieldset><legend>Import en masse (coller une année de prix)</legend>
+            <p class="adm-hint">Une période par ligne : <code>date_début&nbsp;&nbsp;date_fin&nbsp;&nbsp;prix€&nbsp;&nbsp;[nuits_min]&nbsp;&nbsp;[libellé]</code>. Dates au format <code>JJ/MM/AAAA</code> ou <code>AAAA-MM-JJ</code>. Séparateurs : espaces, tabulations, virgules ou points-virgules. Exemple&nbsp;:</p>
+            <pre class="adm-example">01/07/2026  31/08/2026  90   2  Haute saison été
+24/12/2026  02/01/2027  120  3  Fêtes de fin d'année
+14/02/2027  14/02/2027  150     Saint-Valentin</pre>
+            <textarea name="bulk" rows="7" placeholder="01/07/2026  31/08/2026  90  2  Haute saison"></textarea>
+            <div class="adm-actions">
+              <label class="adm-check"><input type="checkbox" name="replace"> Remplacer tous les tarifs par période existants</label>
+              <button type="submit" class="adm-btn">Importer</button>
+              <span id="seasonBulkMsg" class="adm-msg"></span>
+            </div>
+          </fieldset>
+        </form>
+
+        <h2 style="font-size:19px;margin-top:22px">Ajouter une période</h2>
+        <form id="seasonForm" class="adm-form adm-inline">
+          <label>Nom<input name="label" type="text" placeholder="Haute saison" required></label>
+          <label>Du<input name="date_from" type="date" required></label>
+          <label>Au<input name="date_to" type="date" required></label>
+          <label>Prix / nuit (€)<input name="nightly" type="number" step="0.01" min="0" required></label>
+          <label>Nuits min<input name="min_nights" type="number" min="1" placeholder="—"></label>
+          <button type="submit" class="adm-btn">Ajouter</button>
+        </form>
+        <div id="seasonMsg" class="adm-msg"></div>
+        <div class="adm-scroll"><table class="adm-table" id="seasonTable">
+          <thead><tr><th>Nom</th><th>Du</th><th>Au</th><th>Prix / nuit</th><th>Nuits min</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div id="seasonEmpty" class="adm-empty" hidden>Aucun tarif par période.</div>
       </section>
 
       <!-- Codes promo -->
@@ -117,43 +169,6 @@
           <tbody></tbody>
         </table></div>
         <div id="promoEmpty" class="adm-empty" hidden>Aucun code promo.</div>
-      </section>
-
-      <!-- Saisons -->
-      <section id="t-season" class="adm-panel">
-        <h2>Tarifs dynamiques (saisons &amp; événements)</h2>
-        <p class="adm-hint">Fixez un prix par période (saison, pont, festival, événement…). Il remplace le prix de base pour toute nuit tombant dans la période, et s'affiche directement sur le calendrier public. Les réductions hebdo / dernière minute (onglet « Tarifs &amp; réductions ») s'appliquent en plus, au moment du devis.</p>
-
-        <form id="seasonBulkForm" class="adm-form">
-          <fieldset><legend>Import en masse (coller une année de prix)</legend>
-            <p class="adm-hint">Une période par ligne : <code>date_début&nbsp;&nbsp;date_fin&nbsp;&nbsp;prix€&nbsp;&nbsp;[nuits_min]&nbsp;&nbsp;[libellé]</code>. Dates au format <code>JJ/MM/AAAA</code> ou <code>AAAA-MM-JJ</code>. Séparateurs : espaces, tabulations, virgules ou points-virgules. Exemple&nbsp;:</p>
-            <pre class="adm-example">01/07/2026  31/08/2026  90   2  Haute saison été
-24/12/2026  02/01/2027  120  3  Fêtes de fin d'année
-14/02/2027  14/02/2027  150     Saint-Valentin</pre>
-            <textarea name="bulk" rows="7" placeholder="01/07/2026  31/08/2026  90  2  Haute saison"></textarea>
-            <div class="adm-actions">
-              <label class="adm-check"><input type="checkbox" name="replace"> Remplacer tous les tarifs saisonniers existants</label>
-              <button type="submit" class="adm-btn">Importer</button>
-              <span id="seasonBulkMsg" class="adm-msg"></span>
-            </div>
-          </fieldset>
-        </form>
-
-        <h2 style="font-size:19px;margin-top:22px">Ajouter une période</h2>
-        <form id="seasonForm" class="adm-form adm-inline">
-          <label>Nom<input name="label" type="text" placeholder="Haute saison" required></label>
-          <label>Du<input name="date_from" type="date" required></label>
-          <label>Au<input name="date_to" type="date" required></label>
-          <label>Prix / nuit (€)<input name="nightly" type="number" step="0.01" min="0" required></label>
-          <label>Nuits min<input name="min_nights" type="number" min="1" placeholder="—"></label>
-          <button type="submit" class="adm-btn">Ajouter</button>
-        </form>
-        <div id="seasonMsg" class="adm-msg"></div>
-        <div class="adm-scroll"><table class="adm-table" id="seasonTable">
-          <thead><tr><th>Nom</th><th>Du</th><th>Au</th><th>Prix / nuit</th><th>Nuits min</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-        <div id="seasonEmpty" class="adm-empty" hidden>Aucun tarif saisonnier.</div>
       </section>
 
       <!-- Blocages manuels -->

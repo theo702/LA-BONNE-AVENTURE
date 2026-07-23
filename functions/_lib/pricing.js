@@ -15,6 +15,7 @@ export function defaults(env = {}) {
     lastmin_days: 0, lastmin_pct: 0,
     taxe_enabled: 1, taxe_rate_pct: 5.0, taxe_cap_cents: 427, taxe_additional_pct: 10.0,
     cleaning_emails: '',
+    dynamic_pricing_enabled: 1,
   };
 }
 
@@ -43,10 +44,21 @@ function isValidDate(s) {
 export function nightsBetween(a, b) { return Math.round((Date.parse(b) - Date.parse(a)) / 86400000); }
 function addDays(s, n) { var d = new Date(Date.parse(s)); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
 
-// Tarif d'une nuit donnée : tarif saisonnier si la date tombe dans une période, sinon base.
+// Nombre de jours couverts par une période (sert à privilégier le tarif le plus spécifique).
+function seasonSpan(s) { return Math.max(0, nightsBetween(s.date_from, s.date_to)); }
+
+// Tarif d'une nuit donnée : tarif saisonnier/par date si la date tombe dans une période,
+// sinon base. Si plusieurs périodes couvrent la date, la plus spécifique (span le plus
+// court, ex. un override d'une seule journée) l'emporte. Désactivable via le réglage.
 function nightlyForDate(dateStr, settings, seasons) {
-  for (const s of seasons || []) {
-    if (dateStr >= s.date_from && dateStr <= s.date_to) return { cents: s.nightly_cents, minNights: s.min_nights || null };
+  if (settings.dynamic_pricing_enabled) {
+    let best = null;
+    for (const s of seasons || []) {
+      if (dateStr >= s.date_from && dateStr <= s.date_to) {
+        if (!best || seasonSpan(s) < seasonSpan(best)) best = s;
+      }
+    }
+    if (best) return { cents: best.nightly_cents, minNights: best.min_nights || null };
   }
   return { cents: settings.nightly_cents, minNights: null };
 }
