@@ -175,6 +175,52 @@
     else msg('#seasonMsg', (j && j.message) || 'Erreur', true);
   });
 
+  // Normalise une date en 'YYYY-MM-DD' depuis 'JJ/MM/AAAA', 'JJ-MM-AAAA' ou déjà ISO.
+  function normDate(raw) {
+    const s = (raw || '').trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    const m = s.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})$/);
+    if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+    return null;
+  }
+
+  // Parse une ligne « date_from  date_to  prix  [min_nuits]  [libellé] ».
+  // Renvoie { item } ou { error }.
+  function parseSeasonLine(line, no) {
+    const parts = line.trim().split(/[\s,;\t]+/).filter(Boolean);
+    if (parts.length < 3) return { error: `Ligne ${no} : il faut au moins date début, date fin et prix.` };
+    const from = normDate(parts[0]);
+    const to = normDate(parts[1]);
+    if (!from || !to) return { error: `Ligne ${no} : dates non reconnues.` };
+    const price = parseFloat((parts[2] || '').replace('€', '').replace(',', '.'));
+    if (!(price > 0)) return { error: `Ligne ${no} : prix invalide.` };
+    let idx = 3, min_nights = null;
+    if (parts[idx] && /^\d+$/.test(parts[idx])) { min_nights = +parts[idx]; idx++; }
+    const label = parts.slice(idx).join(' ') || null;
+    return { item: { label, date_from: from, date_to: to, nightly_cents: Math.round(price * 100), min_nights } };
+  }
+
+  $('#seasonBulkForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const lines = (f.bulk.value || '').split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) { msg('#seasonBulkMsg', 'Rien à importer.', true); return; }
+    const items = [], errors = [];
+    lines.forEach((l, i) => {
+      const r = parseSeasonLine(l, i + 1);
+      if (r.error) errors.push(r.error); else items.push(r.item);
+    });
+    if (!items.length) { msg('#seasonBulkMsg', errors[0] || 'Aucune ligne valide.', true); return; }
+    const { status, j } = await api('seasons', {
+      method: 'PUT', body: JSON.stringify({ items, replace: f.replace.checked }),
+    });
+    if (status === 200) {
+      const extra = (j.skipped || errors.length) ? ` — ${(j.skipped || 0) + errors.length} ignorée(s)` : '';
+      msg('#seasonBulkMsg', `${j.imported} période(s) importée(s) ✓${extra}`);
+      f.bulk.value = ''; f.replace.checked = false; loadSeasons();
+    } else msg('#seasonBulkMsg', (j && j.message) || 'Erreur', true);
+  });
+
   async function loadBlocks() {
     const { j } = await api('blocks');
     const tb = $('#blockTable tbody'); tb.innerHTML = '';

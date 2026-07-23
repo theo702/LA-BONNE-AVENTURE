@@ -120,7 +120,24 @@
       <!-- Saisons -->
       <section id="t-season" class="adm-panel">
         <h2>Tarifs saisonniers</h2>
-        <p class="adm-hint">Un tarif saisonnier remplace le prix de base pour toute nuit tombant dans la période.</p>
+        <p class="adm-hint">Un tarif saisonnier remplace le prix de base pour toute nuit tombant dans la période. Le prix par nuit s'affiche directement sur le calendrier public.</p>
+
+        <form id="seasonBulkForm" class="adm-form">
+          <fieldset><legend>Import en masse (coller une année de prix)</legend>
+            <p class="adm-hint">Une période par ligne : <code>date_début&nbsp;&nbsp;date_fin&nbsp;&nbsp;prix€&nbsp;&nbsp;[nuits_min]&nbsp;&nbsp;[libellé]</code>. Dates au format <code>JJ/MM/AAAA</code> ou <code>AAAA-MM-JJ</code>. Séparateurs : espaces, tabulations, virgules ou points-virgules. Exemple&nbsp;:</p>
+            <pre class="adm-example">01/07/2026  31/08/2026  90   2  Haute saison été
+24/12/2026  02/01/2027  120  3  Fêtes de fin d'année
+14/02/2027  14/02/2027  150     Saint-Valentin</pre>
+            <textarea name="bulk" rows="7" placeholder="01/07/2026  31/08/2026  90  2  Haute saison"></textarea>
+            <div class="adm-actions">
+              <label class="adm-check"><input type="checkbox" name="replace"> Remplacer tous les tarifs saisonniers existants</label>
+              <button type="submit" class="adm-btn">Importer</button>
+              <span id="seasonBulkMsg" class="adm-msg"></span>
+            </div>
+          </fieldset>
+        </form>
+
+        <h2 style="font-size:19px;margin-top:22px">Ajouter une période</h2>
         <form id="seasonForm" class="adm-form adm-inline">
           <label>Nom<input name="label" type="text" placeholder="Haute saison" required></label>
           <label>Du<input name="date_from" type="date" required></label>

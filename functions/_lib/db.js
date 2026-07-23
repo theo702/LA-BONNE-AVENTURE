@@ -183,6 +183,10 @@ export async function deleteSeason(env, id) {
   await env.DB.prepare(`DELETE FROM season_rates WHERE id = ?1`).bind(id).run();
 }
 
+export async function deleteAllSeasons(env) {
+  await env.DB.prepare(`DELETE FROM season_rates`).run();
+}
+
 export async function attachSession(env, id, sessionId) {
   await env.DB.prepare(`UPDATE bookings SET stripe_session_id = ?1 WHERE id = ?2`)
     .bind(sessionId, id).run();

@@ -46,6 +46,24 @@
   // Une nuit est-elle réservable ? (ni passée, ni occupée)
   function isFreeNight(s){ return s >= todayStr() && !state.blockedNights.has(s); }
 
+  // Tarif d'une nuit donnée : tarif saisonnier si la date tombe dans une période, sinon base.
+  // Réplique côté client la logique de functions/_lib/pricing.js (nightlyForDate).
+  function nightlyForDate(ds){
+    var seasons = (state.cfg && state.cfg.seasons) || [];
+    for(var i=0;i<seasons.length;i++){
+      var s = seasons[i];
+      if(ds >= s.date_from && ds <= s.date_to) return s.nightly_cents;
+    }
+    return state.cfg ? state.cfg.nightlyCents : 0;
+  }
+
+  // Prix par nuit affiché sous la date (entier, sans décimales pour rester discret).
+  function nightlyLabel(ds){
+    var c = nightlyForDate(ds);
+    if(!c) return '';
+    return Math.round(c/100)+' €';
+  }
+
   // Toutes les nuits de [a,b) sont-elles libres ?
   function rangeFree(a,b){
     var d = parse(a), end = parse(b), guard=0;
@@ -140,6 +158,13 @@
     if(blockedNight) cls += ' blocked';
     if(selectable && !blockedNight) cls += ' selectable';
 
+    // Prix par nuit : affiché sur les nuits futures libres (pas passé, pas occupé).
+    var priceHtml = '';
+    if(!past && !blockedNight){
+      var pl = nightlyLabel(ds);
+      if(pl) priceHtml = '<span class="bw-price">'+pl+'</span>';
+    }
+
     // surlignage de la sélection
     if(state.checkin && state.checkout){
       if(ds === state.checkin || ds === state.checkout){ cls += ' end-start ' + (ds === state.checkin ? 'start' : 'end'); }
@@ -148,7 +173,7 @@
       cls += ' end-start single';
     }
 
-    return el('<button class="'+cls+'" data-day="'+ds+'">'+day+'</button>');
+    return el('<button class="'+cls+'" data-day="'+ds+'"><span class="bw-daynum">'+day+'</span>'+priceHtml+'</button>');
   }
 
   function summaryNode(){
