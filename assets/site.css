@@ -322,14 +322,37 @@ h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
 /* ---------- Galeries photos + lightbox ---------- */
 .gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:16px 0 4px}
 .g-item{position:relative;display:block;overflow:hidden;border-radius:16px;border:1px solid var(--line);
-  background:var(--cream2);aspect-ratio:4/3;cursor:zoom-in;box-shadow:var(--sh-soft)}
+  background:var(--cream2);aspect-ratio:4/3;cursor:zoom-in;box-shadow:var(--sh-soft);
+  transition:transform .5s cubic-bezier(.2,.7,.2,1),box-shadow .45s ease,opacity .6s ease}
 .g-item img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
-.g-item:hover img{transform:scale(1.06)}
+.g-item:hover{box-shadow:var(--sh)}
+.g-item:hover img{transform:scale(1.07)}
 .g-item.g-lg{grid-column:1 / -1;aspect-ratio:16/9}
-.g-cap{position:absolute;left:0;right:0;bottom:0;padding:22px 14px 12px;color:#FBF7EE;
+.g-cap{position:absolute;left:0;right:0;bottom:0;padding:22px 14px 12px;color:#FBF7EE;z-index:2;
   font-family:'Fraunces',serif;font-style:italic;font-size:15px;pointer-events:none;
   background:linear-gradient(180deg,transparent,rgba(10,25,50,.72));opacity:0;transform:translateY(6px);transition:.3s}
 .g-item:hover .g-cap,.g-item:focus-visible .g-cap{opacity:1;transform:none}
+
+/* Reflet qui balaie au survol */
+.g-item::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(120deg,transparent 34%,rgba(255,255,255,.30) 50%,transparent 66%);
+  transform:translateX(-130%);transition:transform .85s ease}
+.g-item:hover::after{transform:translateX(130%)}
+
+/* Entrée en cascade au défilement (via reveal.js) : chaque photo apparaît l'une après l'autre */
+.gallery .g-item.reveal{opacity:0;transform:scale(.94) translateY(18px)}
+.gallery .g-item.reveal.in{opacity:1;transform:none}
+/* Soulèvement au survol (spécificité suffisante pour battre .reveal.in) */
+.gallery .g-item.reveal.in:hover{transform:translateY(-5px)}
+
+/* Panoramique lent et continu sur la photo d'accroche */
+.gallery .g-item.g-lg img{animation:gPan 22s ease-in-out infinite alternate}
+@keyframes gPan{from{object-position:50% 38%}to{object-position:50% 62%}}
+@media (prefers-reduced-motion:reduce){
+  .gallery .g-item.g-lg img{animation:none}
+  .g-item::after{display:none}
+  .gallery .g-item.reveal{opacity:1;transform:none}
+}
 
 .lb{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
   background:rgba(8,16,30,.93);opacity:0;pointer-events:none;transition:opacity .25s}
