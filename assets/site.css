@@ -559,3 +559,70 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
   .hero .bg img,.hero .inner{animation:none}
   html{scroll-behavior:auto}
 }
+
+/* ============================================================
+   REFONTE — Épuré / minimaliste chic  (surcharge finale)
+   Palette plus blanche, typo fine et aérée, cartes à plat,
+   ornements estompés, boutons sobres. On conserve navy + or.
+   ============================================================ */
+:root{
+  --cream:#FCFBF9;
+  --cream2:#F4F2ED;
+  --paper:#FFFFFF;
+  --ink:#1c2029;
+  --ink-soft:#7b7f88;
+  --line:#ECEAE3;
+  --line-soft:#F5F3EE;
+  --sh:0 20px 55px rgba(18,26,42,.07);
+  --sh-soft:0 10px 30px rgba(18,26,42,.05);
+  --r:14px;
+}
+body{background:#F7F6F2}
+.app{background:var(--cream);box-shadow:0 0 80px rgba(30,25,15,.06)}
+
+/* Typographie : plus fine, plus grande, plus d'air */
+h1,h2,h3,h4{font-weight:300;letter-spacing:-.015em}
+h2{font-size:31px;line-height:1.1}
+.kicker{letter-spacing:.26em;font-weight:500;font-size:11px;color:var(--ink-soft)}
+.section-head{margin-bottom:12px}
+.section-head .no{font-size:13px}
+.lede{font-weight:300;color:var(--ink-soft);max-width:46ch}
+.page-doc h2{font-size:clamp(30px,3.4vw,52px);letter-spacing:-.02em}
+.page-doc .body{padding-top:clamp(48px,7vw,84px);padding-bottom:clamp(48px,7vw,84px)}
+
+/* Séparateur plus discret */
+.divider{margin:34px 0 18px}
+.divider .lab{color:var(--ink-soft);font-weight:500;letter-spacing:.18em}
+.divider .ln{background:var(--line)}
+
+/* Cartes : à plat, filet léger, plus d'espace intérieur */
+.amen .a,.card,.place,.stat,.shop-item,.book-card{box-shadow:none;border-color:var(--line);background:var(--paper)}
+.amen .a{padding:20px}
+.amen .ai{background:var(--cream2);color:var(--green)}
+.amen .a:hover,.place:hover,.shop-item:hover,.stat:hover{transform:translateY(-3px);box-shadow:var(--sh)}
+.tok,.svc .si,.shop-ic{background:var(--cream2)}
+
+/* Ornements végétaux : quasi effacés (esprit minimaliste) */
+.why .frond,.shop-item .frond,.tag .frond,.up-hero .frond{opacity:.05}
+.hero .frond{opacity:.1}
+.hero-logo{animation:none}
+
+/* Boutons : sobres, sans ombre lourde, lettres légèrement espacées */
+.cta,.bw-pay,.shop-buy,.adm-btn{box-shadow:none;font-weight:500;letter-spacing:.015em}
+.cta:hover,.shop-buy:hover{filter:none;transform:translateY(-1px);box-shadow:var(--sh-soft)}
+
+/* Bloc « pourquoi direct » : navy plus mat, coins plus doux */
+.why{border-radius:22px;background:linear-gradient(160deg,#12233b,#0b1a30)}
+.why .pt{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.14)}
+
+/* Hero : voile plus léger pour laisser respirer la photo */
+.hero .wash{background:linear-gradient(180deg,rgba(12,26,46,.12) 0%,rgba(12,26,46,.10) 42%,rgba(9,18,36,.62) 100%)}
+.hero h1{font-weight:300}
+
+/* Galerie : respirations plus généreuses */
+.gallery{gap:12px}
+.page-doc .gallery{gap:18px}
+
+/* Widget de réservation : encart plus léger */
+.bw-summary{background:var(--cream2);border-color:var(--line)}
+.book-card{border-radius:18px}
