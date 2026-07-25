@@ -45,8 +45,19 @@ export async function onRequestPut({ env, request }) {
   if (!clean.length) return Response.json({ ok: false, message: errors.join(' ') || 'Rien de valide.' }, { status: 400 });
 
   // Une seule opération D1 (batch) : tient quel que soit le nombre de lignes.
-  await bulkReplaceSeasons(env, clean, { replace: !!b.replace });
-  return Response.json({ ok: true, imported: clean.length, skipped: errors.length, errors: errors.slice(0, 10) });
+  // On remonte l'erreur réelle en cas d'échec (pour diagnostic côté admin).
+  try {
+    await bulkReplaceSeasons(env, clean, { replace: !!b.replace });
+  } catch (e) {
+    return Response.json({ ok: false, message: 'Import échoué : ' + ((e && e.message) || String(e)) }, { status: 500 });
+  }
+  // Importer des prix par date implique de vouloir la tarification dynamique active :
+  // on l'active automatiquement pour éviter « prix chargés mais 60 € affiché ».
+  try { await env.DB.prepare(`UPDATE settings SET dynamic_pricing_enabled = 1 WHERE id = 1`).run(); } catch (e) { /* colonne absente : ignorer */ }
+  // Compte réel en base (source de vérité, pas juste ce qu'on a tenté d'insérer).
+  let total = clean.length;
+  try { total = (await listSeasons(env)).length; } catch (e) { /* ignore */ }
+  return Response.json({ ok: true, imported: clean.length, total, skipped: errors.length, errors: errors.slice(0, 10) });
 }
 
 export async function onRequestDelete({ env, request }) {

@@ -220,8 +220,8 @@
     });
     if (status === 200) {
       const extra = (j.skipped || errors.length) ? ` — ${(j.skipped || 0) + errors.length} ignorée(s)` : '';
-      msg('#seasonBulkMsg', `${j.imported} période(s) importée(s) ✓${extra}`);
-      f.bulk.value = ''; f.replace.checked = false; loadSeasons();
+      msg('#seasonBulkMsg', `${j.imported} période(s) importée(s) ✓ — tarification dynamique activée${extra}`);
+      f.bulk.value = ''; f.replace.checked = false; loadSeasons(); loadSettings();
     } else msg('#seasonBulkMsg', (j && j.message) || 'Erreur', true);
   });
 
@@ -247,8 +247,8 @@
     });
     if (status === 200) {
       const extra = (j.skipped || errors.length) ? ` — ${(j.skipped || 0) + errors.length} ignoré(s)` : '';
-      msg('#seasonFileMsg', `${j.imported} tarif(s) chargé(s) ✓${extra}`);
-      input.value = ''; loadSeasons();
+      msg('#seasonFileMsg', `${j.imported} tarif(s) chargé(s) ✓ — tarification dynamique activée${extra}`);
+      input.value = ''; loadSeasons(); loadSettings();
     } else msg('#seasonFileMsg', (j && j.message) || 'Erreur', true);
   });
 
