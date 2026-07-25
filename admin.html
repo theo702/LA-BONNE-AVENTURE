@@ -71,8 +71,19 @@
       <!-- Tarifs (base + réductions + taxe + tarification dynamique) -->
       <section id="t-rates" class="adm-panel">
         <h2>Tarifs</h2>
+        <div class="adm-explain">
+          <b>Comment fonctionnent les prix ?</b>
+          <ol>
+            <li><b>Prix de base</b> — le prix par défaut, appliqué à <u>toutes</u> les nuits.</li>
+            <li><b>Prix par date / période</b> <em>(optionnel)</em> — remplace le prix de base <u>uniquement</u> sur les dates que vous choisissez (vacances, événements…).</li>
+            <li><b>Réductions</b> — appliquées <u>en dernier</u>, sur le prix final (longs séjours, dernière minute).</li>
+          </ol>
+          <span>Les trois se combinent — ils ne s'annulent jamais.</span>
+        </div>
+
         <form id="ratesForm" class="adm-form">
-          <fieldset><legend>Tarifs de base</legend>
+          <fieldset><legend>1 · Prix de base (par défaut)</legend>
+            <p class="adm-hint">Appliqué à chaque nuit, sauf celles où vous fixez un prix spécifique (étape 2).</p>
             <div class="adm-grid">
               <label>Prix / nuit (€)<input name="nightly" type="number" step="0.01" min="0"></label>
               <label>Frais de ménage (€)<input name="cleaning" type="number" step="0.01" min="0"></label>
@@ -80,8 +91,14 @@
               <label>Voyageurs max<input name="max_guests" type="number" min="1"></label>
             </div>
           </fieldset>
-          <fieldset><legend>Réductions automatiques</legend>
-            <p class="adm-hint">Appliquées automatiquement au moment du devis, en plus des tarifs dynamiques. Mettre <code>0</code> pour désactiver une réduction.</p>
+
+          <fieldset><legend>2 · Prix variables selon les dates <span style="text-transform:none;font-weight:400">(optionnel)</span></legend>
+            <label class="adm-check"><input name="dynamic_pricing_enabled" type="checkbox"> Autoriser des prix différents selon les dates</label>
+            <p class="adm-hint"><b>Coché</b> : vous pouvez fixer des prix par période (plus bas) ou par date (onglet Calendrier) — ils remplacent le prix de base <b>seulement</b> sur ces dates ; toutes les autres nuits restent au prix de base. <b>Décoché</b> : tout est vendu au prix de base (les prix spécifiques sont conservés mais ignorés). <b>Le prix de base reste toujours actif</b> — cette option ne le remplace jamais entièrement.</p>
+          </fieldset>
+
+          <fieldset><legend>3 · Réductions <span style="text-transform:none;font-weight:400">(appliquées en dernier)</span></legend>
+            <p class="adm-hint">S'appliquent sur le prix final, qu'il vienne du prix de base ou d'un prix spécifique. Mettre <code>0</code> pour désactiver une réduction — cela ne change pas les autres prix.</p>
             <div class="adm-grid">
               <label>Réduction hebdo (%)<input name="weekly_pct" type="number" step="0.1" min="0" max="100" placeholder="ex. 10"></label>
               <label>… à partir de (nuits)<input name="weekly_min_nights" type="number" min="1" placeholder="ex. 7"></label>
@@ -92,6 +109,7 @@
             </div>
             <p class="adm-hint"><b>Hebdo / mensuel</b> : réduction sur les longs séjours (la mensuelle prime dès le seuil atteint). <b>Dernière minute</b> : réduction si l'arrivée est proche (comble les créneaux vides).</p>
           </fieldset>
+
           <fieldset><legend>Taxe de séjour</legend>
             <label class="adm-check"><input name="taxe_enabled" type="checkbox"> Activer la taxe de séjour</label>
             <div class="adm-grid">
@@ -101,10 +119,7 @@
             </div>
             <p class="adm-hint">Formule appliquée : <code>min(taux % × prix nuit ÷ pers, plafond) × (1 + additionnelles %)</code>, par personne et par nuit.</p>
           </fieldset>
-          <fieldset><legend>Tarification dynamique</legend>
-            <label class="adm-check"><input name="dynamic_pricing_enabled" type="checkbox"> Activer les tarifs par période / par date</label>
-            <p class="adm-hint">Décochée, tous les jours sont vendus au <b>prix de base</b> ci-dessus (les périodes et prix par date sont ignorés, mais conservés). Cochée, les tarifs saisonniers et les prix par date (ci-dessous et dans l'onglet Calendrier) s'appliquent.</p>
-          </fieldset>
+
           <fieldset><legend>Équipe ménage</legend>
             <label>Emails des prestataires (séparés par une virgule)<input name="cleaning_emails" type="text" placeholder="menage1@email.com, menage2@email.com"></label>
             <p class="adm-hint">Ils recevront un email automatique à chaque nouvelle réservation (dates d'arrivée et de départ, ménage à prévoir).</p>
@@ -115,8 +130,8 @@
           </div>
         </form>
 
-        <h2 style="font-size:19px;margin-top:26px;border-top:1px solid var(--line);padding-top:22px">Tarifs par période (saisons &amp; événements)</h2>
-        <p class="adm-hint">Fixez un prix par période (saison, pont, festival…). Il remplace le prix de base pour toute nuit de la période et s'affiche sur le calendrier public. Nécessite la <b>tarification dynamique activée</b> ci-dessus.</p>
+        <h2 style="font-size:19px;margin-top:26px;border-top:1px solid var(--line);padding-top:22px">Prix par date / période (étape 2)</h2>
+        <p class="adm-hint">Fixez un prix pour une période (saison, pont, festival…) ou une date précise. Il <b>remplace le prix de base</b> sur ces nuits-là seulement, et s'affiche sur le calendrier public. Nécessite l'option <b>« Autoriser des prix différents selon les dates »</b> cochée ci-dessus.</p>
 
         <form id="seasonBulkForm" class="adm-form">
           <fieldset><legend>Import en masse (coller une année de prix)</legend>
