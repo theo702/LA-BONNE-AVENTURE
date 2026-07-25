@@ -368,6 +368,20 @@ h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
 .lb-cap{position:absolute;left:0;right:0;bottom:22px;text-align:center;color:#FBF7EE;
   font-family:'Fraunces',serif;font-style:italic;font-size:16px;text-shadow:0 2px 12px rgba(0,0,0,.6)}
 
+/* ---------- Avis des voyageurs ---------- */
+.rev-summary{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 20px;font-size:14px;color:var(--ink-soft)}
+.rev-summary .rev-stars{color:var(--gold);font-size:17px;letter-spacing:2px}
+.rev-summary b{color:var(--ink);font-family:'Fraunces',serif;font-size:19px;font-weight:400}
+.reviews{display:grid;grid-template-columns:1fr;gap:14px}
+.review{position:relative;margin:0;padding:22px 20px;border:1px solid var(--line);border-radius:18px;background:var(--paper);box-shadow:var(--sh-soft)}
+.review .rev-stars{color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:11px}
+.review blockquote{margin:0;font-family:'Fraunces',serif;font-size:16.5px;line-height:1.5;color:var(--ink);font-style:italic}
+.review figcaption{margin-top:14px;font-size:13px;display:flex;align-items:baseline;gap:7px}
+.review figcaption b{color:var(--ink);font-weight:600;font-family:'Jost'}
+.review figcaption span{color:var(--ink-soft);font-weight:300}
+.review .quote-mark{position:absolute;top:10px;right:16px;font-family:'Fraunces',serif;font-size:52px;line-height:1;color:var(--gold);opacity:.14}
+@media(min-width:760px){.page-doc .reviews{grid-template-columns:repeat(3,1fr);gap:18px}}
+
 /* ---------- Assistant (chatbot) ---------- */
 .bot-fab{position:fixed;right:16px;bottom:18px;z-index:60;width:54px;height:54px;border-radius:50%;
   border:0;cursor:pointer;background:var(--clay);color:#fff;box-shadow:var(--sh);display:flex;align-items:center;justify-content:center}
