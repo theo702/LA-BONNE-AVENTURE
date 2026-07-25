@@ -95,9 +95,8 @@
     if (f.dynamic_pricing_enabled) f.dynamic_pricing_enabled.checked = !!s.dynamic_pricing_enabled;
   }
 
-  $('#ratesForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const f = e.target;
+  async function saveRates(msgSel) {
+    const f = $('#ratesForm');
     const body = {
       nightly_cents: cents(f.nightly.value), cleaning_cents: cents(f.cleaning.value),
       min_nights: +f.min_nights.value, max_guests: +f.max_guests.value,
@@ -110,8 +109,19 @@
       dynamic_pricing_enabled: f.dynamic_pricing_enabled ? f.dynamic_pricing_enabled.checked : true,
     };
     const { status } = await api('settings', { method: 'PUT', body: JSON.stringify(body) });
-    msg('#ratesMsg', status === 200 ? 'Enregistré ✓' : 'Erreur', status !== 200);
+    msg(msgSel || '#ratesMsg', status === 200 ? 'Enregistré ✓' : 'Erreur', status !== 200);
     loadCalendar(); // le prix de base / l'activation peut avoir changé
+    return status;
+  }
+
+  $('#ratesForm').addEventListener('submit', (e) => { e.preventDefault(); saveRates('#ratesMsg'); });
+
+  // La case « prix dynamiques » s'enregistre IMMÉDIATEMENT (sans bouton) → plus de
+  // « je coche et ça s'enlève au rafraîchissement ».
+  const dynBox = document.querySelector('#ratesForm input[name="dynamic_pricing_enabled"]');
+  if (dynBox) dynBox.addEventListener('change', async () => {
+    const status = await saveRates('#dynMsg');
+    if (status === 200) msg('#dynMsg', dynBox.checked ? 'Prix dynamiques activés ✓' : 'Prix de base uniquement ✓');
   });
 
   async function loadPromos() {
