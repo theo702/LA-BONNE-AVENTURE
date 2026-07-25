@@ -197,7 +197,7 @@ export async function deleteSeason(env, id) {
 // gratuit Cloudflare (50). Découpe en INSERT multi-lignes de CHUNK lignes (≤ limite SQLite
 // de variables liées). `replace` vide d'abord la table, dans le même batch atomique.
 export async function bulkReplaceSeasons(env, items, { replace = false } = {}) {
-  const CHUNK = 40; // 40 lignes × 6 colonnes = 240 paramètres liés (< 999)
+  const CHUNK = 16; // D1 limite à 100 variables liées/requête → 16 lignes × 6 colonnes = 96 (< 100)
   const now = new Date().toISOString();
   const stmts = [];
   if (replace) stmts.push(env.DB.prepare(`DELETE FROM season_rates`));
