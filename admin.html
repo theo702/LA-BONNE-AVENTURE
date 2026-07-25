@@ -75,31 +75,25 @@
         <div class="adm-explain">
           <b>Comment fonctionnent les prix ?</b>
           <ol>
-            <li><b>Prix de base</b> — le prix par défaut, appliqué à <u>toutes</u> les nuits.</li>
-            <li><b>Prix par date / période</b> <em>(optionnel)</em> — remplace le prix de base <u>uniquement</u> sur les dates que vous choisissez (vacances, événements…).</li>
+            <li><b>Vos prix par date / période</b> — ceux que vous chargez (import) ou fixez à la main dans l'onglet <b>Calendrier</b>. Ce sont eux qui s'appliquent, toujours.</li>
+            <li><b>Prix par défaut</b> — utilisé uniquement pour une date où vous n'avez fixé <u>aucun</u> prix (filet de sécurité).</li>
             <li><b>Réductions</b> — appliquées <u>en dernier</u>, sur le prix final (longs séjours, dernière minute).</li>
           </ol>
-          <span>Les trois se combinent — ils ne s'annulent jamais.</span>
+          <span>Plus de case à cocher : vos prix par date priment automatiquement.</span>
         </div>
 
         <form id="ratesForm" class="adm-form">
-          <fieldset><legend>1 · Prix de base (par défaut)</legend>
-            <p class="adm-hint">Appliqué à chaque nuit, sauf celles où vous fixez un prix spécifique (étape 2).</p>
+          <fieldset><legend>Prix par défaut &amp; réglages</legend>
+            <p class="adm-hint">Le <b>prix par défaut</b> ne s'applique qu'aux dates sans prix fixé. Vos prix par date/période (plus bas et onglet Calendrier) priment toujours.</p>
             <div class="adm-grid">
-              <label>Prix / nuit (€)<input name="nightly" type="number" step="0.01" min="0"></label>
+              <label>Prix par défaut / nuit (€)<input name="nightly" type="number" step="0.01" min="0"></label>
               <label>Frais de ménage (€)<input name="cleaning" type="number" step="0.01" min="0"></label>
               <label>Nuits minimum<input name="min_nights" type="number" min="1"></label>
               <label>Voyageurs max<input name="max_guests" type="number" min="1"></label>
             </div>
           </fieldset>
 
-          <fieldset><legend>2 · Prix variables selon les dates <span style="text-transform:none;font-weight:400">(optionnel)</span></legend>
-            <label class="adm-check"><input name="dynamic_pricing_enabled" type="checkbox"> Autoriser des prix différents selon les dates <span id="dynMsg" class="adm-msg"></span></label>
-            <p class="adm-hint" style="margin-top:0"><b>Enregistré automatiquement dès que vous cochez</b> — pas besoin du bouton « Enregistrer » plus bas.</p>
-            <p class="adm-hint"><b>Coché</b> : vous pouvez fixer des prix par période (plus bas) ou par date (onglet Calendrier) — ils remplacent le prix de base <b>seulement</b> sur ces dates ; toutes les autres nuits restent au prix de base. <b>Décoché</b> : tout est vendu au prix de base (les prix spécifiques sont conservés mais ignorés). <b>Le prix de base reste toujours actif</b> — cette option ne le remplace jamais entièrement.</p>
-          </fieldset>
-
-          <fieldset><legend>3 · Réductions <span style="text-transform:none;font-weight:400">(appliquées en dernier)</span></legend>
+          <fieldset><legend>Réductions <span style="text-transform:none;font-weight:400">(appliquées en dernier)</span></legend>
             <p class="adm-hint">S'appliquent sur le prix final, qu'il vienne du prix de base ou d'un prix spécifique. Mettre <code>0</code> pour désactiver une réduction — cela ne change pas les autres prix.</p>
             <div class="adm-grid">
               <label>Réduction hebdo (%)<input name="weekly_pct" type="number" step="0.1" min="0" max="100" placeholder="ex. 10"></label>
@@ -132,8 +126,8 @@
           </div>
         </form>
 
-        <h2 style="font-size:19px;margin-top:26px;border-top:1px solid var(--line);padding-top:22px">Prix par date / période (étape 2)</h2>
-        <p class="adm-hint">Fixez un prix pour une période (saison, pont, festival…) ou une date précise. Il <b>remplace le prix de base</b> sur ces nuits-là seulement, et s'affiche sur le calendrier public. Nécessite l'option <b>« Autoriser des prix différents selon les dates »</b> cochée ci-dessus.</p>
+        <h2 style="font-size:19px;margin-top:26px;border-top:1px solid var(--line);padding-top:22px">Vos prix par date / période</h2>
+        <p class="adm-hint">Chargez toute une année d'un coup (fichier ci-dessous) ou fixez un prix pour une période / une date précise. Ces prix <b>s'appliquent automatiquement</b> et s'affichent sur le calendrier public. Vous pouvez aussi éditer chaque jour dans l'onglet <b>Calendrier</b>.</p>
 
         <form id="seasonFileForm" class="adm-form">
           <fieldset><legend>Importer un fichier de prix (recommandé)</legend>

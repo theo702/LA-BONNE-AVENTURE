@@ -25,10 +25,8 @@ export async function onRequestGet({ env }) {
       nightlyCents: s.nightly_cents,
       cleaningCents: s.cleaning_cents,
       currency: s.currency,
-      // Tarifs dynamiques → affichage du prix par nuit sur le calendrier (si activés).
-      seasons: s.dynamic_pricing_enabled
-        ? (seasons || []).map((x) => ({ date_from: x.date_from, date_to: x.date_to, nightly_cents: x.nightly_cents }))
-        : [],
+      // Prix par date/période → toujours renvoyés (affichage sur le calendrier).
+      seasons: (seasons || []).map((x) => ({ date_from: x.date_from, date_to: x.date_to, nightly_cents: x.nightly_cents })),
     },
     { headers: { 'cache-control': 'no-store' } }
   );

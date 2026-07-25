@@ -51,15 +51,15 @@ function seasonSpan(s) { return Math.max(0, nightsBetween(s.date_from, s.date_to
 // sinon base. Si plusieurs périodes couvrent la date, la plus spécifique (span le plus
 // court, ex. un override d'une seule journée) l'emporte. Désactivable via le réglage.
 function nightlyForDate(dateStr, settings, seasons) {
-  if (settings.dynamic_pricing_enabled) {
-    let best = null;
-    for (const s of seasons || []) {
-      if (dateStr >= s.date_from && dateStr <= s.date_to) {
-        if (!best || seasonSpan(s) < seasonSpan(best)) best = s;
-      }
+  // Les prix par date/période priment TOUJOURS (le plus spécifique gagne).
+  // Le prix de base ne sert que de filet si aucun prix n'est fixé pour la date.
+  let best = null;
+  for (const s of seasons || []) {
+    if (dateStr >= s.date_from && dateStr <= s.date_to) {
+      if (!best || seasonSpan(s) < seasonSpan(best)) best = s;
     }
-    if (best) return { cents: best.nightly_cents, minNights: best.min_nights || null };
   }
+  if (best) return { cents: best.nightly_cents, minNights: best.min_nights || null };
   return { cents: settings.nightly_cents, minNights: null };
 }
 

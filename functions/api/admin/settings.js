@@ -25,8 +25,9 @@ export async function onRequestPut({ env, request }) {
     taxe_cap_cents: Math.max(0, Math.round(num(b.taxe_cap_cents, cur.taxe_cap_cents))),
     taxe_additional_pct: Math.max(0, num(b.taxe_additional_pct, cur.taxe_additional_pct)),
     cleaning_emails: (b.cleaning_emails == null ? (cur.cleaning_emails || '') : String(b.cleaning_emails)).trim(),
-    // ⚠️ champ auparavant oublié → la case « prix dynamiques » ne se sauvegardait jamais.
-    dynamic_pricing_enabled: b.dynamic_pricing_enabled ? 1 : 0,
+    // La tarification par date est désormais toujours active (plus de case à cocher) :
+    // les prix par date/période priment automatiquement, le prix de base sert de filet.
+    dynamic_pricing_enabled: 1,
   };
   await ensurePricingSchema(env); // crée/complète les colonnes manquantes (base ancienne)
   await updateSettings(env, s);
