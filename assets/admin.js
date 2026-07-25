@@ -368,16 +368,15 @@
   // Prix d'une date (réplique nightlyForDate : période la plus spécifique sinon base).
   function priceForDate(ds) {
     const d = cal.data; if (!d) return 0;
-    if (d.dynamicEnabled) {
-      let best = null;
-      for (const s of d.seasons || []) {
-        if (ds >= s.date_from && ds <= s.date_to) {
-          const span = (Date.parse(s.date_to) - Date.parse(s.date_from));
-          if (!best || span < best.span) best = { cents: s.nightly_cents, span };
-        }
+    // Les prix par date priment toujours (le plus spécifique gagne), sinon prix par défaut.
+    let best = null;
+    for (const s of d.seasons || []) {
+      if (ds >= s.date_from && ds <= s.date_to) {
+        const span = (Date.parse(s.date_to) - Date.parse(s.date_from));
+        if (!best || span < best.span) best = { cents: s.nightly_cents, span };
       }
-      if (best) return best.cents;
     }
+    if (best) return best.cents;
     return d.baseCents;
   }
   // Un override d'une seule journée existe-t-il pour cette date ?
@@ -424,7 +423,7 @@
       const ds = y + '-' + pad2(m + 1) + '-' + pad2(day);
       const past = ds < today();
       const st = stateOf(ds);
-      const custom = cal.data.dynamicEnabled && isCustomDate(ds);
+      const custom = isCustomDate(ds);
       let cls = 'adm-cell s-' + st;
       if (past) cls += ' past';
       if (custom) cls += ' custom';
@@ -452,7 +451,7 @@
     ed.hidden = false;
     const st = stateOf(ds);
     const price = priceForDate(ds);
-    const custom = cal.data.dynamicEnabled && isCustomDate(ds);
+    const custom = isCustomDate(ds);
     const dObj = parseD(ds);
     const human = dObj.getUTCDate() + ' ' + CAL_MONTHS[dObj.getUTCMonth()] + ' ' + dObj.getUTCFullYear();
 
@@ -470,14 +469,10 @@
       if (st === 'block') h += '<button class="adm-btn" data-act="unblock">Libérer cette date</button>';
       else h += '<button class="adm-ghost" data-act="block">Bloquer cette date</button>';
       h += '</div>';
-      if (cal.data.dynamicEnabled) {
-        h += '<div class="adm-ed-row adm-ed-price"><label>Prix ce jour (€)<input id="admEdPrice" type="number" step="1" min="1" value="' + Math.round(price / 100) + '"></label>'
-          + '<button class="adm-btn" data-act="setPrice">Appliquer</button>'
-          + (custom ? '<button class="adm-ghost" data-act="clearPrice">Réinitialiser</button>' : '') + '</div>';
-        h += '<p class="adm-hint">' + (custom ? 'Prix personnalisé pour ce jour.' : 'Actuellement : ' + Math.round(price / 100) + ' € (tarif de période ou de base).') + '</p>';
-      } else {
-        h += '<p class="adm-hint">Tarification dynamique désactivée : ce jour est vendu au prix de base (' + Math.round(price / 100) + ' €). Activez-la dans l\'onglet Tarifs pour fixer un prix par date.</p>';
-      }
+      h += '<div class="adm-ed-row adm-ed-price"><label>Prix ce jour (€)<input id="admEdPrice" type="number" step="1" min="1" value="' + Math.round(price / 100) + '"></label>'
+        + '<button class="adm-btn" data-act="setPrice">Appliquer</button>'
+        + (custom ? '<button class="adm-ghost" data-act="clearPrice">Réinitialiser</button>' : '') + '</div>';
+      h += '<p class="adm-hint">' + (custom ? 'Prix personnalisé pour ce jour.' : 'Actuellement : ' + Math.round(price / 100) + ' € (prix par période ou par défaut).') + '</p>';
     }
     ed.innerHTML = h;
 
