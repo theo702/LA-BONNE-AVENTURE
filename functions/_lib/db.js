@@ -192,6 +192,32 @@ export async function deleteSeason(env, id) {
   await env.DB.prepare(`DELETE FROM season_rates WHERE id = ?1`).bind(id).run();
 }
 
+// Insertion en masse via une SEULE opération D1 (batch) → indispensable pour charger une
+// année de prix (des centaines de lignes) sans dépasser la limite de sous-requêtes du plan
+// gratuit Cloudflare (50). Découpe en INSERT multi-lignes de CHUNK lignes (≤ limite SQLite
+// de variables liées). `replace` vide d'abord la table, dans le même batch atomique.
+export async function bulkReplaceSeasons(env, items, { replace = false } = {}) {
+  const CHUNK = 40; // 40 lignes × 6 colonnes = 240 paramètres liés (< 999)
+  const now = new Date().toISOString();
+  const stmts = [];
+  if (replace) stmts.push(env.DB.prepare(`DELETE FROM season_rates`));
+  for (let i = 0; i < items.length; i += CHUNK) {
+    const part = items.slice(i, i + CHUNK);
+    const values = part.map(() => '(?,?,?,?,?,?)').join(',');
+    const binds = [];
+    for (const s of part) {
+      binds.push(s.label, s.date_from, s.date_to, s.nightly_cents, s.min_nights || null, now);
+    }
+    stmts.push(
+      env.DB.prepare(
+        `INSERT INTO season_rates (label, date_from, date_to, nightly_cents, min_nights, created_at) VALUES ${values}`
+      ).bind(...binds)
+    );
+  }
+  if (stmts.length) await env.DB.batch(stmts);
+  return items.length;
+}
+
 export async function deleteAllSeasons(env) {
   await env.DB.prepare(`DELETE FROM season_rates`).run();
 }

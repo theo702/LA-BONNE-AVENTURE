@@ -225,6 +225,33 @@
     } else msg('#seasonBulkMsg', (j && j.message) || 'Erreur', true);
   });
 
+  // Import par fichier (.txt/.csv) → même parseur, même endpoint batch.
+  $('#seasonFileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = $('#seasonFile');
+    const file = input && input.files && input.files[0];
+    if (!file) { msg('#seasonFileMsg', 'Choisissez un fichier.', true); return; }
+    let text = '';
+    try { text = await file.text(); } catch (err) { msg('#seasonFileMsg', 'Lecture du fichier impossible.', true); return; }
+    const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (!lines.length) { msg('#seasonFileMsg', 'Fichier vide.', true); return; }
+    const items = [], errors = [];
+    lines.forEach((l, i) => {
+      const r = parseSeasonLine(l, i + 1);
+      if (r.error) errors.push(r.error); else items.push(r.item);
+    });
+    if (!items.length) { msg('#seasonFileMsg', errors[0] || 'Aucune ligne valide.', true); return; }
+    msg('#seasonFileMsg', 'Chargement…');
+    const { status, j } = await api('seasons', {
+      method: 'PUT', body: JSON.stringify({ items, replace: $('#seasonFileReplace').checked }),
+    });
+    if (status === 200) {
+      const extra = (j.skipped || errors.length) ? ` — ${(j.skipped || 0) + errors.length} ignoré(s)` : '';
+      msg('#seasonFileMsg', `${j.imported} tarif(s) chargé(s) ✓${extra}`);
+      input.value = ''; loadSeasons();
+    } else msg('#seasonFileMsg', (j && j.message) || 'Erreur', true);
+  });
+
   async function loadBlocks() {
     const { j } = await api('blocks');
     const tb = $('#blockTable tbody'); tb.innerHTML = '';

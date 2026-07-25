@@ -1,5 +1,5 @@
 // GET/POST/PUT/DELETE /api/admin/seasons — gestion des tarifs saisonniers.
-import { listSeasons, createSeason, deleteSeason, deleteAllSeasons } from '../../_lib/db.js';
+import { listSeasons, createSeason, deleteSeason, bulkReplaceSeasons } from '../../_lib/db.js';
 
 const isDate = (d) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
 
@@ -44,9 +44,9 @@ export async function onRequestPut({ env, request }) {
   });
   if (!clean.length) return Response.json({ ok: false, message: errors.join(' ') || 'Rien de valide.' }, { status: 400 });
 
-  if (b.replace) await deleteAllSeasons(env);
-  for (const s of clean) await createSeason(env, s);
-  return Response.json({ ok: true, imported: clean.length, skipped: errors.length, errors });
+  // Une seule opération D1 (batch) : tient quel que soit le nombre de lignes.
+  await bulkReplaceSeasons(env, clean, { replace: !!b.replace });
+  return Response.json({ ok: true, imported: clean.length, skipped: errors.length, errors: errors.slice(0, 10) });
 }
 
 export async function onRequestDelete({ env, request }) {

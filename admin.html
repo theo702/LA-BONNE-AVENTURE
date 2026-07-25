@@ -133,8 +133,20 @@
         <h2 style="font-size:19px;margin-top:26px;border-top:1px solid var(--line);padding-top:22px">Prix par date / période (étape 2)</h2>
         <p class="adm-hint">Fixez un prix pour une période (saison, pont, festival…) ou une date précise. Il <b>remplace le prix de base</b> sur ces nuits-là seulement, et s'affiche sur le calendrier public. Nécessite l'option <b>« Autoriser des prix différents selon les dates »</b> cochée ci-dessus.</p>
 
+        <form id="seasonFileForm" class="adm-form">
+          <fieldset><legend>Importer un fichier de prix (recommandé)</legend>
+            <p class="adm-hint">Chargez directement le fichier de tarifs (<code>.txt</code> ou <code>.csv</code>, une période par ligne — même format que ci-dessous). C'est la méthode la plus simple : aucune limite, aucun copier-coller.</p>
+            <div class="adm-actions" style="flex-wrap:wrap;gap:12px">
+              <input id="seasonFile" type="file" accept=".txt,.csv,text/plain,text/csv">
+              <label class="adm-check" style="margin:0"><input type="checkbox" id="seasonFileReplace" checked> Remplacer tous les tarifs existants</label>
+              <button type="submit" class="adm-btn">Importer le fichier</button>
+              <span id="seasonFileMsg" class="adm-msg"></span>
+            </div>
+          </fieldset>
+        </form>
+
         <form id="seasonBulkForm" class="adm-form">
-          <fieldset><legend>Import en masse (coller une année de prix)</legend>
+          <fieldset><legend>Ou coller une année de prix</legend>
             <p class="adm-hint">Une période par ligne : <code>date_début&nbsp;&nbsp;date_fin&nbsp;&nbsp;prix€&nbsp;&nbsp;[nuits_min]&nbsp;&nbsp;[libellé]</code>. Dates au format <code>JJ/MM/AAAA</code> ou <code>AAAA-MM-JJ</code>. Séparateurs : espaces, tabulations, virgules ou points-virgules. Exemple&nbsp;:</p>
             <pre class="adm-example">01/07/2026  31/08/2026  90   2  Haute saison été
 24/12/2026  02/01/2027  120  3  Fêtes de fin d'année
