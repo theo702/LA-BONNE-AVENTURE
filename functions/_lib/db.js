@@ -192,6 +192,18 @@ export async function deleteSeason(env, id) {
   await env.DB.prepare(`DELETE FROM season_rates WHERE id = ?1`).bind(id).run();
 }
 
+// Auto-réparation du schéma : crée la table season_rates et complète les colonnes
+// settings ajoutées au fil des phases si la base a été créée avec une version ancienne.
+// Chaque instruction est idempotente / tolérante (try/catch) et ne coûte qu'un aller-retour.
+export async function ensurePricingSchema(env) {
+  const run = async (sql) => { try { await env.DB.prepare(sql).run(); } catch (e) { /* déjà présent : ignorer */ } };
+  await run(`CREATE TABLE IF NOT EXISTS season_rates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, label TEXT NOT NULL, date_from TEXT NOT NULL,
+    date_to TEXT NOT NULL, nightly_cents INTEGER NOT NULL, min_nights INTEGER, created_at TEXT NOT NULL)`);
+  await run(`ALTER TABLE settings ADD COLUMN dynamic_pricing_enabled INTEGER NOT NULL DEFAULT 1`);
+  await run(`ALTER TABLE settings ADD COLUMN cleaning_emails TEXT NOT NULL DEFAULT ''`);
+}
+
 // Insertion en masse via une SEULE opération D1 (batch) → indispensable pour charger une
 // année de prix (des centaines de lignes) sans dépasser la limite de sous-requêtes du plan
 // gratuit Cloudflare (50). Découpe en INSERT multi-lignes de CHUNK lignes (≤ limite SQLite

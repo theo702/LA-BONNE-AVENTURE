@@ -1,10 +1,12 @@
 // GET/POST/PUT/DELETE /api/admin/seasons — gestion des tarifs saisonniers.
-import { listSeasons, createSeason, deleteSeason, bulkReplaceSeasons } from '../../_lib/db.js';
+import { listSeasons, createSeason, deleteSeason, bulkReplaceSeasons, ensurePricingSchema } from '../../_lib/db.js';
 
 const isDate = (d) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
 
 export async function onRequestGet({ env }) {
-  return Response.json({ ok: true, seasons: await listSeasons(env) });
+  let seasons = [];
+  try { seasons = await listSeasons(env); } catch (e) { /* table pas encore créée */ }
+  return Response.json({ ok: true, seasons });
 }
 
 export async function onRequestPost({ env, request }) {
@@ -47,6 +49,7 @@ export async function onRequestPut({ env, request }) {
   // Une seule opération D1 (batch) : tient quel que soit le nombre de lignes.
   // On remonte l'erreur réelle en cas d'échec (pour diagnostic côté admin).
   try {
+    await ensurePricingSchema(env); // crée season_rates si absente (base ancienne)
     await bulkReplaceSeasons(env, clean, { replace: !!b.replace });
   } catch (e) {
     return Response.json({ ok: false, message: 'Import échoué : ' + ((e && e.message) || String(e)) }, { status: 500 });
