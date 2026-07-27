@@ -137,12 +137,10 @@ export function computeQuote(input, ctx) {
 
   const discountCents = lastminCents + promoCents + promoFixed;
 
-  // Frais de ménage : inclus (0) → aucune ligne. N'apparaît que s'il est configuré > 0.
-  const cleaning = s.cleaning_cents || 0;
-  if (cleaning > 0) lines.push({ label: 'Frais de ménage', cents: cleaning });
+  // Le ménage est inclus dans le tarif : plus aucun frais de ménage séparé.
 
   // Taxe de séjour : par personne et par nuit, sur la base hébergement effectivement payée.
-  // Ratio de remise appliqué au tarif de chaque nuit (hors ménage, hors promo fixe).
+  // Ratio de remise appliqué au tarif de chaque nuit (hors promo fixe).
   let taxe = 0;
   if (s.taxe_enabled) {
     const ratio = lodging > 0 ? (lodging - lastminCents - promoCents) / lodging : 1;
@@ -153,7 +151,7 @@ export function computeQuote(input, ctx) {
     if (taxe > 0) lines.push({ label: 'Taxe de séjour', cents: taxe });
   }
 
-  const total = Math.max(0, lodgingNet + cleaning + taxe);
+  const total = Math.max(0, lodgingNet + taxe);
 
   return {
     ok: true,
@@ -161,7 +159,7 @@ export function computeQuote(input, ctx) {
     currency: s.currency,
     lodgingCents: lodging,
     discountCents,
-    cleaningCents: cleaning,
+    cleaningCents: 0,
     taxeCents: taxe,
     cautionCents: s.caution_cents || 0,
     promoCode: promo ? promo.code : null,

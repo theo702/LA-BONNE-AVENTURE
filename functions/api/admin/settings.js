@@ -11,7 +11,8 @@ export async function onRequestPut({ env, request }) {
   const cur = await getSettings(env);
   const s = {
     nightly_cents: Math.max(0, Math.round(num(b.nightly_cents, cur.nightly_cents))),
-    cleaning_cents: Math.max(0, Math.round(num(b.cleaning_cents, cur.cleaning_cents))),
+    cleaning_cents: 0, // ménage inclus : plus de frais de ménage séparé
+
     min_nights: Math.max(1, Math.round(num(b.min_nights, cur.min_nights))),
     max_guests: Math.max(1, Math.round(num(b.max_guests, cur.max_guests))),
     weekly_pct: Math.min(100, Math.max(0, num(b.weekly_pct, cur.weekly_pct))),

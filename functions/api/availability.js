@@ -21,7 +21,6 @@ export async function onRequestGet({ env }) {
       minNights: s.min_nights,
       maxGuests: s.max_guests,
       nightlyCents: s.nightly_cents,
-      cleaningCents: s.cleaning_cents,
       currency: s.currency,
       // Paliers par durée (totaux) → estimation locale immédiate côté widget.
       weekTotalCents: s.week_total_cents,

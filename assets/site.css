@@ -383,6 +383,9 @@ h2{font-size:29px;line-height:1.12;letter-spacing:-.01em;margin:2px 0 8px}
 .review figcaption span{color:var(--ink-soft);font-weight:300}
 .review .quote-mark{position:absolute;top:10px;right:16px;font-family:'Fraunces',serif;font-size:52px;line-height:1;color:var(--gold);opacity:.14}
 @media(min-width:760px){.page-doc .reviews{grid-template-columns:repeat(3,1fr);gap:18px}}
+.btn-review{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border:1px solid var(--line);border-radius:30px;background:#fff;color:var(--ink);font-family:'Jost';font-weight:500;font-size:14.5px;text-decoration:none;box-shadow:var(--sh-soft);transition:transform .12s,box-shadow .12s,border-color .12s}
+.btn-review:hover{transform:translateY(-2px);box-shadow:var(--sh);border-color:var(--clay)}
+.btn-review svg{flex:0 0 auto}
 
 /* ---------- Assistant (chatbot) ---------- */
 .bot-fab{position:fixed;right:16px;bottom:18px;z-index:60;width:54px;height:54px;border-radius:50%;

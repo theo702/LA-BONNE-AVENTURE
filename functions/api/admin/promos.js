@@ -1,7 +1,23 @@
 // GET/POST/DELETE /api/admin/promos — gestion des codes promo.
 import { listPromos, createPromo, deletePromo } from '../../_lib/db.js';
 
+// Code promo « offre cure » pré-chargé une seule fois : cure de 3 semaines à 650 € (−100 €
+// sur les 750 €), usage unique, valable jusqu'à fin octobre. Marqueur KV → si l'hôte le
+// supprime, il ne réapparaît pas. Modifiable/supprimable ensuite depuis l'admin.
+async function seedCurePromo(env) {
+  try {
+    if (!env.CACHE) return;
+    if (await env.CACHE.get('seed:cure-oct')) return;
+    await createPromo(env, {
+      code: 'CURE-OCT', kind: 'fixed', value: 10000,   // −100,00 €
+      min_nights: 21, valid_from: null, valid_to: '2026-10-31', max_uses: 1,
+    }).catch(() => {}); // ignore si le code existe déjà
+    await env.CACHE.put('seed:cure-oct', '1');
+  } catch (e) { /* non bloquant */ }
+}
+
 export async function onRequestGet({ env }) {
+  await seedCurePromo(env);
   return Response.json({ ok: true, promos: await listPromos(env) });
 }
 
