@@ -84,15 +84,15 @@
         <form id="ratesForm" class="adm-form">
           <fieldset><legend>Tarifs par durée <span style="text-transform:none;font-weight:400">(ménage inclus)</span></legend>
             <div class="adm-grid">
-              <label>1–6 nuits (€ / nuit)<input name="nightly" type="number" step="1" min="0" placeholder="120"></label>
+              <label>Courts séjours (€ / nuit)<input name="nightly" type="number" step="1" min="0" placeholder="120"></label>
               <label>Prix d'une semaine (€ total)<input name="week_total" type="number" step="1" min="0" placeholder="300"></label>
-              <label>… semaine dès (nuits)<input name="weekly_min_nights" type="number" min="1" placeholder="7"></label>
+              <label>… semaine dès (nuits)<input name="weekly_min_nights" type="number" min="1" placeholder="6"></label>
               <label>Prix d'une cure — 3 sem. (€ total)<input name="cure_total" type="number" step="1" min="0" placeholder="750"></label>
-              <label>… cure dès (nuits)<input name="monthly_min_nights" type="number" min="1" placeholder="21"></label>
+              <label>… cure dès (nuits)<input name="monthly_min_nights" type="number" min="1" placeholder="20"></label>
               <label>Nuits minimum<input name="min_nights" type="number" min="1" placeholder="1"></label>
               <label>Voyageurs max<input name="max_guests" type="number" min="1" placeholder="2"></label>
             </div>
-            <p class="adm-hint">Ex. actuel : <b>120 €/nuit</b> (1–6 nuits) · <b>300 €</b> la semaine (dès 7 nuits) · <b>750 €</b> la cure de 3 semaines (dès 21 nuits). Entre les paliers, le prix est calculé au prorata. Le ménage est <b>inclus</b>.</p>
+            <p class="adm-hint">Ex. : <b>120 €/nuit</b> en court séjour · <b>300 €</b> la semaine · <b>750 €</b> la cure de 3 semaines. Les seuils sont en <b>nuits</b> : une semaine = 7 jours = <b>6 nuits</b>, une cure de 3 semaines = 21 jours = <b>20 nuits</b> (le jour du départ ne compte pas). Entre les paliers, le prix est au prorata. Ménage <b>inclus</b>.</p>
           </fieldset>
 
           <fieldset><legend>Caution</legend>

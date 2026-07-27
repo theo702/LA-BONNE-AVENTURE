@@ -1,9 +1,10 @@
 // GET /api/availability — plages occupées (Airbnb ⋃ réservations directes) + réglages.
 import { fetchExternalRanges } from '../_lib/ical.js';
-import { getBusyRanges } from '../_lib/db.js';
+import { getBusyRanges, seedTierPricingOnce } from '../_lib/db.js';
 import { loadSettings } from '../_lib/pricing.js';
 
 export async function onRequestGet({ env }) {
+  await seedTierPricingOnce(env); // applique une fois les tarifs par durée si base au tarif d'usine
   const s = await loadSettings(env);
   let external = [];
   let busy = [];

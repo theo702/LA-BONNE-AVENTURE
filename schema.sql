@@ -34,10 +34,10 @@ CREATE TABLE IF NOT EXISTS settings (
   cleaning_cents      INTEGER NOT NULL DEFAULT 4500,
   min_nights          INTEGER NOT NULL DEFAULT 2,
   max_guests          INTEGER NOT NULL DEFAULT 2,
-  weekly_pct          REAL    NOT NULL DEFAULT 0,   -- réduction séjour ≥ weekly_min_nights
-  weekly_min_nights   INTEGER NOT NULL DEFAULT 7,
-  monthly_pct         REAL    NOT NULL DEFAULT 0,   -- réduction séjour ≥ monthly_min_nights
-  monthly_min_nights  INTEGER NOT NULL DEFAULT 28,
+  weekly_pct          REAL    NOT NULL DEFAULT 0,   -- (déprécié)
+  weekly_min_nights   INTEGER NOT NULL DEFAULT 6,   -- « semaine » dès 6 nuits (7 jours)
+  monthly_pct         REAL    NOT NULL DEFAULT 0,   -- (déprécié)
+  monthly_min_nights  INTEGER NOT NULL DEFAULT 20,  -- « cure » dès 20 nuits (21 jours)
   lastmin_days        INTEGER NOT NULL DEFAULT 0,   -- 0 = désactivé
   lastmin_pct         REAL    NOT NULL DEFAULT 0,
   taxe_enabled        INTEGER NOT NULL DEFAULT 1,

@@ -218,6 +218,27 @@ export async function ensurePricingSchema(env) {
   await run(`ALTER TABLE bookings ADD COLUMN stripe_payment_method TEXT`);
 }
 
+// Applique UNE SEULE FOIS le nouveau modèle de prix par durée (120 €/nuit, 300 € la semaine
+// dès 6 nuits, 750 € la cure dès 20 nuits, ménage inclus), mais uniquement si les réglages
+// sont encore au tarif d'usine (60 €/nuit) → on n'écrase jamais des prix déjà personnalisés.
+// Marqueur KV : après application, l'hôte reste libre de tout modifier depuis l'admin.
+export async function seedTierPricingOnce(env) {
+  try {
+    if (!env.CACHE) return;
+    if (await env.CACHE.get('seed:tier-prices-v6')) return;
+    await ensurePricingSchema(env);
+    const s = await getSettings(env);
+    if (s && Number(s.nightly_cents) === 6000) {
+      await env.DB.prepare(
+        `UPDATE settings SET nightly_cents=12000, cleaning_cents=0, min_nights=1,
+           weekly_min_nights=6, monthly_min_nights=20,
+           week_total_cents=30000, cure_total_cents=75000 WHERE id=1`
+      ).run();
+    }
+    await env.CACHE.put('seed:tier-prices-v6', '1');
+  } catch (e) { /* non bloquant */ }
+}
+
 // ---------- Calendrier admin : blocage par date ----------
 const addDayStr = (s, n) => { const d = new Date(Date.parse(s)); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 

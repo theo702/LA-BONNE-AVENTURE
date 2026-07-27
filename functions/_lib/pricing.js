@@ -14,8 +14,10 @@ export function defaults(env = {}) {
     cleaning_cents: int('CLEANING_CENTS', 0),     // ménage inclus
     min_nights: int('MIN_NIGHTS', 1),
     max_guests: int('MAX_GUESTS', 2),
-    weekly_pct: 0, weekly_min_nights: 7,          // seuil « semaine »
-    monthly_pct: 0, monthly_min_nights: 21,       // seuil « cure »
+    // Seuils en NUITS. Une semaine = 7 jours = 6 nuits ; une cure de 3 semaines = 21 jours
+    // = 20 nuits (le jour du départ ne compte pas).
+    weekly_pct: 0, weekly_min_nights: 6,          // « semaine » dès 6 nuits (7 jours)
+    monthly_pct: 0, monthly_min_nights: 20,       // « cure » dès 20 nuits (21 jours)
     lastmin_days: 0, lastmin_pct: 0,
     taxe_enabled: 1, taxe_rate_pct: 5.0, taxe_cap_cents: 427, taxe_additional_pct: 10.0,
     cleaning_emails: '',

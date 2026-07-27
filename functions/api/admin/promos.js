@@ -10,7 +10,7 @@ async function seedCurePromo(env) {
     if (await env.CACHE.get('seed:cure-oct')) return;
     await createPromo(env, {
       code: 'CURE-OCT', kind: 'fixed', value: 10000,   // −100,00 €
-      min_nights: 21, valid_from: null, valid_to: '2026-10-31', max_uses: 1,
+      min_nights: 20, valid_from: null, valid_to: '2026-10-31', max_uses: 1, // cure = 20 nuits (21 jours)
     }).catch(() => {}); // ignore si le code existe déjà
     await env.CACHE.put('seed:cure-oct', '1');
   } catch (e) { /* non bloquant */ }
