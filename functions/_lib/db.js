@@ -216,6 +216,33 @@ export async function ensurePricingSchema(env) {
   // Empreinte bancaire : carte enregistrée pour débiter la caution en cas de dégât.
   await run(`ALTER TABLE bookings ADD COLUMN stripe_customer_id TEXT`);
   await run(`ALTER TABLE bookings ADD COLUMN stripe_payment_method TEXT`);
+  // Prestations ménage : montant payé au prestataire par séjour + suivi « payé ».
+  await run(`ALTER TABLE settings ADD COLUMN cleaning_pay_cents INTEGER NOT NULL DEFAULT 0`);
+  await run(`ALTER TABLE bookings ADD COLUMN cleaning_paid INTEGER NOT NULL DEFAULT 0`);
+  await run(`ALTER TABLE bookings ADD COLUMN cleaning_pay_cents INTEGER`);
+}
+
+// ---------- Prestations ménage (un séjour confirmé = un ménage à payer) ----------
+export async function listPrestations(env) {
+  const { results } = await env.DB.prepare(
+    `SELECT id, checkin, checkout, nights, guest_name, cleaning_paid, cleaning_pay_cents
+       FROM bookings WHERE status = 'confirmed' ORDER BY checkout DESC`
+  ).all();
+  return results || [];
+}
+export async function setCleaningPaid(env, id, paid) {
+  await env.DB.prepare(`UPDATE bookings SET cleaning_paid = ?1 WHERE id = ?2`).bind(paid ? 1 : 0, id).run();
+}
+// cents = null → le séjour reprend le tarif par défaut ; sinon montant personnalisé.
+export async function setCleaningPay(env, id, cents) {
+  const v = (cents == null) ? null : Math.max(0, Math.round(cents));
+  await env.DB.prepare(`UPDATE bookings SET cleaning_pay_cents = ?1 WHERE id = ?2`).bind(v, id).run();
+}
+export async function setCleaningPayRate(env, cents) {
+  try {
+    await env.DB.prepare(`UPDATE settings SET cleaning_pay_cents = ?1 WHERE id = 1`)
+      .bind(Math.max(0, Math.round(cents || 0))).run();
+  } catch (e) { /* colonne absente : ignorer */ }
 }
 
 // Applique UNE SEULE FOIS le nouveau modèle de prix par durée (120 €/nuit, 300 € la semaine

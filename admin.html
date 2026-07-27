@@ -42,6 +42,7 @@
       <button data-tab="t-promo">Codes promo</button>
       <button data-tab="t-block">Blocages</button>
       <button data-tab="t-extra">Extras</button>
+      <button data-tab="t-presta">Prestations</button>
     </nav>
 
     <main class="adm-main">
@@ -209,6 +210,34 @@
           <tbody></tbody>
         </table></div>
         <div id="orderEmpty" class="adm-empty" hidden>Aucune commande.</div>
+      </section>
+
+      <!-- Prestations (ménage) -->
+      <section id="t-presta" class="adm-panel">
+        <h2>Prestations — ménage</h2>
+        <p class="adm-hint"><b>Un séjour = un ménage.</b> Réglez le montant payé à votre prestataire, suivez ce que vous lui devez et cochez « payé » au fur et à mesure. La colonne <b>Nuits</b> vous indique s'il s'agit d'un court séjour ou d'une cure.</p>
+
+        <form id="prestaRateForm" class="adm-form adm-inline">
+          <label>Montant par ménage (€)<input name="cleaning_pay" type="number" step="1" min="0" placeholder="ex. 30"></label>
+          <button type="submit" class="adm-btn">Enregistrer le tarif</button>
+          <span id="prestaRateMsg" class="adm-msg"></span>
+        </form>
+        <p class="adm-hint">Ce montant s'applique à chaque ménage. Vous pouvez ajuster un séjour précis directement dans le tableau (ex. grand ménage après une cure).</p>
+
+        <div class="adm-presta-bar">
+          <label>Mois&nbsp;: <select id="prestaMonth"></select></label>
+          <div class="adm-presta-tot">
+            <span><b id="prestaCount">0</b> ménage(s)</span>
+            <span>À payer&nbsp;: <b id="prestaDue" class="due">0 €</b></span>
+            <span>Déjà payé&nbsp;: <b id="prestaPaid">0 €</b></span>
+          </div>
+        </div>
+
+        <div class="adm-scroll"><table class="adm-table" id="prestaTable">
+          <thead><tr><th>Départ (ménage)</th><th>Arrivée</th><th>Nuits</th><th>Voyageur</th><th>Montant (€)</th><th>Statut</th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div id="prestaEmpty" class="adm-empty" hidden>Aucune prestation (aucun séjour confirmé).</div>
       </section>
     </main>
   </div>

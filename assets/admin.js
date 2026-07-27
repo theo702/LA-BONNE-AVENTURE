@@ -41,7 +41,7 @@
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadCalendar(); }
+  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadCalendar(); loadPrestations(); }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée' };
 
@@ -174,6 +174,68 @@
     const { status, j } = await api('promos', { method: 'POST', body: JSON.stringify(body) });
     if (status === 200) { f.reset(); msg('#promoMsg', 'Ajouté ✓'); loadPromos(); }
     else msg('#promoMsg', (j && j.message) || 'Erreur', true);
+  });
+
+  // ---------- Prestations ménage ----------
+  const presta = { rows: [], rate: 0, month: 'all' };
+  const monthKey = (d) => (d || '').slice(0, 7);            // 'YYYY-MM'
+  const monthLabelFr = (k) => {
+    if (k === 'all') return 'Tous les mois';
+    const [y, m] = k.split('-');
+    return ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][+m - 1] + ' ' + y;
+  };
+
+  async function loadPrestations() {
+    const { j } = await api('prestations');
+    presta.rows = (j && j.bookings) || [];
+    presta.rate = (j && j.rate) || 0;
+    const rateField = $('#prestaRateForm').cleaning_pay;
+    if (rateField && document.activeElement !== rateField) rateField.value = presta.rate ? (presta.rate / 100).toFixed(0) : '';
+    // Liste des mois disponibles (par date de départ = jour du ménage).
+    const months = Array.from(new Set(presta.rows.map((r) => monthKey(r.checkout)))).sort().reverse();
+    const sel = $('#prestaMonth');
+    if (!months.includes(presta.month)) presta.month = 'all';
+    sel.innerHTML = ['all', ...months].map((k) => `<option value="${k}"${k === presta.month ? ' selected' : ''}>${monthLabelFr(k)}</option>`).join('');
+    renderPrestations();
+  }
+
+  function renderPrestations() {
+    const tb = $('#prestaTable tbody'); tb.innerHTML = '';
+    const rows = presta.rows.filter((r) => presta.month === 'all' || monthKey(r.checkout) === presta.month);
+    $('#prestaEmpty').hidden = rows.length > 0;
+    let due = 0, paid = 0;
+    rows.forEach((r) => {
+      if (r.paid) paid += r.amountCents; else due += r.amountCents;
+      const tr = document.createElement('tr');
+      if (r.paid) tr.classList.add('presta-paid');
+      tr.innerHTML =
+        `<td><b>${r.checkout}</b></td><td>${r.checkin}</td><td>${r.nights}</td>` +
+        `<td>${esc(r.guest)}</td>` +
+        `<td><input class="presta-amount" type="number" step="1" min="0" value="${Math.round(r.amountCents / 100)}" data-id="${r.id}"${r.custom ? ' title="Montant personnalisé"' : ''}></td>` +
+        `<td><button class="presta-toggle ${r.paid ? 'on' : ''}" data-id="${r.id}">${r.paid ? '✓ Payé' : 'À payer'}</button></td>`;
+      tb.appendChild(tr);
+    });
+    $('#prestaCount').textContent = rows.length;
+    $('#prestaDue').textContent = euro(due);
+    $('#prestaPaid').textContent = euro(paid);
+
+    tb.querySelectorAll('.presta-toggle').forEach((btn) => btn.addEventListener('click', async () => {
+      const row = presta.rows.find((x) => x.id === btn.dataset.id);
+      await api('prestations', { method: 'POST', body: JSON.stringify({ bookingId: btn.dataset.id, action: row && row.paid ? 'unpaid' : 'paid' }) });
+      loadPrestations();
+    }));
+    tb.querySelectorAll('.presta-amount').forEach((inp) => inp.addEventListener('change', async () => {
+      await api('prestations', { method: 'POST', body: JSON.stringify({ bookingId: inp.dataset.id, action: 'amount', amount_cents: cents(inp.value) }) });
+      loadPrestations();
+    }));
+  }
+
+  $('#prestaMonth').addEventListener('change', (e) => { presta.month = e.target.value; renderPrestations(); });
+  $('#prestaRateForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const { status } = await api('prestations', { method: 'PUT', body: JSON.stringify({ cleaning_pay_cents: cents(e.target.cleaning_pay.value) }) });
+    msg('#prestaRateMsg', status === 200 ? 'Tarif enregistré ✓' : 'Erreur', status !== 200);
+    loadPrestations();
   });
 
   async function loadBlocks() {

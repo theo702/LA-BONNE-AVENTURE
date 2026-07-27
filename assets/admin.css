@@ -109,3 +109,18 @@
 .adm-ed-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:15px}
 .adm-ed-head .adm-ed-x{margin-left:auto;border:0;background:transparent;cursor:pointer;font-size:15px;color:var(--ink-soft)}
 .adm-ed-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;margin:12px 0 4px}
+
+/* Prestations (ménage) */
+.adm-presta-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin:14px 0 12px}
+.adm-presta-bar label{font-size:13px;color:var(--ink-soft)}
+.adm-presta-bar select{font-family:'Jost';font-size:13.5px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;margin-left:6px}
+.adm-presta-tot{display:flex;flex-wrap:wrap;gap:16px;font-size:13.5px;color:var(--ink-soft)}
+.adm-presta-tot b{color:var(--ink);font-family:'Fraunces',serif;font-size:17px;font-weight:400;margin-left:4px}
+.adm-presta-tot b.due{color:var(--clay)}
+.presta-amount{width:78px;font-family:'Jost';font-size:13.5px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.presta-toggle{border:1px solid var(--line);background:#fff;color:var(--ink-soft);cursor:pointer;font-family:'Jost';font-weight:500;font-size:12.5px;padding:6px 12px;border-radius:20px;white-space:nowrap}
+.presta-toggle.on{background:#1f8a54;border-color:#1f8a54;color:#fff}
+.presta-toggle:hover{border-color:var(--clay)}
+.presta-toggle.on:hover{border-color:#1f8a54;filter:brightness(1.05)}
+tr.presta-paid td{opacity:.62}
+tr.presta-paid td:last-child{opacity:1}
