@@ -1,18 +1,16 @@
 // GET /api/availability — plages occupées (Airbnb ⋃ réservations directes) + réglages.
 import { fetchExternalRanges } from '../_lib/ical.js';
 import { getBusyRanges } from '../_lib/db.js';
-import { loadSettings, loadSeasons } from '../_lib/pricing.js';
+import { loadSettings } from '../_lib/pricing.js';
 
 export async function onRequestGet({ env }) {
   const s = await loadSettings(env);
   let external = [];
   let busy = [];
-  let seasons = [];
   try {
-    [external, busy, seasons] = await Promise.all([
+    [external, busy] = await Promise.all([
       fetchExternalRanges(env, {}),
       getBusyRanges(env),
-      loadSeasons(env),
     ]);
   } catch (err) { /* on ne casse pas le calendrier si une source échoue */ }
   const blocked = [...external, ...busy].filter((r) => r.from && r.to);
@@ -25,8 +23,11 @@ export async function onRequestGet({ env }) {
       nightlyCents: s.nightly_cents,
       cleaningCents: s.cleaning_cents,
       currency: s.currency,
-      // Prix par date/période → toujours renvoyés (affichage sur le calendrier).
-      seasons: (seasons || []).map((x) => ({ date_from: x.date_from, date_to: x.date_to, nightly_cents: x.nightly_cents })),
+      // Paliers par durée (totaux) → estimation locale immédiate côté widget.
+      weekTotalCents: s.week_total_cents,
+      cureTotalCents: s.cure_total_cents,
+      weeklyMinNights: s.weekly_min_nights,
+      monthlyMinNights: s.monthly_min_nights,
     },
     { headers: { 'cache-control': 'no-store' } }
   );

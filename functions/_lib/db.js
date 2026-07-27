@@ -160,13 +160,18 @@ export async function updateSettings(env, s) {
   try {
     await env.DB.prepare(`UPDATE settings SET dynamic_pricing_enabled=?1 WHERE id=1`).bind(s.dynamic_pricing_enabled ? 1 : 0).run();
   } catch (e) { /* colonne absente : ignorer */ }
-  // Tarifs par durée + caution (colonnes récentes → UPDATE tolérant).
+  // Caution (colonne récente → UPDATE tolérant).
   try {
-    await env.DB.prepare(`UPDATE settings SET week_nightly_cents=?1, cure_nightly_cents=?2, caution_cents=?3 WHERE id=1`)
+    await env.DB.prepare(`UPDATE settings SET caution_cents=?1 WHERE id=1`)
+      .bind(Math.max(0, Math.round(s.caution_cents || 0))).run();
+  } catch (e) { /* colonne absente : ignorer */ }
+  // Tarifs par durée : la semaine et la cure sont stockées en TOTAL (prix pour la durée
+  // de référence) → totaux ronds exacts. UPDATE tolérant (colonnes récentes).
+  try {
+    await env.DB.prepare(`UPDATE settings SET week_total_cents=?1, cure_total_cents=?2 WHERE id=1`)
       .bind(
-        Math.max(0, Math.round(s.week_nightly_cents || 0)),
-        Math.max(0, Math.round(s.cure_nightly_cents || 0)),
-        Math.max(0, Math.round(s.caution_cents || 0))
+        Math.max(0, Math.round(s.week_total_cents || 0)),
+        Math.max(0, Math.round(s.cure_total_cents || 0))
       ).run();
   } catch (e) { /* colonnes absentes : ignorer */ }
 }
@@ -196,72 +201,24 @@ export async function incrementPromoUse(env, code) {
     .bind(String(code).toUpperCase()).run();
 }
 
-export async function listSeasons(env) {
-  const { results } = await env.DB.prepare(`SELECT * FROM season_rates ORDER BY date_from`).all();
-  return results || [];
-}
-
-export async function createSeason(env, s) {
-  await env.DB.prepare(
-    `INSERT INTO season_rates (label, date_from, date_to, nightly_cents, min_nights, created_at)
-     VALUES (?1,?2,?3,?4,?5,?6)`
-  ).bind(s.label, s.date_from, s.date_to, s.nightly_cents, s.min_nights || null, new Date().toISOString()).run();
-}
-
-export async function deleteSeason(env, id) {
-  await env.DB.prepare(`DELETE FROM season_rates WHERE id = ?1`).bind(id).run();
-}
-
-// Auto-réparation du schéma : crée la table season_rates et complète les colonnes
-// settings ajoutées au fil des phases si la base a été créée avec une version ancienne.
-// Chaque instruction est idempotente / tolérante (try/catch) et ne coûte qu'un aller-retour.
+// Auto-réparation du schéma : complète les colonnes settings/bookings ajoutées au fil des
+// phases si la base a été créée avec une version ancienne. Chaque instruction est idempotente
+// / tolérante (try/catch) et ne coûte qu'un aller-retour.
 export async function ensurePricingSchema(env) {
   const run = async (sql) => { try { await env.DB.prepare(sql).run(); } catch (e) { /* déjà présent : ignorer */ } };
-  await run(`CREATE TABLE IF NOT EXISTS season_rates (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, label TEXT NOT NULL, date_from TEXT NOT NULL,
-    date_to TEXT NOT NULL, nightly_cents INTEGER NOT NULL, min_nights INTEGER, created_at TEXT NOT NULL)`);
   await run(`ALTER TABLE settings ADD COLUMN dynamic_pricing_enabled INTEGER NOT NULL DEFAULT 1`);
   await run(`ALTER TABLE settings ADD COLUMN cleaning_emails TEXT NOT NULL DEFAULT ''`);
-  // Tarifs par durée + caution (Phase 5).
-  await run(`ALTER TABLE settings ADD COLUMN week_nightly_cents INTEGER NOT NULL DEFAULT 5700`);
-  await run(`ALTER TABLE settings ADD COLUMN cure_nightly_cents INTEGER NOT NULL DEFAULT 4300`);
+  // Caution (Phase 5).
   await run(`ALTER TABLE settings ADD COLUMN caution_cents INTEGER NOT NULL DEFAULT 0`);
+  // Tarifs par durée en TOTAL (Phase 6) : 300 € la semaine, 750 € la cure.
+  await run(`ALTER TABLE settings ADD COLUMN week_total_cents INTEGER NOT NULL DEFAULT 30000`);
+  await run(`ALTER TABLE settings ADD COLUMN cure_total_cents INTEGER NOT NULL DEFAULT 75000`);
   // Empreinte bancaire : carte enregistrée pour débiter la caution en cas de dégât.
   await run(`ALTER TABLE bookings ADD COLUMN stripe_customer_id TEXT`);
   await run(`ALTER TABLE bookings ADD COLUMN stripe_payment_method TEXT`);
 }
 
-// Insertion en masse via une SEULE opération D1 (batch) → indispensable pour charger une
-// année de prix (des centaines de lignes) sans dépasser la limite de sous-requêtes du plan
-// gratuit Cloudflare (50). Découpe en INSERT multi-lignes de CHUNK lignes (≤ limite SQLite
-// de variables liées). `replace` vide d'abord la table, dans le même batch atomique.
-export async function bulkReplaceSeasons(env, items, { replace = false } = {}) {
-  const CHUNK = 16; // D1 limite à 100 variables liées/requête → 16 lignes × 6 colonnes = 96 (< 100)
-  const now = new Date().toISOString();
-  const stmts = [];
-  if (replace) stmts.push(env.DB.prepare(`DELETE FROM season_rates`));
-  for (let i = 0; i < items.length; i += CHUNK) {
-    const part = items.slice(i, i + CHUNK);
-    const values = part.map(() => '(?,?,?,?,?,?)').join(',');
-    const binds = [];
-    for (const s of part) {
-      binds.push(s.label, s.date_from, s.date_to, s.nightly_cents, s.min_nights || null, now);
-    }
-    stmts.push(
-      env.DB.prepare(
-        `INSERT INTO season_rates (label, date_from, date_to, nightly_cents, min_nights, created_at) VALUES ${values}`
-      ).bind(...binds)
-    );
-  }
-  if (stmts.length) await env.DB.batch(stmts);
-  return items.length;
-}
-
-export async function deleteAllSeasons(env) {
-  await env.DB.prepare(`DELETE FROM season_rates`).run();
-}
-
-// ---------- Calendrier admin : prix par date + blocage par date ----------
+// ---------- Calendrier admin : blocage par date ----------
 const addDayStr = (s, n) => { const d = new Date(Date.parse(s)); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 
 // Réservations (directes) à afficher sur le calendrier admin : confirmées + holds valides.
@@ -273,21 +230,6 @@ export async function listCalendarBookings(env) {
       ORDER BY checkin`
   ).bind(nowIso).all();
   return results || [];
-}
-
-// Fixe un prix pour UNE date (override d'une seule journée). Remplace tout override
-// journalier existant sur cette date ; les périodes multi-jours restent intactes.
-export async function setDatePrice(env, date, cents, minNights) {
-  await env.DB.prepare(`DELETE FROM season_rates WHERE date_from = ?1 AND date_to = ?1`).bind(date).run();
-  await env.DB.prepare(
-    `INSERT INTO season_rates (label, date_from, date_to, nightly_cents, min_nights, created_at)
-     VALUES (?1,?2,?2,?3,?4,?5)`
-  ).bind('Prix du jour', date, cents, minNights || null, new Date().toISOString()).run();
-}
-
-// Supprime l'override journalier d'une date (retour au tarif de période ou au tarif de base).
-export async function clearDatePrice(env, date) {
-  await env.DB.prepare(`DELETE FROM season_rates WHERE date_from = ?1 AND date_to = ?1`).bind(date).run();
 }
 
 // Bloque une seule date (nuit). date_to est exclusif → date + 1 jour.

@@ -1,5 +1,5 @@
 // POST /api/checkout — re-synchro live, blocage temporaire, session de paiement Stripe.
-import { loadSettings, loadSeasons, validatePromo, computeQuote } from '../_lib/pricing.js';
+import { loadSettings, validatePromo, computeQuote } from '../_lib/pricing.js';
 import { fetchExternalRanges } from '../_lib/ical.js';
 import { getBusyRanges, overlaps, createPendingBooking, attachSession } from '../_lib/db.js';
 
@@ -7,7 +7,7 @@ function isEmail(s) { return typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+
 
 export async function onRequestPost({ env, request }) {
   const body = await request.json().catch(() => ({}));
-  const [settings, seasons] = await Promise.all([loadSettings(env), loadSeasons(env)]);
+  const settings = await loadSettings(env);
 
   const nights = (body.checkin && body.checkout)
     ? Math.round((Date.parse(body.checkout) - Date.parse(body.checkin)) / 86400000)
@@ -15,7 +15,7 @@ export async function onRequestPost({ env, request }) {
   const promoRes = await validatePromo(env, body.promo, { nights, checkin: body.checkin });
   if (!promoRes.ok) return Response.json({ ok: false, error: 'promo', message: promoRes.message }, { status: 400 });
 
-  const quote = computeQuote(body, { settings, seasons, promo: promoRes.promo });
+  const quote = computeQuote(body, { settings, promo: promoRes.promo });
   if (!quote.ok) return Response.json(quote, { status: 400 });
 
   const name = (body.name || '').toString().trim();

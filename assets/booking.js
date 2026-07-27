@@ -46,23 +46,6 @@
   // Une nuit est-elle réservable ? (ni passée, ni occupée)
   function isFreeNight(s){ return s >= todayStr() && !state.blockedNights.has(s); }
 
-  // Tarif d'une nuit donnée : tarif saisonnier si la date tombe dans une période, sinon base.
-  // Réplique côté client la logique de functions/_lib/pricing.js (nightlyForDate).
-  function nightlyForDate(ds){
-    var seasons = (state.cfg && state.cfg.seasons) || [];
-    for(var i=0;i<seasons.length;i++){
-      var s = seasons[i];
-      if(ds >= s.date_from && ds <= s.date_to) return s.nightly_cents;
-    }
-    return state.cfg ? state.cfg.nightlyCents : 0;
-  }
-
-  // Prix par nuit affiché sous la date (entier, sans décimales pour rester discret).
-  function nightlyLabel(ds){
-    var c = nightlyForDate(ds);
-    if(!c) return '';
-    return Math.round(c/100)+' €';
-  }
 
   // Toutes les nuits de [a,b) sont-elles libres ?
   function rangeFree(a,b){
@@ -158,13 +141,6 @@
     if(blockedNight) cls += ' blocked';
     if(selectable && !blockedNight) cls += ' selectable';
 
-    // Prix par nuit : affiché sur les nuits futures libres (pas passé, pas occupé).
-    var priceHtml = '';
-    if(!past && !blockedNight){
-      var pl = nightlyLabel(ds);
-      if(pl) priceHtml = '<span class="bw-price">'+pl+'</span>';
-    }
-
     // surlignage de la sélection
     if(state.checkin && state.checkout){
       if(ds === state.checkin || ds === state.checkout){ cls += ' end-start ' + (ds === state.checkin ? 'start' : 'end'); }
@@ -173,7 +149,7 @@
       cls += ' end-start single';
     }
 
-    return el('<button class="'+cls+'" data-day="'+ds+'"><span class="bw-daynum">'+day+'</span>'+priceHtml+'</button>');
+    return el('<button class="'+cls+'" data-day="'+ds+'"><span class="bw-daynum">'+day+'</span></button>');
   }
 
   function summaryNode(){
@@ -282,14 +258,18 @@
     var guests = guestsSel ? parseInt(guestsSel.value,10) : ((state.quote && state.quote.guests) || 1);
     var cfg = state.cfg;
 
-    // estimation locale immédiate (tarif de base, sans remises ni taxe — corrigée par le serveur)
+    // estimation locale immédiate (tarif par durée, sans remises ni taxe — corrigée par le serveur)
     var n = nights(state.checkin, state.checkout);
     if(n < cfg.minNights){
       state.quote = { ok:false, message:'Séjour minimum de '+cfg.minNights+' nuits.' };
     } else {
-      var lodging = n*cfg.nightlyCents;
-      state.quote = { ok:true, guests:guests, currency:cfg.currency, totalCents:lodging+cfg.cleaningCents,
-        lines:[ {label:(cfg.nightlyCents/100)+' € × '+n+' nuits', cents:lodging}, {label:'Frais de ménage', cents:cfg.cleaningCents} ] };
+      var rate = cfg.nightlyCents, tag = null;
+      if(cfg.monthlyMinNights && n >= cfg.monthlyMinNights && cfg.cureTotalCents){ rate = cfg.cureTotalCents/cfg.monthlyMinNights; tag = 'tarif cure'; }
+      else if(cfg.weeklyMinNights && n >= cfg.weeklyMinNights && cfg.weekTotalCents){ rate = cfg.weekTotalCents/cfg.weeklyMinNights; tag = 'tarif semaine'; }
+      var lodging = Math.round(n*rate);
+      var label = tag ? (n+' nuits · '+tag) : (Math.round(rate/100)+' € × '+n+' nuits');
+      state.quote = { ok:true, guests:guests, currency:cfg.currency, totalCents:lodging,
+        lines:[ {label:label, cents:lodging} ] };
     }
     render();
 

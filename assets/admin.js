@@ -41,7 +41,7 @@
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadSeasons(); loadBlocks(); loadExtras(); loadCalendar(); }
+  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadCalendar(); }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée' };
 
@@ -100,8 +100,8 @@
     const f = $('#ratesForm');
     const eur = (c) => ((c || 0) / 100).toFixed(0);
     f.nightly.value = eur(s.nightly_cents);
-    f.week_nightly.value = eur(s.week_nightly_cents != null ? s.week_nightly_cents : 5700);
-    f.cure_nightly.value = eur(s.cure_nightly_cents != null ? s.cure_nightly_cents : 4300);
+    f.week_total.value = eur(s.week_total_cents != null ? s.week_total_cents : 30000);
+    f.cure_total.value = eur(s.cure_total_cents != null ? s.cure_total_cents : 75000);
     f.caution.value = eur(s.caution_cents || 0);
     f.min_nights.value = s.min_nights;
     f.max_guests.value = s.max_guests;
@@ -120,8 +120,8 @@
     const f = $('#ratesForm');
     const body = {
       nightly_cents: cents(f.nightly.value),
-      week_nightly_cents: cents(f.week_nightly.value),
-      cure_nightly_cents: cents(f.cure_nightly.value),
+      week_total_cents: cents(f.week_total.value),
+      cure_total_cents: cents(f.cure_total.value),
       caution_cents: cents(f.caution.value),
       cleaning_cents: 0, // ménage inclus
       min_nights: +f.min_nights.value, max_guests: +f.max_guests.value,
@@ -174,108 +174,6 @@
     const { status, j } = await api('promos', { method: 'POST', body: JSON.stringify(body) });
     if (status === 200) { f.reset(); msg('#promoMsg', 'Ajouté ✓'); loadPromos(); }
     else msg('#promoMsg', (j && j.message) || 'Erreur', true);
-  });
-
-  async function loadSeasons() {
-    const { j } = await api('seasons');
-    const tb = $('#seasonTable tbody'); tb.innerHTML = '';
-    const rows = (j && j.seasons) || [];
-    $('#seasonEmpty').hidden = rows.length > 0;
-    rows.forEach((s) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${esc(s.label)}</td><td>${s.date_from}</td><td>${s.date_to}</td>` +
-        `<td>${euro(s.nightly_cents)}</td><td>${s.min_nights || '—'}</td>` +
-        `<td><button class="adm-del" data-id="${s.id}" title="Supprimer">✕</button></td>`;
-      tb.appendChild(tr);
-    });
-    tb.querySelectorAll('.adm-del').forEach((b) => b.addEventListener('click', async () => {
-      await api('seasons?id=' + b.dataset.id, { method: 'DELETE' }); loadSeasons();
-    }));
-  }
-
-  $('#seasonForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const f = e.target;
-    const body = {
-      label: f.label.value, date_from: f.date_from.value, date_to: f.date_to.value,
-      nightly_cents: cents(f.nightly.value), min_nights: f.min_nights.value ? +f.min_nights.value : null,
-    };
-    const { status, j } = await api('seasons', { method: 'POST', body: JSON.stringify(body) });
-    if (status === 200) { f.reset(); msg('#seasonMsg', 'Ajouté ✓'); loadSeasons(); }
-    else msg('#seasonMsg', (j && j.message) || 'Erreur', true);
-  });
-
-  // Normalise une date en 'YYYY-MM-DD' depuis 'JJ/MM/AAAA', 'JJ-MM-AAAA' ou déjà ISO.
-  function normDate(raw) {
-    const s = (raw || '').trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-    const m = s.match(/^(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{4})$/);
-    if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
-    return null;
-  }
-
-  // Parse une ligne « date_from  date_to  prix  [min_nuits]  [libellé] ».
-  // Renvoie { item } ou { error }.
-  function parseSeasonLine(line, no) {
-    const parts = line.trim().split(/[\s,;\t]+/).filter(Boolean);
-    if (parts.length < 3) return { error: `Ligne ${no} : il faut au moins date début, date fin et prix.` };
-    const from = normDate(parts[0]);
-    const to = normDate(parts[1]);
-    if (!from || !to) return { error: `Ligne ${no} : dates non reconnues.` };
-    const price = parseFloat((parts[2] || '').replace('€', '').replace(',', '.'));
-    if (!(price > 0)) return { error: `Ligne ${no} : prix invalide.` };
-    let idx = 3, min_nights = null;
-    if (parts[idx] && /^\d+$/.test(parts[idx])) { min_nights = +parts[idx]; idx++; }
-    const label = parts.slice(idx).join(' ') || null;
-    return { item: { label, date_from: from, date_to: to, nightly_cents: Math.round(price * 100), min_nights } };
-  }
-
-  $('#seasonBulkForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const f = e.target;
-    const lines = (f.bulk.value || '').split('\n').map((l) => l.trim()).filter(Boolean);
-    if (!lines.length) { msg('#seasonBulkMsg', 'Rien à importer.', true); return; }
-    const items = [], errors = [];
-    lines.forEach((l, i) => {
-      const r = parseSeasonLine(l, i + 1);
-      if (r.error) errors.push(r.error); else items.push(r.item);
-    });
-    if (!items.length) { msg('#seasonBulkMsg', errors[0] || 'Aucune ligne valide.', true); return; }
-    const { status, j } = await api('seasons', {
-      method: 'PUT', body: JSON.stringify({ items, replace: f.replace.checked }),
-    });
-    if (status === 200) {
-      const extra = (j.skipped || errors.length) ? ` — ${(j.skipped || 0) + errors.length} ignorée(s)` : '';
-      msg('#seasonBulkMsg', `${j.imported} période(s) importée(s) ✓${extra}`);
-      f.bulk.value = ''; f.replace.checked = false; loadSeasons(); loadSettings();
-    } else msg('#seasonBulkMsg', (j && j.message) || 'Erreur', true);
-  });
-
-  // Import par fichier (.txt/.csv) → même parseur, même endpoint batch.
-  $('#seasonFileForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const input = $('#seasonFile');
-    const file = input && input.files && input.files[0];
-    if (!file) { msg('#seasonFileMsg', 'Choisissez un fichier.', true); return; }
-    let text = '';
-    try { text = await file.text(); } catch (err) { msg('#seasonFileMsg', 'Lecture du fichier impossible.', true); return; }
-    const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
-    if (!lines.length) { msg('#seasonFileMsg', 'Fichier vide.', true); return; }
-    const items = [], errors = [];
-    lines.forEach((l, i) => {
-      const r = parseSeasonLine(l, i + 1);
-      if (r.error) errors.push(r.error); else items.push(r.item);
-    });
-    if (!items.length) { msg('#seasonFileMsg', errors[0] || 'Aucune ligne valide.', true); return; }
-    msg('#seasonFileMsg', 'Chargement…');
-    const { status, j } = await api('seasons', {
-      method: 'PUT', body: JSON.stringify({ items, replace: $('#seasonFileReplace').checked }),
-    });
-    if (status === 200) {
-      const extra = (j.skipped || errors.length) ? ` — ${(j.skipped || 0) + errors.length} ignoré(s)` : '';
-      msg('#seasonFileMsg', `${j.imported} tarif(s) chargé(s) ✓${extra}`);
-      input.value = ''; loadSeasons(); loadSettings();
-    } else msg('#seasonFileMsg', (j && j.message) || 'Erreur', true);
   });
 
   async function loadBlocks() {
@@ -389,23 +287,6 @@
     return set;
   }
 
-  // Prix d'une date (réplique nightlyForDate : période la plus spécifique sinon base).
-  function priceForDate(ds) {
-    const d = cal.data; if (!d) return 0;
-    // Les prix par date priment toujours (le plus spécifique gagne), sinon prix par défaut.
-    let best = null;
-    for (const s of d.seasons || []) {
-      if (ds >= s.date_from && ds <= s.date_to) {
-        const span = (Date.parse(s.date_to) - Date.parse(s.date_from));
-        if (!best || span < best.span) best = { cents: s.nightly_cents, span };
-      }
-    }
-    if (best) return best.cents;
-    return d.baseCents;
-  }
-  // Un override d'une seule journée existe-t-il pour cette date ?
-  function isCustomDate(ds) { return (cal.data.seasons || []).some((s) => s.date_from === ds && s.date_to === ds); }
-
   async function loadCalendar() {
     const host = $('#admCal'); if (!host) return;
     const { j } = await api('calendar');
@@ -447,14 +328,10 @@
       const ds = y + '-' + pad2(m + 1) + '-' + pad2(day);
       const past = ds < today();
       const st = stateOf(ds);
-      const custom = isCustomDate(ds);
       let cls = 'adm-cell s-' + st;
       if (past) cls += ' past';
-      if (custom) cls += ' custom';
       if (ds === cal.selected) cls += ' sel';
-      const price = priceForDate(ds);
-      const priceHtml = past ? '' : '<span class="adm-cell-p">' + Math.round(price / 100) + '€</span>';
-      h += '<button class="' + cls + '" data-cday="' + ds + '"' + (past ? ' disabled' : '') + '><span class="adm-cell-d">' + day + '</span>' + priceHtml + '</button>';
+      h += '<button class="' + cls + '" data-cday="' + ds + '"' + (past ? ' disabled' : '') + '><span class="adm-cell-d">' + day + '</span></button>';
     }
     h += '</div>';
     h += '<div id="admCalEditor" class="adm-cal-editor" hidden></div>';
@@ -474,8 +351,6 @@
     const ds = cal.selected; if (!ds) { ed.hidden = true; return; }
     ed.hidden = false;
     const st = stateOf(ds);
-    const price = priceForDate(ds);
-    const custom = isCustomDate(ds);
     const dObj = parseD(ds);
     const human = dObj.getUTCDate() + ' ' + CAL_MONTHS[dObj.getUTCMonth()] + ' ' + dObj.getUTCFullYear();
 
@@ -493,10 +368,6 @@
       if (st === 'block') h += '<button class="adm-btn" data-act="unblock">Libérer cette date</button>';
       else h += '<button class="adm-ghost" data-act="block">Bloquer cette date</button>';
       h += '</div>';
-      h += '<div class="adm-ed-row adm-ed-price"><label>Prix ce jour (€)<input id="admEdPrice" type="number" step="1" min="1" value="' + Math.round(price / 100) + '"></label>'
-        + '<button class="adm-btn" data-act="setPrice">Appliquer</button>'
-        + (custom ? '<button class="adm-ghost" data-act="clearPrice">Réinitialiser</button>' : '') + '</div>';
-      h += '<p class="adm-hint">' + (custom ? 'Prix personnalisé pour ce jour.' : 'Actuellement : ' + Math.round(price / 100) + ' € (prix par période ou par défaut).') + '</p>';
     }
     ed.innerHTML = h;
 
@@ -505,13 +376,7 @@
   }
 
   async function calAction(action, ds) {
-    const body = { action, date: ds };
-    if (action === 'setPrice') {
-      const inp = $('#admEdPrice'); const v = parseFloat(inp && inp.value);
-      if (!(v > 0)) return;
-      body.price_cents = Math.round(v * 100);
-    }
-    await api('calendar', { method: 'POST', body: JSON.stringify(body) });
+    await api('calendar', { method: 'POST', body: JSON.stringify({ action, date: ds }) });
     await loadCalendar(); // recharge l'état (garde la date sélectionnée)
   }
 

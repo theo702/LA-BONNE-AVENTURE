@@ -25,10 +25,6 @@
   font-family:'Jost';font-size:13.5px;color:var(--ink);position:relative;display:flex;
   flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.05}
 .bw-cell .bw-daynum{font-size:13.5px}
-.bw-cell .bw-price{font-size:9.5px;font-weight:600;color:var(--gold-deep,#a9760f);letter-spacing:-.01em}
-.bw-cell.end-start .bw-price,.bw-cell.in-range .bw-price{color:inherit;opacity:.85}
-.bw-cell.selectable:hover .bw-price{color:inherit}
-@media (max-width:420px){.bw-cell .bw-price{font-size:8.5px}}
 .bw-cell.empty{visibility:hidden}
 .bw-cell.blocked,.bw-cell.past{color:#C9C1B0;cursor:not-allowed;text-decoration:line-through}
 .bw-cell.blocked{background:repeating-linear-gradient(135deg,transparent,transparent 4px,rgba(192,86,59,.08) 4px,rgba(192,86,59,.08) 8px)}
