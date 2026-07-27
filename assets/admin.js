@@ -63,27 +63,49 @@
         `<td>${r.guests}</td><td>${euro(r.amount_total_cents)}</td>` +
         `<td>${euro(r.taxe_cents)}</td><td>${r.promo_code ? esc(r.promo_code) : '—'}</td>` +
         `<td><span class="adm-badge ${r.status}">${statusFr(r.status)}</span></td>` +
-        `<td><button class="adm-del" data-id="${r.id}" title="Supprimer">✕</button></td>`;
+        `<td>${r.stripe_payment_method ? `<button class="adm-caution" data-id="${r.id}" title="Débiter la caution">💳 Caution</button> ` : ''}<button class="adm-del" data-id="${r.id}" title="Supprimer">✕</button></td>`;
       tb.appendChild(tr);
       tr.querySelector('.adm-del').addEventListener('click', async () => {
         if (!confirm('Supprimer définitivement cette réservation ?')) return;
         await api('bookings?id=' + encodeURIComponent(r.id), { method: 'DELETE' });
         loadBookings();
       });
+      const cautionBtn = tr.querySelector('.adm-caution');
+      if (cautionBtn) cautionBtn.addEventListener('click', () => chargeCaution(r));
     });
+  }
+
+  async function chargeCaution(r) {
+    const raw = prompt(
+      `Débiter la caution de « ${r.guest_name} » (empreinte bancaire).\n` +
+      `Montant à prélever en euros (uniquement en cas de dégât) :`, '');
+    if (raw == null) return;
+    const eurAmt = Number(String(raw).replace(',', '.'));
+    if (!Number.isFinite(eurAmt) || eurAmt <= 0) { alert('Montant invalide.'); return; }
+    if (!confirm(`Confirmer le débit de ${eurAmt.toFixed(2)} € sur la carte de ${r.guest_name} ?`)) return;
+    const { status, j } = await api('charge-caution', {
+      method: 'POST',
+      body: JSON.stringify({ bookingId: r.id, amount_cents: Math.round(eurAmt * 100) }),
+    });
+    if (status === 200 && j && j.ok) {
+      alert(`✓ Caution débitée : ${(j.amount_cents / 100).toFixed(2)} €.`);
+    } else {
+      alert('Échec : ' + ((j && j.message) || 'erreur inconnue.'));
+    }
   }
 
   async function loadSettings() {
     const { j } = await api('settings');
     const s = j && j.settings; if (!s) return;
     const f = $('#ratesForm');
-    f.nightly.value = (s.nightly_cents / 100).toFixed(2);
-    f.cleaning.value = (s.cleaning_cents / 100).toFixed(2);
+    const eur = (c) => ((c || 0) / 100).toFixed(0);
+    f.nightly.value = eur(s.nightly_cents);
+    f.week_nightly.value = eur(s.week_nightly_cents != null ? s.week_nightly_cents : 5700);
+    f.cure_nightly.value = eur(s.cure_nightly_cents != null ? s.cure_nightly_cents : 4300);
+    f.caution.value = eur(s.caution_cents || 0);
     f.min_nights.value = s.min_nights;
     f.max_guests.value = s.max_guests;
-    f.weekly_pct.value = s.weekly_pct;
     f.weekly_min_nights.value = s.weekly_min_nights;
-    f.monthly_pct.value = s.monthly_pct;
     f.monthly_min_nights.value = s.monthly_min_nights;
     f.lastmin_pct.value = s.lastmin_pct;
     f.lastmin_days.value = s.lastmin_days;
@@ -92,21 +114,23 @@
     f.taxe_cap_cents.value = (s.taxe_cap_cents / 100).toFixed(2);
     f.taxe_additional_pct.value = s.taxe_additional_pct;
     if (f.cleaning_emails) f.cleaning_emails.value = s.cleaning_emails || '';
-    if (f.dynamic_pricing_enabled) f.dynamic_pricing_enabled.checked = !!s.dynamic_pricing_enabled;
   }
 
   async function saveRates(msgSel) {
     const f = $('#ratesForm');
     const body = {
-      nightly_cents: cents(f.nightly.value), cleaning_cents: cents(f.cleaning.value),
+      nightly_cents: cents(f.nightly.value),
+      week_nightly_cents: cents(f.week_nightly.value),
+      cure_nightly_cents: cents(f.cure_nightly.value),
+      caution_cents: cents(f.caution.value),
+      cleaning_cents: 0, // ménage inclus
       min_nights: +f.min_nights.value, max_guests: +f.max_guests.value,
-      weekly_pct: +f.weekly_pct.value, weekly_min_nights: +f.weekly_min_nights.value,
-      monthly_pct: +f.monthly_pct.value, monthly_min_nights: +f.monthly_min_nights.value,
+      weekly_min_nights: +f.weekly_min_nights.value,
+      monthly_min_nights: +f.monthly_min_nights.value,
       lastmin_pct: +f.lastmin_pct.value, lastmin_days: +f.lastmin_days.value,
       taxe_enabled: f.taxe_enabled.checked, taxe_rate_pct: +f.taxe_rate_pct.value,
       taxe_cap_cents: cents(f.taxe_cap_cents.value), taxe_additional_pct: +f.taxe_additional_pct.value,
       cleaning_emails: f.cleaning_emails ? f.cleaning_emails.value : '',
-      dynamic_pricing_enabled: f.dynamic_pricing_enabled ? f.dynamic_pricing_enabled.checked : true,
     };
     const { status } = await api('settings', { method: 'PUT', body: JSON.stringify(body) });
     msg(msgSel || '#ratesMsg', status === 200 ? 'Enregistré ✓' : 'Erreur', status !== 200);

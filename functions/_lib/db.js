@@ -113,13 +113,24 @@ export async function createPendingBooking(env, b) {
 // ---------- Admin : réservations / réglages / promos / saisons ----------
 
 export async function listBookings(env, limit = 200) {
-  const { results } = await env.DB.prepare(
-    `SELECT id, checkin, checkout, nights, guest_name, email, phone, guests,
-            amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
-            status, created_at
-       FROM bookings ORDER BY created_at DESC LIMIT ?1`
-  ).bind(limit).all();
-  return results || [];
+  // SELECT complet d'abord (colonnes caution incluses) ; repli si la base n'est pas migrée.
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT id, checkin, checkout, nights, guest_name, email, phone, guests,
+              amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
+              status, created_at, stripe_customer_id, stripe_payment_method
+         FROM bookings ORDER BY created_at DESC LIMIT ?1`
+    ).bind(limit).all();
+    return results || [];
+  } catch (e) {
+    const { results } = await env.DB.prepare(
+      `SELECT id, checkin, checkout, nights, guest_name, email, phone, guests,
+              amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
+              status, created_at
+         FROM bookings ORDER BY created_at DESC LIMIT ?1`
+    ).bind(limit).all();
+    return results || [];
+  }
 }
 
 export async function getSettings(env) {
@@ -149,6 +160,15 @@ export async function updateSettings(env, s) {
   try {
     await env.DB.prepare(`UPDATE settings SET dynamic_pricing_enabled=?1 WHERE id=1`).bind(s.dynamic_pricing_enabled ? 1 : 0).run();
   } catch (e) { /* colonne absente : ignorer */ }
+  // Tarifs par durée + caution (colonnes récentes → UPDATE tolérant).
+  try {
+    await env.DB.prepare(`UPDATE settings SET week_nightly_cents=?1, cure_nightly_cents=?2, caution_cents=?3 WHERE id=1`)
+      .bind(
+        Math.max(0, Math.round(s.week_nightly_cents || 0)),
+        Math.max(0, Math.round(s.cure_nightly_cents || 0)),
+        Math.max(0, Math.round(s.caution_cents || 0))
+      ).run();
+  } catch (e) { /* colonnes absentes : ignorer */ }
 }
 
 export async function listPromos(env) {
@@ -202,6 +222,13 @@ export async function ensurePricingSchema(env) {
     date_to TEXT NOT NULL, nightly_cents INTEGER NOT NULL, min_nights INTEGER, created_at TEXT NOT NULL)`);
   await run(`ALTER TABLE settings ADD COLUMN dynamic_pricing_enabled INTEGER NOT NULL DEFAULT 1`);
   await run(`ALTER TABLE settings ADD COLUMN cleaning_emails TEXT NOT NULL DEFAULT ''`);
+  // Tarifs par durée + caution (Phase 5).
+  await run(`ALTER TABLE settings ADD COLUMN week_nightly_cents INTEGER NOT NULL DEFAULT 5700`);
+  await run(`ALTER TABLE settings ADD COLUMN cure_nightly_cents INTEGER NOT NULL DEFAULT 4300`);
+  await run(`ALTER TABLE settings ADD COLUMN caution_cents INTEGER NOT NULL DEFAULT 0`);
+  // Empreinte bancaire : carte enregistrée pour débiter la caution en cas de dégât.
+  await run(`ALTER TABLE bookings ADD COLUMN stripe_customer_id TEXT`);
+  await run(`ALTER TABLE bookings ADD COLUMN stripe_payment_method TEXT`);
 }
 
 // Insertion en masse via une SEULE opération D1 (batch) → indispensable pour charger une
@@ -287,6 +314,17 @@ export async function unblockDate(env, date) {
 export async function attachSession(env, id, sessionId) {
   await env.DB.prepare(`UPDATE bookings SET stripe_session_id = ?1 WHERE id = ?2`)
     .bind(sessionId, id).run();
+}
+
+// Enregistre le client Stripe + le moyen de paiement (empreinte bancaire) sur la résa,
+// pour pouvoir débiter la caution off-session en cas de dégât. Tolérant si les colonnes
+// n'existent pas encore (base ancienne non migrée).
+export async function attachStripeCustomer(env, id, customerId, paymentMethod) {
+  if (!customerId && !paymentMethod) return;
+  try {
+    await env.DB.prepare(`UPDATE bookings SET stripe_customer_id = ?1, stripe_payment_method = ?2 WHERE id = ?3`)
+      .bind(customerId || null, paymentMethod || null, id).run();
+  } catch (e) { /* colonnes absentes : ignorer */ }
 }
 
 export async function getBooking(env, id) {

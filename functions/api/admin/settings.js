@@ -28,6 +28,10 @@ export async function onRequestPut({ env, request }) {
     // La tarification par date est désormais toujours active (plus de case à cocher) :
     // les prix par date/période priment automatiquement, le prix de base sert de filet.
     dynamic_pricing_enabled: 1,
+    // Tarifs par durée + caution (Phase 5).
+    week_nightly_cents: Math.max(0, Math.round(num(b.week_nightly_cents, cur.week_nightly_cents || 5700))),
+    cure_nightly_cents: Math.max(0, Math.round(num(b.cure_nightly_cents, cur.cure_nightly_cents || 4300))),
+    caution_cents: Math.max(0, Math.round(num(b.caution_cents, cur.caution_cents || 0))),
   };
   await ensurePricingSchema(env); // crée/complète les colonnes manquantes (base ancienne)
   await updateSettings(env, s);

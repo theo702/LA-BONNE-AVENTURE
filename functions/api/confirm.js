@@ -8,9 +8,11 @@ export async function onRequestGet({ env, request }) {
   if (!sid) return Response.json({ ok: false, error: 'session' }, { status: 400 });
   if (!env.STRIPE_SECRET_KEY) return Response.json({ ok: false, error: 'config' }, { status: 500 });
 
-  const res = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sid)}`, {
-    headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}` },
-  });
+  // On étend payment_intent pour récupérer le moyen de paiement enregistré (empreinte / caution).
+  const res = await fetch(
+    `https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sid)}?expand[]=payment_intent`,
+    { headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}` } }
+  );
   if (!res.ok) return Response.json({ ok: false, error: 'stripe' }, { status: 400 });
 
   const session = await res.json();
@@ -19,7 +21,12 @@ export async function onRequestGet({ env, request }) {
   }
 
   const bookingId = (session.metadata && session.metadata.booking_id) || session.client_reference_id;
-  const booking = await confirmAndNotify(env, bookingId);
+  const pi = session.payment_intent && typeof session.payment_intent === 'object' ? session.payment_intent : null;
+  const stripeInfo = {
+    customerId: typeof session.customer === 'string' ? session.customer : (session.customer && session.customer.id) || null,
+    paymentMethod: pi ? (typeof pi.payment_method === 'string' ? pi.payment_method : (pi.payment_method && pi.payment_method.id) || null) : null,
+  };
+  const booking = await confirmAndNotify(env, bookingId, stripeInfo);
   if (!booking) return Response.json({ ok: false, error: 'booking' }, { status: 404 });
 
   return Response.json({

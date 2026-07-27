@@ -20,7 +20,7 @@
       <img class="adm-logo" src="assets/logo-navy.png" alt="La Bonne Aventure">
       <h1>Administration</h1>
       <p class="adm-sub">Accès réservé à l'hôte.</p>
-      <div style="display:inline-block;font-family:'Jost';font-size:12px;font-weight:600;color:#fff;background:#1f8a54;padding:4px 12px;border-radius:20px;margin:0 0 16px">Version : PRIX-FIX-C · 25/07</div>
+      <div style="display:inline-block;font-family:'Jost';font-size:12px;font-weight:600;color:#fff;background:#1f8a54;padding:4px 12px;border-radius:20px;margin:0 0 16px">Version : DUREE+CAUTION · 27/07</div>
       <label>Mot de passe</label>
       <input id="pw" type="password" placeholder="••••••••" autocomplete="current-password">
       <button id="loginBtn" class="adm-btn">Se connecter</button>
@@ -73,37 +73,40 @@
       <section id="t-rates" class="adm-panel">
         <h2>Tarifs</h2>
         <div class="adm-explain">
-          <b>Comment fonctionnent les prix ?</b>
+          <b>Tarifs par durée (ménage inclus)</b>
           <ol>
-            <li><b>Vos prix par date / période</b> — ceux que vous chargez (import) ou fixez à la main dans l'onglet <b>Calendrier</b>. Ce sont eux qui s'appliquent, toujours.</li>
-            <li><b>Prix par défaut</b> — utilisé uniquement pour une date où vous n'avez fixé <u>aucun</u> prix (filet de sécurité).</li>
-            <li><b>Réductions</b> — appliquées <u>en dernier</u>, sur le prix final (longs séjours, dernière minute).</li>
+            <li><b>1 à 6 nuits</b> → prix « courts séjours ».</li>
+            <li><b>À partir de 7 nuits</b> → prix « semaine » (dégressif).</li>
+            <li><b>À partir de 21 nuits (cure)</b> → prix « cure » (le plus bas).</li>
           </ol>
-          <span>Plus de case à cocher : vos prix par date priment automatiquement.</span>
+          <span>Le ménage est inclus. Vous pouvez majorer quelques « fortes périodes » plus bas.</span>
         </div>
 
         <form id="ratesForm" class="adm-form">
-          <fieldset><legend>Prix par défaut &amp; réglages</legend>
-            <p class="adm-hint">Le <b>prix par défaut</b> ne s'applique qu'aux dates sans prix fixé. Vos prix par date/période (plus bas et onglet Calendrier) priment toujours.</p>
+          <fieldset><legend>Tarifs par durée <span style="text-transform:none;font-weight:400">(€ / nuit, ménage inclus)</span></legend>
             <div class="adm-grid">
-              <label>Prix par défaut / nuit (€)<input name="nightly" type="number" step="0.01" min="0"></label>
-              <label>Frais de ménage (€)<input name="cleaning" type="number" step="0.01" min="0"></label>
-              <label>Nuits minimum<input name="min_nights" type="number" min="1"></label>
-              <label>Voyageurs max<input name="max_guests" type="number" min="1"></label>
+              <label>1–6 nuits (€/nuit)<input name="nightly" type="number" step="1" min="0" placeholder="100"></label>
+              <label>Dès 7 nuits (€/nuit)<input name="week_nightly" type="number" step="1" min="0" placeholder="57"></label>
+              <label>… seuil « semaine » (nuits)<input name="weekly_min_nights" type="number" min="1" placeholder="7"></label>
+              <label>Dès 21 nuits / cure (€/nuit)<input name="cure_nightly" type="number" step="1" min="0" placeholder="43"></label>
+              <label>… seuil « cure » (nuits)<input name="monthly_min_nights" type="number" min="1" placeholder="21"></label>
+              <label>Nuits minimum<input name="min_nights" type="number" min="1" placeholder="1"></label>
+              <label>Voyageurs max<input name="max_guests" type="number" min="1" placeholder="2"></label>
             </div>
+            <p class="adm-hint">Ex. actuel : 100 € (1–6 nuits) · 57 €/nuit dès 7 nuits (≈ 400 €/sem.) · 43 €/nuit dès 21 nuits (≈ 900 €). Le ménage est <b>inclus</b> (plus de frais séparés).</p>
           </fieldset>
 
-          <fieldset><legend>Réductions <span style="text-transform:none;font-weight:400">(appliquées en dernier)</span></legend>
-            <p class="adm-hint">S'appliquent sur le prix final, qu'il vienne du prix de base ou d'un prix spécifique. Mettre <code>0</code> pour désactiver une réduction — cela ne change pas les autres prix.</p>
+          <fieldset><legend>Caution</legend>
+            <label>Montant de la caution (€)<input name="caution" type="number" step="1" min="0" placeholder="0"></label>
+            <p class="adm-hint"><b>Empreinte bancaire</b> : la carte du voyageur est enregistrée à la réservation, <b>rien n'est prélevé</b>. Vous pourrez <b>débiter jusqu'à ce montant en cas de dégât</b> (bouton « Débiter la caution » dans l'onglet Réservations), même longtemps après. Mettre <code>0</code> pour désactiver.</p>
+          </fieldset>
+
+          <fieldset><legend>Réduction dernière minute <span style="text-transform:none;font-weight:400">(optionnel)</span></legend>
             <div class="adm-grid">
-              <label>Réduction hebdo (%)<input name="weekly_pct" type="number" step="0.1" min="0" max="100" placeholder="ex. 10"></label>
-              <label>… à partir de (nuits)<input name="weekly_min_nights" type="number" min="1" placeholder="ex. 7"></label>
-              <label>Réduction mensuelle (%)<input name="monthly_pct" type="number" step="0.1" min="0" max="100" placeholder="ex. 20"></label>
-              <label>… à partir de (nuits)<input name="monthly_min_nights" type="number" min="1" placeholder="ex. 28"></label>
-              <label>Dernière minute (%)<input name="lastmin_pct" type="number" step="0.1" min="0" max="100" placeholder="ex. 15"></label>
+              <label>Réduction (%)<input name="lastmin_pct" type="number" step="0.1" min="0" max="100" placeholder="ex. 15"></label>
               <label>… si arrivée sous (jours)<input name="lastmin_days" type="number" min="0" placeholder="ex. 7"></label>
             </div>
-            <p class="adm-hint"><b>Hebdo / mensuel</b> : réduction sur les longs séjours (la mensuelle prime dès le seuil atteint). <b>Dernière minute</b> : réduction si l'arrivée est proche (comble les créneaux vides).</p>
+            <p class="adm-hint">Réduction appliquée si l'arrivée est proche (comble les créneaux vides). <code>0</code> = désactivée.</p>
           </fieldset>
 
           <fieldset><legend>Taxe de séjour</legend>

@@ -1,5 +1,5 @@
 // Confirmation d'une réservation + emails (partagé par le webhook et le retour de paiement).
-import { getBooking, confirmBooking, incrementPromoUse, getExtraOrder, confirmExtraOrder, getSettings } from './db.js';
+import { getBooking, confirmBooking, incrementPromoUse, getExtraOrder, confirmExtraOrder, getSettings, attachStripeCustomer } from './db.js';
 
 function euros(cents, currency = 'eur') {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format((cents || 0) / 100);
@@ -9,6 +9,13 @@ async function sendEmails(env, booking) {
   if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return;
   const from = `La Bonne Aventure <${env.FROM_EMAIL}>`;
   const total = euros(booking.amount_total_cents, booking.currency);
+  let cautionCents = 0;
+  try { const s0 = await getSettings(env); cautionCents = (s0 && s0.caution_cents) || 0; } catch (e) {}
+  const cautionNote = cautionCents > 0
+    ? `<p style="margin:14px 0;padding:12px 14px;background:#f7f2ea;border-radius:10px;color:#5f6675;font-size:13px">
+         🔒 Une caution de <b>${euros(cautionCents, booking.currency)}</b> est demandée sous forme de simple
+         empreinte bancaire : <b>rien n'est prélevé</b>, sauf en cas de dégât constaté après votre séjour.</p>`
+    : '';
   const send = (to, subject, html) =>
     fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -40,6 +47,7 @@ async function sendEmails(env, booking) {
         ${row('Nuits', booking.nights)}
         ${row('Total réglé', total)}
       </table>
+      ${cautionNote}
       <p>Je vous envoie le code de la boîte à clés la veille de votre arrivée. À très vite !</p>
       <p style="color:#5f6675;font-size:13px;margin-top:18px">Théo · La Bonne Aventure</p>`);
 
@@ -115,10 +123,17 @@ export async function confirmExtraAndNotify(env, orderId) {
 
 // Confirme une réservation (idempotent) et envoie les emails.
 // Renvoie l'objet réservation confirmé, ou null.
-export async function confirmAndNotify(env, bookingId) {
+export async function confirmAndNotify(env, bookingId, stripeInfo) {
   if (!bookingId) return null;
   const booking = await getBooking(env, bookingId);
   if (!booking) return null;
+  // Empreinte bancaire : enregistre le client + moyen de paiement (même si déjà confirmée,
+  // au cas où le webhook confirme avant que confirm.js récupère la carte).
+  if (stripeInfo && (stripeInfo.customerId || stripeInfo.paymentMethod)) {
+    await attachStripeCustomer(env, bookingId, stripeInfo.customerId, stripeInfo.paymentMethod);
+    booking.stripe_customer_id = stripeInfo.customerId || booking.stripe_customer_id;
+    booking.stripe_payment_method = stripeInfo.paymentMethod || booking.stripe_payment_method;
+  }
   if (booking.status === 'confirmed') return booking; // déjà fait (idempotent)
   await confirmBooking(env, bookingId);
   if (booking.promo_code) await incrementPromoUse(env, booking.promo_code);

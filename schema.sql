@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS bookings (
   currency            TEXT NOT NULL DEFAULT 'eur',
   status              TEXT NOT NULL DEFAULT 'pending',  -- pending | confirmed | cancelled
   stripe_session_id   TEXT,
+  stripe_customer_id  TEXT,                      -- client Stripe (empreinte bancaire / caution)
+  stripe_payment_method TEXT,                    -- moyen de paiement enregistré (débit caution off-session)
   hold_expires_at     TEXT,                      -- ISO 8601 : fin du blocage temporaire
   created_at          TEXT NOT NULL
 );
@@ -44,12 +46,20 @@ CREATE TABLE IF NOT EXISTS settings (
   taxe_additional_pct REAL    NOT NULL DEFAULT 10.0,-- taxes additionnelles (départementale…)
   cleaning_emails     TEXT    NOT NULL DEFAULT '',  -- emails équipe ménage (séparés par virgule)
   dynamic_pricing_enabled INTEGER NOT NULL DEFAULT 1, -- 0 = ignorer les tarifs saisonniers/par date
+  week_nightly_cents  INTEGER NOT NULL DEFAULT 5700,  -- tarif ≥ weekly_min_nights (≈ 57 €/nuit)
+  cure_nightly_cents  INTEGER NOT NULL DEFAULT 4300,  -- tarif ≥ monthly_min_nights (cure ≈ 43 €/nuit)
+  caution_cents       INTEGER NOT NULL DEFAULT 0,     -- caution (empreinte bancaire), 0 = désactivée
   currency            TEXT    NOT NULL DEFAULT 'eur'
 );
 INSERT OR IGNORE INTO settings (id) VALUES (1);
 -- Sur une base déjà créée, ajouter les colonnes une seule fois :
 -- ALTER TABLE settings ADD COLUMN cleaning_emails TEXT NOT NULL DEFAULT '';
 -- ALTER TABLE settings ADD COLUMN dynamic_pricing_enabled INTEGER NOT NULL DEFAULT 1;
+-- ALTER TABLE settings ADD COLUMN week_nightly_cents INTEGER NOT NULL DEFAULT 5700;
+-- ALTER TABLE settings ADD COLUMN cure_nightly_cents INTEGER NOT NULL DEFAULT 4300;
+-- ALTER TABLE settings ADD COLUMN caution_cents INTEGER NOT NULL DEFAULT 0;
+-- ALTER TABLE bookings ADD COLUMN stripe_customer_id TEXT;
+-- ALTER TABLE bookings ADD COLUMN stripe_payment_method TEXT;
 
 -- ---------- Codes promo ----------
 CREATE TABLE IF NOT EXISTS promo_codes (

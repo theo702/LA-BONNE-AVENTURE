@@ -6,16 +6,20 @@ export function defaults(env = {}) {
   const int = (k, d) => { const x = parseInt(env[k], 10); return Number.isFinite(x) ? x : d; };
   return {
     currency: env.CURRENCY || 'eur',
-    nightly_cents: int('NIGHTLY_CENTS', 6000),
-    cleaning_cents: int('CLEANING_CENTS', 4500),
-    min_nights: int('MIN_NIGHTS', 2),
+    // Tarifs par durée (ménage inclus).
+    nightly_cents: int('NIGHTLY_CENTS', 10000),   // 1–6 nuits : 100 €/nuit
+    week_nightly_cents: int('WEEK_NIGHTLY_CENTS', 5700),  // ≥ 7 nuits : 57 €/nuit
+    cure_nightly_cents: int('CURE_NIGHTLY_CENTS', 4300),  // ≥ 21 nuits : 43 €/nuit
+    cleaning_cents: int('CLEANING_CENTS', 0),     // ménage inclus
+    min_nights: int('MIN_NIGHTS', 1),
     max_guests: int('MAX_GUESTS', 2),
-    weekly_pct: 0, weekly_min_nights: 7,
-    monthly_pct: 0, monthly_min_nights: 28,
+    weekly_pct: 0, weekly_min_nights: 7,          // seuil « semaine »
+    monthly_pct: 0, monthly_min_nights: 21,       // seuil « cure »
     lastmin_days: 0, lastmin_pct: 0,
     taxe_enabled: 1, taxe_rate_pct: 5.0, taxe_cap_cents: 427, taxe_additional_pct: 10.0,
     cleaning_emails: '',
     dynamic_pricing_enabled: 1,
+    caution_cents: int('CAUTION_CENTS', 0),       // caution (empreinte)
   };
 }
 
@@ -47,12 +51,16 @@ function addDays(s, n) { var d = new Date(Date.parse(s)); d.setUTCDate(d.getUTCD
 // Nombre de jours couverts par une période (sert à privilégier le tarif le plus spécifique).
 function seasonSpan(s) { return Math.max(0, nightsBetween(s.date_from, s.date_to)); }
 
-// Tarif d'une nuit donnée : tarif saisonnier/par date si la date tombe dans une période,
-// sinon base. Si plusieurs périodes couvrent la date, la plus spécifique (span le plus
-// court, ex. un override d'une seule journée) l'emporte. Désactivable via le réglage.
-function nightlyForDate(dateStr, settings, seasons) {
-  // Les prix par date/période priment TOUJOURS (le plus spécifique gagne).
-  // Le prix de base ne sert que de filet si aucun prix n'est fixé pour la date.
+// Tarif « par durée » selon le nombre total de nuits (paliers dégressifs).
+function tierNightly(nights, s) {
+  if (s.monthly_min_nights && nights >= s.monthly_min_nights && s.cure_nightly_cents) return s.cure_nightly_cents;
+  if (s.weekly_min_nights && nights >= s.weekly_min_nights && s.week_nightly_cents) return s.week_nightly_cents;
+  return s.nightly_cents;
+}
+
+// Tarif d'une nuit : override « forte période » (season_rates) si la date tombe dans une
+// période — le plus spécifique gagne — sinon le tarif par durée (fallbackCents).
+function nightlyForDate(dateStr, seasons, fallbackCents) {
   let best = null;
   for (const s of seasons || []) {
     if (dateStr >= s.date_from && dateStr <= s.date_to) {
@@ -60,7 +68,7 @@ function nightlyForDate(dateStr, settings, seasons) {
     }
   }
   if (best) return { cents: best.nightly_cents, minNights: best.min_nights || null };
-  return { cents: settings.nightly_cents, minNights: null };
+  return { cents: fallbackCents, minNights: null };
 }
 
 // Valide un code promo (async car lecture D1). Renvoie { ok, promo } ou { ok:false, message }.
@@ -99,13 +107,17 @@ export function computeQuote(input, ctx) {
   if (nights <= 0) return { ok: false, error: 'order', message: "Le départ doit être après l'arrivée." };
   if (guests > s.max_guests) return { ok: false, error: 'guests', message: `Maximum ${s.max_guests} voyageurs.` };
 
-  // Somme des nuits (tarif saisonnier par nuit) + minimum de nuits effectif.
+  // Tarif par durée (paliers dégressifs) → tarif « de référence » de chaque nuit,
+  // sauf si une « forte période » (season_rates) majore certaines nuits.
+  const tierRate = tierNightly(nights, s);
   let lodging = 0;
   let effMinNights = s.min_nights;
   const perNight = [];
+  let hasOverride = false;
   for (let i = 0; i < nights; i++) {
     const d = addDays(checkin, i);
-    const r = nightlyForDate(d, s, seasons);
+    const r = nightlyForDate(d, seasons, tierRate);
+    if (r.cents !== tierRate) hasOverride = true;
     perNight.push(r.cents);
     lodging += r.cents;
     if (r.minNights && r.minNights > effMinNights) effMinNights = r.minNights;
@@ -113,27 +125,23 @@ export function computeQuote(input, ctx) {
   if (nights < effMinNights) return { ok: false, error: 'min', message: `Séjour minimum de ${effMinNights} nuits.` };
 
   const lines = [];
-  const avg = Math.round(lodging / nights);
-  lines.push({ label: `${(avg / 100).toFixed(0)} € × ${nights} nuits`, cents: lodging });
+  if (hasOverride) {
+    const avg = Math.round(lodging / nights);
+    lines.push({ label: `${(avg / 100).toFixed(0)} € × ${nights} nuits (moy.)`, cents: lodging });
+  } else {
+    lines.push({ label: `${(tierRate / 100).toFixed(0)} € × ${nights} nuits`, cents: lodging });
+  }
 
-  // Réduction durée (mensuelle prioritaire sur hebdo).
-  let durationPct = 0;
-  if (s.monthly_pct > 0 && nights >= s.monthly_min_nights) durationPct = s.monthly_pct;
-  else if (s.weekly_pct > 0 && nights >= s.weekly_min_nights) durationPct = s.weekly_pct;
-  let durationCents = Math.round(lodging * durationPct / 100);
-  if (durationCents > 0) lines.push({ label: `Réduction séjour (−${durationPct}%)`, cents: -durationCents });
-
-  // Réduction dernière minute.
+  // Réduction dernière minute (optionnelle, sur l'hébergement).
   let lastminPct = 0;
   if (s.lastmin_days > 0 && s.lastmin_pct > 0) {
     const daysToArrival = nightsBetween(today, checkin);
     if (daysToArrival <= s.lastmin_days) lastminPct = s.lastmin_pct;
   }
-  const afterDuration = lodging - durationCents;
-  let lastminCents = Math.round(afterDuration * lastminPct / 100);
+  let lastminCents = Math.round(lodging * lastminPct / 100);
   if (lastminCents > 0) lines.push({ label: `Dernière minute (−${lastminPct}%)`, cents: -lastminCents });
 
-  let lodgingNet = afterDuration - lastminCents;
+  let lodgingNet = lodging - lastminCents;
 
   // Code promo.
   let promoCents = 0;
@@ -150,17 +158,17 @@ export function computeQuote(input, ctx) {
     }
   }
 
-  const discountCents = durationCents + lastminCents + promoCents + promoFixed;
+  const discountCents = lastminCents + promoCents + promoFixed;
 
-  // Frais de ménage.
-  const cleaning = s.cleaning_cents;
-  lines.push({ label: 'Frais de ménage', cents: cleaning });
+  // Frais de ménage : inclus (0) → aucune ligne. N'apparaît que s'il est configuré > 0.
+  const cleaning = s.cleaning_cents || 0;
+  if (cleaning > 0) lines.push({ label: 'Frais de ménage', cents: cleaning });
 
   // Taxe de séjour : par personne et par nuit, sur la base hébergement effectivement payée.
   // Ratio de remise appliqué au tarif de chaque nuit (hors ménage, hors promo fixe).
   let taxe = 0;
   if (s.taxe_enabled) {
-    const ratio = lodging > 0 ? (lodging - durationCents - lastminCents - promoCents) / lodging : 1;
+    const ratio = lodging > 0 ? (lodging - lastminCents - promoCents) / lodging : 1;
     for (const nightlyCents of perNight) {
       const perPerson = (nightlyCents * ratio) / guests;              // coût HT nuit / personne
       const communal = Math.min((s.taxe_rate_pct / 100) * perPerson, s.taxe_cap_cents);
@@ -181,6 +189,7 @@ export function computeQuote(input, ctx) {
     discountCents,
     cleaningCents: cleaning,
     taxeCents: taxe,
+    cautionCents: s.caution_cents || 0,
     promoCode: promo ? promo.code : null,
     totalCents: total,
     lines,

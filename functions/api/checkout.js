@@ -56,6 +56,12 @@ export async function onRequestPost({ env, request }) {
   form.set('client_reference_id', id);
   form.set('metadata[booking_id]', id);
   form.set('payment_intent_data[metadata][booking_id]', id);
+  // Empreinte bancaire (caution) : enregistre la carte du voyageur pour un éventuel
+  // débit off-session (dégât), sans rien prélever de plus que le séjour.
+  if ((settings.caution_cents || 0) > 0) {
+    form.set('customer_creation', 'always');
+    form.set('payment_intent_data[setup_future_usage]', 'off_session');
+  }
   form.set('line_items[0][quantity]', '1');
   form.set('line_items[0][price_data][currency]', quote.currency);
   form.set('line_items[0][price_data][unit_amount]', String(quote.totalCents));

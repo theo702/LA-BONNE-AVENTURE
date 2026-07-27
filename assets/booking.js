@@ -191,6 +191,9 @@
         box += '<div class="bw-line'+(neg?' discount':'')+'"><span>'+l.label+'</span><b>'+(neg?'−':'')+euros(Math.abs(l.cents),q.currency)+'</b></div>';
       });
       box += '<div class="bw-total"><span class="t">Total</span><span class="v">'+euros(q.totalCents,q.currency)+'</span></div>';
+      if(q.cautionCents && q.cautionCents > 0){
+        box += '<div class="bw-caution">'+icon('lock')+'<span>Caution de '+euros(q.cautionCents,q.currency)+' — simple empreinte bancaire, <b>non débitée</b>, sauf en cas de dégât.</span></div>';
+      }
     } else {
       var hint = 'Sélectionnez vos dates (min. '+(state.cfg?state.cfg.minNights:2)+' nuits).';
       if(q && !q.ok) hint = q.message || hint;

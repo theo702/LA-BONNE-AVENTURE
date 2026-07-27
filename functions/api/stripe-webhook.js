@@ -49,7 +49,21 @@ export async function onRequestPost({ env, request }) {
 
   if (event.type === 'checkout.session.completed') {
     if (isExtra) await confirmExtraAndNotify(env, refId);
-    else await confirmAndNotify(env, refId);
+    else {
+      // Empreinte bancaire : récupère client + moyen de paiement pour un débit de caution ultérieur.
+      const customerId = typeof obj.customer === 'string' ? obj.customer : (obj.customer && obj.customer.id) || null;
+      let paymentMethod = null;
+      const piId = typeof obj.payment_intent === 'string' ? obj.payment_intent : (obj.payment_intent && obj.payment_intent.id) || null;
+      if (piId && env.STRIPE_SECRET_KEY) {
+        try {
+          const r = await fetch(`https://api.stripe.com/v1/payment_intents/${encodeURIComponent(piId)}`, {
+            headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}` },
+          });
+          if (r.ok) { const pi = await r.json(); paymentMethod = pi.payment_method || null; }
+        } catch (e) { /* pas bloquant */ }
+      }
+      await confirmAndNotify(env, refId, { customerId, paymentMethod });
+    }
   } else if (event.type === 'checkout.session.expired') {
     if (!isExtra && refId) await cancelBooking(env, refId); // libère le blocage temporaire
   }
