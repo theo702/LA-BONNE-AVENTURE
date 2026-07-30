@@ -41,7 +41,7 @@
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadCalendar(); loadPrestations(); }
+  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadCalendar(); loadPrestations(); loadSync(); }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée' };
 
@@ -236,6 +236,59 @@
     const { status } = await api('prestations', { method: 'PUT', body: JSON.stringify({ cleaning_pay_cents: cents(e.target.cleaning_pay.value) }) });
     msg('#prestaRateMsg', status === 200 ? 'Tarif enregistré ✓' : 'Erreur', status !== 200);
     loadPrestations();
+  });
+
+  // ---------- Synchronisation des calendriers ----------
+  function syncLinkRow(title, url) {
+    return '<div class="sync-link"><div class="sync-link-t">' + esc(title) + '</div>' +
+      '<div class="sync-link-b"><input readonly value="' + esc(url) + '"><button type="button" class="adm-btn sync-copy" data-copy="' + esc(url) + '">Copier</button></div></div>';
+  }
+  function fallbackCopy(text, done) {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {} document.body.removeChild(ta);
+  }
+  function copyText(text, btn) {
+    const done = () => { const old = btn.textContent; btn.textContent = 'Copié ✓'; setTimeout(() => { btn.textContent = old; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    else fallbackCopy(text, done);
+  }
+
+  async function loadSync() {
+    const { j } = await api('sync');
+    const sources = (j && j.sources) || [];
+    const envLabels = (j && j.envLabels) || [];
+    const tb = $('#syncTable tbody'); tb.innerHTML = '';
+    $('#syncEmpty').hidden = sources.length > 0;
+    sources.forEach((s) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><b>${esc(s.label)}</b></td><td class="sync-url">${esc(s.url)}</td>` +
+        `<td><button class="adm-del" data-id="${s.id}" title="Supprimer">✕</button></td>`;
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll('.adm-del').forEach((b) => b.addEventListener('click', async () => {
+      if (!confirm('Retirer ce calendrier importé ?')) return;
+      await api('sync?id=' + b.dataset.id, { method: 'DELETE' }); loadSync();
+    }));
+    const envNote = $('#syncEnv');
+    if (envLabels.length) { envNote.hidden = false; envNote.innerHTML = 'Déjà branché côté serveur : <b>' + envLabels.map(esc).join(', ') + '</b>.'; }
+    else envNote.hidden = true;
+
+    const base = location.origin + '/calendar.ics';
+    const labels = [];
+    [...envLabels, ...sources.map((s) => s.label)].forEach((l) => { if (l && labels.indexOf(l) < 0) labels.push(l); });
+    let h = syncLinkRow('Calendrier complet (toutes vos dates occupées)', base);
+    labels.forEach((l) => { h += syncLinkRow('À coller dans « ' + l + ' »', base + '?exclude=' + encodeURIComponent(l)); });
+    h += syncLinkRow('Vos réservations directes + blocages uniquement', base + '?scope=direct');
+    const box = $('#syncExport'); box.innerHTML = h;
+    box.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('click', () => copyText(btn.dataset.copy, btn)));
+  }
+
+  $('#syncForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const { status, j } = await api('sync', { method: 'POST', body: JSON.stringify({ label: f.label.value, url: f.url.value }) });
+    if (status === 200) { f.reset(); msg('#syncMsg', 'Ajouté ✓'); loadSync(); }
+    else msg('#syncMsg', (j && j.message) || 'Erreur', true);
   });
 
   async function loadBlocks() {

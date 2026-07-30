@@ -43,6 +43,7 @@
       <button data-tab="t-block">Blocages</button>
       <button data-tab="t-extra">Extras</button>
       <button data-tab="t-presta">Prestations</button>
+      <button data-tab="t-sync">Synchro</button>
     </nav>
 
     <main class="adm-main">
@@ -238,6 +239,31 @@
           <tbody></tbody>
         </table></div>
         <div id="prestaEmpty" class="adm-empty" hidden>Aucune prestation (aucun séjour confirmé).</div>
+      </section>
+
+      <!-- Synchronisation des calendriers (channel manager) -->
+      <section id="t-sync" class="adm-panel">
+        <h2>Synchronisation des calendriers</h2>
+        <p class="adm-hint">Le site centralise vos disponibilités. Pour chaque plateforme (Airbnb, Booking…) : <b>(1)</b> ajoutez son calendrier ci-dessous (à importer <b>vers le site</b>), <b>(2)</b> collez le lien du site correspondant <b>chez elle</b> (à exporter). Une résa reçue n'importe où bloque partout ailleurs.</p>
+
+        <h2 style="font-size:18px;margin-top:20px">1. Importer — calendriers de vos plateformes</h2>
+        <p class="adm-hint">Collez le <b>lien d'export iCal</b> de la plateforme et donnez-lui un <b>nom</b> (ex. <code>airbnb</code>, <code>booking</code>). Ce nom sert à générer le bon lien d'export (il exclut ce nom pour éviter les boucles).</p>
+        <form id="syncForm" class="adm-form adm-inline">
+          <label>Nom<input name="label" type="text" placeholder="airbnb" style="width:120px"></label>
+          <label style="flex:1;min-width:240px">Lien iCal de la plateforme<input name="url" type="url" placeholder="https://www.airbnb.fr/calendar/ical/XXXX.ics" required></label>
+          <button type="submit" class="adm-btn">Ajouter</button>
+        </form>
+        <div id="syncMsg" class="adm-msg"></div>
+        <div class="adm-scroll"><table class="adm-table" id="syncTable">
+          <thead><tr><th>Nom</th><th>Lien iCal importé</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <div id="syncEmpty" class="adm-empty" hidden>Aucun calendrier importé pour l'instant.</div>
+        <p id="syncEnv" class="adm-hint" hidden></p>
+
+        <h2 style="font-size:18px;margin-top:24px">2. Exporter — liens du site à coller dans vos plateformes</h2>
+        <p class="adm-hint">Dans chaque plateforme, importez <b>son</b> lien ci-dessous : il contient toutes vos dates occupées <b>sauf</b> celles de cette plateforme.</p>
+        <div id="syncExport" class="sync-links"></div>
       </section>
     </main>
   </div>

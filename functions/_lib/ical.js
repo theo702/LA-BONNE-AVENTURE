@@ -88,21 +88,35 @@ export function sourceFromUrl(url) {
   } catch (e) { return 'externe'; }
 }
 
-// Analyse une entrée de AIRBNB_ICAL_URL : « url » (nom auto depuis le domaine) ou
-// « nom=url » (nom explicite). Le nom explicite ne matche que si l'URL suit vraiment.
+// Normalise un nom de source en identifiant utilisable dans ?exclude= (minuscules, sans espaces).
+export function slugLabel(s) {
+  return String(s || '').toLowerCase().trim().replace(/[^a-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+// Analyse une entrée texte : « url » (nom auto depuis le domaine) ou « nom=url » (nom explicite).
 function parseSourceEntry(entry) {
   const m = entry.match(/^([a-zA-Z0-9_-]+)\s*=\s*(https?:\/\/.+)$/);
   if (m) return { label: m[1].toLowerCase(), url: m[2].trim() };
   return { label: sourceFromUrl(entry), url: entry };
 }
 
-// Récupère les plages occupées depuis le(s) calendrier(s) externe(s) (Airbnb, Booking…).
-// AIRBNB_ICAL_URL peut contenir plusieurs entrées séparées par virgules / retours ligne,
-// chacune « url » ou « nom=url ». Chaque plage est étiquetée par sa source (`source`).
+// Découpe un texte multi-sources (virgules / retours ligne) en [{ label, url }].
+export function parseSources(raw) {
+  return (raw || '').split(/[\n,]+/).map((u) => u.trim()).filter(Boolean).map(parseSourceEntry);
+}
+
+// Récupère les plages occupées depuis les calendriers externes (Airbnb, Booking…).
+// Sources = secret `AIRBNB_ICAL_URL` (entrées « url » ou « nom=url ») + table D1 `ical_sources`
+// (gérée depuis l'admin). Chaque plage est étiquetée par sa source (`source`).
 // Cache KV de 30 min, sauf bypassCache=true (re-synchro live avant paiement).
 export async function fetchExternalRanges(env, { bypassCache = false } = {}) {
-  const rawUrls = env.AIRBNB_ICAL_URL || '';
-  const sources = rawUrls.split(/[\n,]+/).map((u) => u.trim()).filter(Boolean).map(parseSourceEntry);
+  const sources = parseSources(env.AIRBNB_ICAL_URL || '');
+  try {
+    const { results } = await env.DB.prepare(`SELECT label, url FROM ical_sources`).all();
+    for (const r of (results || [])) {
+      if (r.url) sources.push({ label: slugLabel(r.label) || sourceFromUrl(r.url), url: r.url });
+    }
+  } catch (e) { /* table absente : ignorer */ }
   if (!sources.length) return [];
 
   const CACHE_KEY = 'external_ranges';

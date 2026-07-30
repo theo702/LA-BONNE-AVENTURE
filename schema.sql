@@ -92,6 +92,14 @@ CREATE TABLE IF NOT EXISTS season_rates (
 );
 CREATE INDEX IF NOT EXISTS idx_seasons_range ON season_rates(date_from, date_to);
 
+-- ---------- Sources iCal entrantes (calendriers des autres plateformes) ----------
+CREATE TABLE IF NOT EXISTS ical_sources (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  label      TEXT NOT NULL,                    -- nom (sert à ?exclude=label à l'export)
+  url        TEXT NOT NULL,                    -- URL d'export iCal de la plateforme
+  created_at TEXT NOT NULL
+);
+
 -- ---------- Blocages manuels (dates rendues indisponibles par l'hôte) ----------
 CREATE TABLE IF NOT EXISTS manual_blocks (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,

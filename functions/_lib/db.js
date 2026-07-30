@@ -220,6 +220,24 @@ export async function ensurePricingSchema(env) {
   await run(`ALTER TABLE settings ADD COLUMN cleaning_pay_cents INTEGER NOT NULL DEFAULT 0`);
   await run(`ALTER TABLE bookings ADD COLUMN cleaning_paid INTEGER NOT NULL DEFAULT 0`);
   await run(`ALTER TABLE bookings ADD COLUMN cleaning_pay_cents INTEGER`);
+  // Sources iCal à importer (calendriers des autres plateformes), gérées depuis l'admin.
+  await run(`CREATE TABLE IF NOT EXISTS ical_sources (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, label TEXT NOT NULL, url TEXT NOT NULL, created_at TEXT NOT NULL)`);
+}
+
+// ---------- Sources iCal (calendriers entrants des autres plateformes) ----------
+export async function listIcalSources(env) {
+  try {
+    const { results } = await env.DB.prepare(`SELECT id, label, url FROM ical_sources ORDER BY id`).all();
+    return results || [];
+  } catch (e) { return []; }
+}
+export async function createIcalSource(env, s) {
+  await env.DB.prepare(`INSERT INTO ical_sources (label, url, created_at) VALUES (?1,?2,?3)`)
+    .bind(s.label, s.url, new Date().toISOString()).run();
+}
+export async function deleteIcalSource(env, id) {
+  await env.DB.prepare(`DELETE FROM ical_sources WHERE id = ?1`).bind(id).run();
 }
 
 // ---------- Prestations ménage (un séjour confirmé = un ménage à payer) ----------
