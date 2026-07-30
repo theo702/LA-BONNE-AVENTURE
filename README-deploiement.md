@@ -96,8 +96,21 @@ Puis, dans **Settings → Functions → Bindings**, rattacher **D1** (`DB` → `
 
 - **Importer nos résas dans Airbnb** : Airbnb → *Calendrier* → *Disponibilité* →
   *Synchroniser les calendriers* → *Importer un calendrier* → coller
-  `https://VOTRE-SITE.pages.dev/calendar.ics` → nommer « Réservations directes ».
+  `https://VOTRE-SITE.pages.dev/calendar.ics?scope=direct` → nommer « Réservations directes ».
+  Le paramètre `?scope=direct` évite de renvoyer à Airbnb ses propres dates.
 - **Exporter Airbnb vers nous** : c'est l'URL `.ics` déjà mise dans `AIRBNB_ICAL_URL` (étape 2).
+
+## Étape 6 bis — Rôle « channel manager » (autres plateformes)
+
+`https://VOTRE-SITE.pages.dev/calendar.ics` (sans paramètre) est le **calendrier maître** :
+il expose **toutes** les dates occupées — réservations directes **+ blocages manuels + dates
+importées d'Airbnb** (et de toute autre source listée dans `AIRBNB_ICAL_URL`).
+
+- **Bloquer vos autres plateformes** (Booking, Abritel, autre annonce…) : importez ce lien
+  complet chez elles → elles bloquent aussi vos résas Airbnb et directes.
+- Pour une synchro dans les deux sens, ajoutez aussi l'URL `.ics` de ces plateformes dans
+  le secret `AIRBNB_ICAL_URL` (plusieurs URLs séparées par des virgules ou des retours ligne)
+  → leurs réservations deviennent « occupées » ici et sont réexportées à tout le monde.
 
 ---
 
