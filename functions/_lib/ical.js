@@ -78,13 +78,32 @@ export function generateICal(events, opts = {}) {
   return lines.join('\r\n') + '\r\n';
 }
 
-// Récupère les plages occupées depuis le(s) calendrier(s) externe(s) (Airbnb, +Booking…).
-// AIRBNB_ICAL_URL peut contenir plusieurs URLs séparées par des virgules / retours ligne.
+// Déduit un nom de source (« airbnb », « booking », « abritel »…) depuis une URL iCal,
+// pour pouvoir exclure une plateforme précise à l'export (évite les boucles d'écho).
+export function sourceFromUrl(url) {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '');
+    const parts = host.split('.');
+    return (parts.length >= 2 ? parts[parts.length - 2] : parts[0] || 'externe').toLowerCase();
+  } catch (e) { return 'externe'; }
+}
+
+// Analyse une entrée de AIRBNB_ICAL_URL : « url » (nom auto depuis le domaine) ou
+// « nom=url » (nom explicite). Le nom explicite ne matche que si l'URL suit vraiment.
+function parseSourceEntry(entry) {
+  const m = entry.match(/^([a-zA-Z0-9_-]+)\s*=\s*(https?:\/\/.+)$/);
+  if (m) return { label: m[1].toLowerCase(), url: m[2].trim() };
+  return { label: sourceFromUrl(entry), url: entry };
+}
+
+// Récupère les plages occupées depuis le(s) calendrier(s) externe(s) (Airbnb, Booking…).
+// AIRBNB_ICAL_URL peut contenir plusieurs entrées séparées par virgules / retours ligne,
+// chacune « url » ou « nom=url ». Chaque plage est étiquetée par sa source (`source`).
 // Cache KV de 30 min, sauf bypassCache=true (re-synchro live avant paiement).
 export async function fetchExternalRanges(env, { bypassCache = false } = {}) {
   const rawUrls = env.AIRBNB_ICAL_URL || '';
-  const urls = rawUrls.split(/[\n,]+/).map((u) => u.trim()).filter(Boolean);
-  if (!urls.length) return [];
+  const sources = rawUrls.split(/[\n,]+/).map((u) => u.trim()).filter(Boolean).map(parseSourceEntry);
+  if (!sources.length) return [];
 
   const CACHE_KEY = 'external_ranges';
   if (!bypassCache && env.CACHE) {
@@ -95,11 +114,11 @@ export async function fetchExternalRanges(env, { bypassCache = false } = {}) {
   let ranges = [];
   try {
     const results = await Promise.all(
-      urls.map(async (url) => {
+      sources.map(async ({ label, url }) => {
         const res = await fetch(url, { cf: { cacheTtl: 0 } });
         if (!res.ok) return [];
         const text = await res.text();
-        return parseICal(text).map((e) => ({ from: e.from, to: e.to, source: 'airbnb' }));
+        return parseICal(text).map((e) => ({ from: e.from, to: e.to, source: label }));
       })
     );
     ranges = results.flat();

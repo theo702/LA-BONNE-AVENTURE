@@ -92,25 +92,36 @@ Puis, dans **Settings → Functions → Bindings**, rattacher **D1** (`DB` → `
 2. Régler `FROM_EMAIL` dans `wrangler.toml` avec une adresse de ce domaine
    (ex. `reservation@labonneaventure.fr`). `HOST_EMAIL` reçoit la notification de résa.
 
-## Étape 6 — Brancher Airbnb (les deux sens)
+## Étape 6 — Le site comme « channel manager » (hub central)
 
-- **Importer nos résas dans Airbnb** : Airbnb → *Calendrier* → *Disponibilité* →
-  *Synchroniser les calendriers* → *Importer un calendrier* → coller
-  `https://VOTRE-SITE.pages.dev/calendar.ics?scope=direct` → nommer « Réservations directes ».
-  Le paramètre `?scope=direct` évite de renvoyer à Airbnb ses propres dates.
-- **Exporter Airbnb vers nous** : c'est l'URL `.ics` déjà mise dans `AIRBNB_ICAL_URL` (étape 2).
+Le site centralise toutes vos disponibilités. Le principe, pour **chaque** plateforme
+(Airbnb, Booking, Abritel…) :
 
-## Étape 6 bis — Rôle « channel manager » (autres plateformes)
+1. **Importer le calendrier du site dans la plateforme** — mais en excluant *cette*
+   plateforme, pour ne pas lui renvoyer ses propres dates :
+   `https://VOTRE-SITE.pages.dev/calendar.ics?exclude=NOM`
+   où `NOM` = le nom de la plateforme (`airbnb`, `booking`, `abritel`…). La plateforme
+   bloque alors les résas **directes + toutes les autres plateformes**, sans boucle d'écho.
+2. **Importer le calendrier de la plateforme dans le site** — ajoutez son URL `.ics` au
+   secret `AIRBNB_ICAL_URL` (plusieurs entrées séparées par des virgules ou retours ligne).
 
-`https://VOTRE-SITE.pages.dev/calendar.ics` (sans paramètre) est le **calendrier maître** :
-il expose **toutes** les dates occupées — réservations directes **+ blocages manuels + dates
-importées d'Airbnb** (et de toute autre source listée dans `AIRBNB_ICAL_URL`).
+Le **nom** de chaque source est déduit automatiquement de son domaine
+(`airbnb.com` → `airbnb`, `booking.com` → `booking`). Pour forcer un nom, utilisez la
+syntaxe `nom=url` dans `AIRBNB_ICAL_URL`, ex :
 
-- **Bloquer vos autres plateformes** (Booking, Abritel, autre annonce…) : importez ce lien
-  complet chez elles → elles bloquent aussi vos résas Airbnb et directes.
-- Pour une synchro dans les deux sens, ajoutez aussi l'URL `.ics` de ces plateformes dans
-  le secret `AIRBNB_ICAL_URL` (plusieurs URLs séparées par des virgules ou des retours ligne)
-  → leurs réservations deviennent « occupées » ici et sont réexportées à tout le monde.
+```
+airbnb=https://www.airbnb.fr/calendar/ical/XXX.ics, booking=https://ical.booking.com/v1/export?...
+```
+
+**Exemple concret** (Airbnb + Booking) :
+- Dans **Airbnb**, importez `…/calendar.ics?exclude=airbnb`.
+- Dans **Booking**, importez `…/calendar.ics?exclude=booking`.
+- `AIRBNB_ICAL_URL` contient les deux URLs d'export (Airbnb **et** Booking).
+
+Ainsi une résa reçue **n'importe où** bloque partout ailleurs, automatiquement.
+
+> Variantes : `…/calendar.ics` (sans paramètre) = **tout** (pratique pour un simple aperçu) ;
+> `…/calendar.ics?scope=direct` = uniquement vos résas directes + blocages manuels.
 
 ---
 

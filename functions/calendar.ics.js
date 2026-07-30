@@ -2,15 +2,19 @@
 // Expose TOUTES les dates occupées pour qu'une autre plateforme qui l'importe bloque tout :
 //   • réservations directes confirmées   (getConfirmed)
 //   • blocages manuels                    (listBlocks)
-//   • dates importées d'Airbnb / externes (fetchExternalRanges)
-// Option ?scope=direct → exclut les dates externes (utile pour l'import DANS Airbnb, afin de
-// ne pas lui renvoyer ses propres dates). Sans paramètre = calendrier complet.
+//   • dates importées d'Airbnb / externes (fetchExternalRanges, étiquetées par source)
+// Paramètres :
+//   • ?scope=direct       → uniquement direct + blocages (aucune source externe)
+//   • ?exclude=airbnb      → tout SAUF cette/ces source(s) (liste séparée par des virgules)
+// À importer dans une plateforme en excluant cette même plateforme, pour éviter de lui
+// renvoyer ses propres dates (boucle d'écho). Sans paramètre = calendrier complet.
 import { getConfirmed, listBlocks } from './_lib/db.js';
 import { generateICal, fetchExternalRanges } from './_lib/ical.js';
 
 export async function onRequestGet({ env, request }) {
-  const scope = new URL(request.url).searchParams.get('scope');
-  const includeExternal = scope !== 'direct';
+  const params = new URL(request.url).searchParams;
+  const includeExternal = params.get('scope') !== 'direct';
+  const exclude = new Set((params.get('exclude') || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean));
 
   let rows = [];
   let blocks = [];
@@ -20,6 +24,7 @@ export async function onRequestGet({ env, request }) {
   if (includeExternal) {
     // Tolérant : en cas d'échec réseau, fetchExternalRanges renvoie [] (ou le dernier cache).
     try { external = await fetchExternalRanges(env, {}); } catch (err) { external = []; }
+    if (exclude.size) external = external.filter((e) => !exclude.has((e.source || '').toLowerCase()));
   }
 
   const events = [];
