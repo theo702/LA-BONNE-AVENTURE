@@ -276,11 +276,15 @@
     const base = location.origin + '/calendar.ics';
     const labels = [];
     [...envLabels, ...sources.map((s) => s.label)].forEach((l) => { if (l && labels.indexOf(l) < 0) labels.push(l); });
-    let h = syncLinkRow('Calendrier complet (toutes vos dates occupées)', base);
-    labels.forEach((l) => { h += syncLinkRow('À coller dans « ' + l + ' »', base + '?exclude=' + encodeURIComponent(l)); });
-    h += syncLinkRow('Vos réservations directes + blocages uniquement', base + '?scope=direct');
-    const box = $('#syncExport'); box.innerHTML = h;
-    box.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('click', () => copyText(btn.dataset.copy, btn)));
+    const box = $('#syncExport');
+    if (labels.length) {
+      let h = '';
+      labels.forEach((l) => { h += syncLinkRow('À coller dans « ' + l + ' »', base + '?exclude=' + encodeURIComponent(l)); });
+      box.innerHTML = h;
+      box.querySelectorAll('[data-copy]').forEach((btn) => btn.addEventListener('click', () => copyText(btn.dataset.copy, btn)));
+    } else {
+      box.innerHTML = '<p class="adm-hint">Ajoutez d\'abord une plateforme ci-dessus : son lien à coller apparaîtra ici automatiquement.</p>';
+    }
   }
 
   $('#syncForm').addEventListener('submit', async (e) => {
