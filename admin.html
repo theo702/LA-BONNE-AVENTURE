@@ -20,8 +20,7 @@
       <img class="adm-logo" src="assets/logo-navy.png" alt="La Bonne Aventure">
       <h1>Administration</h1>
       <p class="adm-sub">Accès réservé à l'hôte.</p>
-      <div style="display:inline-block;font-family:'Jost';font-size:12px;font-weight:600;color:#fff;background:#1f8a54;padding:4px 12px;border-radius:20px;margin:0 0 16px">Version : DUREE-SIMPLE · 27/07</div>
-      <label>Mot de passe</label>
+      <label for="pw">Mot de passe</label>
       <input id="pw" type="password" placeholder="••••••••" autocomplete="current-password">
       <button id="loginBtn" class="adm-btn">Se connecter</button>
       <div id="loginErr" class="adm-err"></div>
@@ -31,7 +30,11 @@
   <!-- Application -->
   <div id="app" class="adm-app" hidden>
     <header class="adm-top">
-      <div class="adm-brand"><span class="adm-frond">🌴</span> La Bonne Aventure <span class="adm-tag">admin</span></div>
+      <div class="adm-brand">
+        <svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/></svg>
+        La Bonne Aventure
+        <span class="adm-tag">admin</span>
+      </div>
       <button id="logoutBtn" class="adm-ghost">Déconnexion</button>
     </header>
 
@@ -208,14 +211,14 @@
           </div>
         </form>
 
-        <h2 style="font-size:19px;margin-top:22px">Liste des extras</h2>
+        <h3 class="adm-subhead">Liste des extras</h3>
         <div class="adm-scroll"><table class="adm-table" id="extraTable">
           <thead><tr><th>Titre</th><th>Prix</th><th>Type</th><th>Actif</th><th></th></tr></thead>
           <tbody></tbody>
         </table></div>
         <div id="extraEmpty" class="adm-empty" hidden>Aucun extra.</div>
 
-        <h2 style="font-size:19px;margin-top:22px">Commandes d'extras</h2>
+        <h3 class="adm-subhead">Commandes d'extras</h3>
         <div class="adm-scroll"><table class="adm-table" id="orderTable">
           <thead><tr><th>Date</th><th>Extra</th><th>Jour concerné</th><th>Client</th><th>Montant</th><th>Statut</th></tr></thead>
           <tbody></tbody>
@@ -256,7 +259,7 @@
         <h2>Synchronisation des calendriers</h2>
         <p class="adm-hint">Le site centralise vos disponibilités. Pour chaque plateforme (Airbnb, Booking…) : <b>(1)</b> ajoutez son calendrier ci-dessous (à importer <b>vers le site</b>), <b>(2)</b> collez le lien du site correspondant <b>chez elle</b> (à exporter). Une résa reçue n'importe où bloque partout ailleurs.</p>
 
-        <h2 style="font-size:18px;margin-top:20px">1. Importer — calendriers de vos plateformes</h2>
+        <h3 class="adm-subhead">1. Importer — calendriers de vos plateformes</h3>
         <p class="adm-hint">Collez le <b>lien d'export iCal</b> de la plateforme et donnez-lui un <b>nom</b> (ex. <code>airbnb</code>, <code>booking</code>). Ce nom sert à générer le bon lien d'export (il exclut ce nom pour éviter les boucles).</p>
         <form id="syncForm" class="adm-form adm-inline">
           <label>Nom<input name="label" type="text" placeholder="airbnb" style="width:120px"></label>
@@ -271,7 +274,7 @@
         <div id="syncEmpty" class="adm-empty" hidden>Aucun calendrier importé pour l'instant.</div>
         <p id="syncEnv" class="adm-hint" hidden></p>
 
-        <h2 style="font-size:18px;margin-top:24px">2. Exporter — liens du site à coller dans vos plateformes</h2>
+        <h3 class="adm-subhead">2. Exporter — liens du site à coller dans vos plateformes</h3>
         <p class="adm-hint">Dans chaque plateforme, importez <b>son</b> lien ci-dessous : il contient toutes vos dates occupées <b>sauf</b> celles de cette plateforme.</p>
         <div id="syncExport" class="sync-links"></div>
       </section>
