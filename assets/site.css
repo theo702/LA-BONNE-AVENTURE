@@ -82,29 +82,25 @@ a{color:inherit}
 }
 .tb-act svg{width:16px;height:16px}
 
-/* Accueil : barre transparente sur le héro, opaque au scroll */
+/* Accueil : barre crème toujours lisible (texte navy), un peu plus opaque au scroll */
 .page-home .topbar.topbar-over{
-  background:transparent;border-bottom-color:transparent;backdrop-filter:none;color:#FBF7EE;
+  background:rgba(251,247,238,.88);
+  border-bottom-color:rgba(230,225,212,.7);
+  backdrop-filter:blur(12px) saturate(1.1);
+  color:var(--ink);
   box-shadow:none;
 }
-.page-home .topbar.topbar-over .tb-brand{color:#FBF7EE}
-.page-home .topbar.topbar-over .brand-frond{color:var(--clay-soft)}
+.page-home .topbar.topbar-over .tb-brand{color:var(--green)}
+.page-home .topbar.topbar-over .brand-frond{color:var(--gold-deep)}
+.page-home .topbar.topbar-over .brand-name{color:var(--green)}
 .page-home .topbar.topbar-over .tb-act{
-  color:#FBF7EE;background:rgba(251,247,238,.1);border-color:rgba(251,247,238,.28);
-}
-.page-home .topbar.topbar-over.is-solid{
-  background:rgba(251,247,238,.94);border-bottom-color:var(--line-soft);
-  backdrop-filter:blur(12px) saturate(1.1);box-shadow:0 8px 24px rgba(15,30,55,.06);
-  color:var(--ink);
-}
-.page-home .topbar.topbar-over.is-solid .tb-brand{color:var(--green)}
-.page-home .topbar.topbar-over.is-solid .brand-frond{color:var(--gold-deep)}
-.page-home .topbar.topbar-over.is-solid .tb-act{
   color:var(--green);background:var(--paper);border-color:var(--line);
 }
-/* Le héro remonte sous la barre sticky transparente */
-.page-home .hero{margin-top:-58px}
-.page-home .hero .inner{padding-top:100px}
+.page-home .topbar.topbar-over.is-solid{
+  background:rgba(251,247,238,.97);
+  border-bottom-color:var(--line-soft);
+  box-shadow:0 8px 24px rgba(15,30,55,.06);
+}
 
 /* ---------- Navigation à onglets (guide) ---------- */
 .nav{
@@ -581,7 +577,6 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 }
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .tb-act:hover{background:var(--cream2)}
-.page-home .topbar.topbar-over:not(.is-solid) .tb-act:hover{background:rgba(251,247,238,.2)}
 .nav button{transition:color .2s ease,background .2s ease}
 
 @media (prefers-reduced-motion:reduce){
@@ -608,8 +603,6 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   .page-doc .app.doc{max-width:none;box-shadow:none;width:100%;background:transparent}
 
   .page-doc .topbar{padding-left:clamp(24px,4vw,90px);padding-right:clamp(24px,4vw,90px)}
-  .page-home .hero{margin-top:-62px}
-  .page-home .hero .inner{padding-top:120px}
 
   /* Héro pleine largeur, bord à bord */
   .page-doc .hero{min-height:100svh;min-height:100vh}
