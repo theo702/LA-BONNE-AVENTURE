@@ -73,8 +73,8 @@ a{color:inherit}
 .tb-actions{display:flex;align-items:center;gap:8px}
 .tb-brand{display:inline-flex;align-items:center;gap:8px;color:var(--green);font-weight:500;text-decoration:none}
 .tb-logo{
-  width:40px !important;height:40px !important;
-  max-width:40px !important;max-height:40px !important;
+  width:52px !important;height:52px !important;
+  max-width:52px !important;max-height:52px !important;
   aspect-ratio:1 / 1;object-fit:contain;flex-shrink:0;display:block;
 }
 .tb-act{
@@ -165,8 +165,8 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .hero .frond svg{width:100%;height:100%}
 .hero .inner{position:relative;z-index:2;margin-top:auto;padding:88px 22px 56px;width:100%}
 .hero-logo{
-  width:112px !important;height:112px !important;
-  max-width:112px !important;max-height:112px !important;
+  width:148px !important;height:148px !important;
+  max-width:148px !important;max-height:148px !important;
   aspect-ratio:1 / 1;object-fit:contain;display:block;
   margin-bottom:18px;filter:drop-shadow(0 8px 24px rgba(6,16,32,.55));
 }
@@ -610,8 +610,8 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
     padding-top:100px;padding-bottom:72px;
     padding-left:clamp(24px,4vw,90px);padding-right:clamp(24px,4vw,90px)}
   .page-doc .hero-logo{
-    width:140px !important;height:140px !important;
-    max-width:140px !important;max-height:140px !important;
+    width:176px !important;height:176px !important;
+    max-width:176px !important;max-height:176px !important;
   }
   .page-doc .hero h1{font-size:clamp(64px,7.2vw,118px)}
   .page-doc .hero .rule{width:80px}
@@ -643,8 +643,8 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   .app:not(.doc) .hero .inner{max-width:1200px;margin-left:auto;margin-right:auto;
     padding-left:clamp(24px,4vw,80px);padding-right:clamp(24px,4vw,80px)}
   .app:not(.doc) .hero-logo{
-    width:128px !important;height:128px !important;
-    max-width:128px !important;max-height:128px !important;
+    width:156px !important;height:156px !important;
+    max-width:156px !important;max-height:156px !important;
   }
   .app:not(.doc) .nav{justify-content:center}
   .app:not(.doc) .body{max-width:1140px;margin-left:auto;margin-right:auto;
@@ -655,8 +655,8 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 @media(max-width:420px){
   .page-home .tb-act{padding:8px 10px;font-size:12px}
   .tb-logo{
-    width:36px !important;height:36px !important;
-    max-width:36px !important;max-height:36px !important;
+    width:44px !important;height:44px !important;
+    max-width:44px !important;max-height:44px !important;
   }
   .hero h1{font-size:42px}
   .hero-cta .ghost span,.hero-cta a{padding:12px 16px}

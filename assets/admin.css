@@ -87,6 +87,11 @@ img.adm-brand-logo{
   min-height:1.2em;margin-top:14px;
   font-size:13px;color:#B3261E;text-align:left;
 }
+.adm-login-home{
+  display:inline-block;margin-top:18px;
+  font-size:13px;font-weight:500;color:#0f2a4a;text-decoration:none;
+}
+.adm-login-home:hover{color:#a9760f;text-decoration:underline}
 
 /* ---------- Buttons ---------- */
 .adm-btn{
@@ -143,6 +148,13 @@ img.adm-brand-logo{
 .adm-brand-text span{
   font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;
   color:#a9760f;
+}
+.adm-top-actions{
+  display:flex;align-items:center;gap:8px;flex:0 0 auto;
+}
+a.adm-ghost{
+  text-decoration:none;
+  box-sizing:border-box;
 }
 
 .adm-tabs{
