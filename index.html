@@ -18,9 +18,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/site.css">
-<link rel="stylesheet" href="assets/booking.css">
+<link rel="stylesheet" href="assets/site.css?v=5">
+<link rel="stylesheet" href="assets/booking.css?v=5">
 <style>
+  img.tb-logo{width:40px!important;height:40px!important;max-width:40px!important;max-height:40px!important;object-fit:contain!important}
+  img.hero-logo{width:112px!important;height:112px!important;max-width:112px!important;max-height:112px!important;object-fit:contain!important}
+  @media(min-width:760px){img.hero-logo{width:140px!important;height:140px!important;max-width:140px!important;max-height:140px!important}}
   .hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px;position:relative;z-index:2}
   .hero-cta a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:'Jost';font-weight:500;font-size:14px;padding:13px 22px;border-radius:30px;transition:transform .2s ease,background .2s ease,box-shadow .2s ease}
   .hero-cta .primary{background:var(--gold);color:#1a1408;box-shadow:0 12px 28px rgba(0,0,0,.28)}
@@ -34,7 +37,7 @@
 <div class="app doc">
 
   <div class="topbar topbar-over" id="topbar">
-    <span class="tb-brand"><img class="tb-logo" src="assets/logo-black.png" alt="La Bonne Aventure"></span>
+    <span class="tb-brand"><img class="tb-logo" src="assets/logo-black.png" width="40" height="40" alt="La Bonne Aventure"></span>
     <div class="tb-actions">
       <a class="tb-act" href="mon-compte.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
@@ -55,7 +58,7 @@
         <div class="wash"></div>
         <div class="frond" aria-hidden="true"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/><path d="M62 82 C80 76 88 68 92 56"/></svg></div>
         <div class="inner">
-          <img class="hero-logo hero-in" style="--hi:0" src="assets/logo-white.png" alt="La Bonne Aventure">
+          <img class="hero-logo hero-in" style="--hi:0" src="assets/logo-white.png" width="140" height="140" alt="La Bonne Aventure">
           <div class="kick hero-in" style="--hi:1">Réservation directe · Aix-les-Bains</div>
           <h1 class="hero-in" style="--hi:2"><span class="b">Réservez</span><span class="a">en direct</span></h1>
           <div class="rule hero-in" style="--hi:3"></div>
