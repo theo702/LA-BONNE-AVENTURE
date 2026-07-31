@@ -1,0 +1,14 @@
+# Cloudflare Pages : forcer la revalidation du HTML/JS/CSS à chaque requête.
+# Sans ce fichier, un navigateur (ou un proxy) peut continuer à servir une VERSION
+# PÉRIMÉE de assets/admin.js ou assets/booking.js après un déploiement — un clic sur un
+# bouton peut alors exécuter du code qui n'existe plus, sans aucune erreur visible.
+# Cache-Control: no-cache = toujours revérifier auprès du serveur (pas "ne jamais mettre en
+# cache" : une requête conditionnelle légère suffit, la fraîcheur prime sur la perf ici).
+/*.html
+  Cache-Control: no-cache
+
+/assets/*.js
+  Cache-Control: no-cache
+
+/assets/*.css
+  Cache-Control: no-cache
