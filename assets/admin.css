@@ -30,7 +30,7 @@
 }
 .adm-logo{
   display:block;width:148px;height:auto;max-width:100%;
-  aspect-ratio:400 / 460;object-fit:contain;
+  aspect-ratio:1 / 1;object-fit:contain;
   margin:0 auto 18px;filter:drop-shadow(0 6px 16px rgba(15,42,74,.12));
 }
 .adm-login-card h1{
@@ -86,7 +86,7 @@
 }
 .adm-brand-logo{
   height:40px;width:auto;max-width:none;max-height:40px;
-  aspect-ratio:400 / 460;object-fit:contain;flex-shrink:0;display:block;
+  aspect-ratio:1 / 1;object-fit:contain;flex-shrink:0;display:block;
 }
 .adm-tag{
   font-family:'Jost';font-size:10px;font-weight:600;letter-spacing:.12em;
