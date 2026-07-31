@@ -114,6 +114,12 @@
     f.taxe_cap_cents.value = (s.taxe_cap_cents / 100).toFixed(2);
     f.taxe_additional_pct.value = s.taxe_additional_pct;
     if (f.cleaning_emails) f.cleaning_emails.value = s.cleaning_emails || '';
+    if (f.loyalty_enabled) {
+      f.loyalty_enabled.checked = s.loyalty_enabled == null ? true : !!s.loyalty_enabled;
+      f.loyalty_points_per_night.value = s.loyalty_points_per_night || 1;
+      f.loyalty_points_per_reward.value = s.loyalty_points_per_reward || 10;
+      f.loyalty_reward_pct.value = s.loyalty_reward_pct != null ? s.loyalty_reward_pct : 10;
+    }
   }
 
   async function saveRates(msgSel) {
@@ -131,6 +137,10 @@
       taxe_enabled: f.taxe_enabled.checked, taxe_rate_pct: +f.taxe_rate_pct.value,
       taxe_cap_cents: cents(f.taxe_cap_cents.value), taxe_additional_pct: +f.taxe_additional_pct.value,
       cleaning_emails: f.cleaning_emails ? f.cleaning_emails.value : '',
+      loyalty_enabled: f.loyalty_enabled ? f.loyalty_enabled.checked : true,
+      loyalty_points_per_night: f.loyalty_points_per_night ? +f.loyalty_points_per_night.value : 1,
+      loyalty_points_per_reward: f.loyalty_points_per_reward ? +f.loyalty_points_per_reward.value : 10,
+      loyalty_reward_pct: f.loyalty_reward_pct ? +f.loyalty_reward_pct.value : 10,
     };
     const { status } = await api('settings', { method: 'PUT', body: JSON.stringify(body) });
     msg(msgSel || '#ratesMsg', status === 200 ? 'Enregistré ✓' : 'Erreur', status !== 200);

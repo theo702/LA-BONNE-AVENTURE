@@ -33,6 +33,11 @@ export async function onRequestPut({ env, request }) {
     week_total_cents: Math.max(0, Math.round(num(b.week_total_cents, cur.week_total_cents || 30000))),
     cure_total_cents: Math.max(0, Math.round(num(b.cure_total_cents, cur.cure_total_cents || 75000))),
     caution_cents: Math.max(0, Math.round(num(b.caution_cents, cur.caution_cents || 0))),
+    // Programme fidélité (espace voyageur).
+    loyalty_enabled: b.loyalty_enabled ? 1 : 0,
+    loyalty_points_per_night: Math.max(1, Math.round(num(b.loyalty_points_per_night, cur.loyalty_points_per_night || 1))),
+    loyalty_points_per_reward: Math.max(1, Math.round(num(b.loyalty_points_per_reward, cur.loyalty_points_per_reward || 10))),
+    loyalty_reward_pct: Math.min(100, Math.max(0, num(b.loyalty_reward_pct, cur.loyalty_reward_pct || 10))),
   };
   await ensurePricingSchema(env); // crée/complète les colonnes manquantes (base ancienne)
   await updateSettings(env, s);

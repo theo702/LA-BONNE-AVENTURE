@@ -120,6 +120,16 @@
             <p class="adm-hint">Formule appliquée : <code>min(taux % × prix nuit ÷ pers, plafond) × (1 + additionnelles %)</code>, par personne et par nuit.</p>
           </fieldset>
 
+          <fieldset><legend>Fidélité <span style="text-transform:none;font-weight:400">(espace voyageur)</span></legend>
+            <label class="adm-check"><input name="loyalty_enabled" type="checkbox"> Activer le programme fidélité</label>
+            <div class="adm-grid">
+              <label>Points par nuit confirmée<input name="loyalty_points_per_night" type="number" min="1" placeholder="1"></label>
+              <label>Points requis pour une récompense<input name="loyalty_points_per_reward" type="number" min="1" placeholder="10"></label>
+              <label>Réduction de la récompense (%)<input name="loyalty_reward_pct" type="number" step="1" min="0" max="100" placeholder="10"></label>
+            </div>
+            <p class="adm-hint">Chaque voyageur cumule des points selon ses nuits confirmées. Dès le seuil atteint, un <b>code promo à usage unique</b> est généré automatiquement et visible dans son espace (<code>/mon-compte.html</code>) — aucune action de votre part.</p>
+          </fieldset>
+
           <fieldset><legend>Équipe ménage</legend>
             <label>Emails des prestataires (séparés par une virgule)<input name="cleaning_emails" type="text" placeholder="menage1@email.com, menage2@email.com"></label>
             <p class="adm-hint">Ils recevront un email automatique à chaque nouvelle réservation (dates d'arrivée et de départ, ménage à prévoir).</p>

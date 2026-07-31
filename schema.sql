@@ -52,6 +52,10 @@ CREATE TABLE IF NOT EXISTS settings (
   cure_total_cents    INTEGER NOT NULL DEFAULT 75000, -- prix TOTAL d'une cure (≥ monthly_min_nights) = 750 €
   caution_cents       INTEGER NOT NULL DEFAULT 0,     -- caution (empreinte bancaire), 0 = désactivée
   cleaning_pay_cents  INTEGER NOT NULL DEFAULT 0,     -- montant payé au prestataire par ménage (défaut)
+  loyalty_enabled     INTEGER NOT NULL DEFAULT 1,     -- programme fidélité actif
+  loyalty_points_per_night INTEGER NOT NULL DEFAULT 1,-- points gagnés par nuit confirmée
+  loyalty_points_per_reward INTEGER NOT NULL DEFAULT 10, -- points requis pour débloquer une récompense
+  loyalty_reward_pct  REAL    NOT NULL DEFAULT 10,    -- % de réduction du code promo généré
   currency            TEXT    NOT NULL DEFAULT 'eur'
 );
 INSERT OR IGNORE INTO settings (id) VALUES (1);
@@ -61,6 +65,10 @@ INSERT OR IGNORE INTO settings (id) VALUES (1);
 -- ALTER TABLE settings ADD COLUMN caution_cents INTEGER NOT NULL DEFAULT 0;
 -- ALTER TABLE settings ADD COLUMN week_total_cents INTEGER NOT NULL DEFAULT 30000;
 -- ALTER TABLE settings ADD COLUMN cure_total_cents INTEGER NOT NULL DEFAULT 75000;
+-- ALTER TABLE settings ADD COLUMN loyalty_enabled INTEGER NOT NULL DEFAULT 1;
+-- ALTER TABLE settings ADD COLUMN loyalty_points_per_night INTEGER NOT NULL DEFAULT 1;
+-- ALTER TABLE settings ADD COLUMN loyalty_points_per_reward INTEGER NOT NULL DEFAULT 10;
+-- ALTER TABLE settings ADD COLUMN loyalty_reward_pct REAL NOT NULL DEFAULT 10;
 -- ALTER TABLE bookings ADD COLUMN stripe_customer_id TEXT;
 -- ALTER TABLE bookings ADD COLUMN stripe_payment_method TEXT;
 
@@ -99,6 +107,26 @@ CREATE TABLE IF NOT EXISTS ical_sources (
   url        TEXT NOT NULL,                    -- URL d'export iCal de la plateforme
   created_at TEXT NOT NULL
 );
+
+-- ---------- Espace voyageur : liens de connexion à usage unique (magic link) ----------
+CREATE TABLE IF NOT EXISTS magic_links (
+  token      TEXT PRIMARY KEY,
+  email      TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  used       INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_magic_links_email ON magic_links(email);
+
+-- ---------- Fidélité : récompenses déjà attribuées (évite les doublons par palier) ----------
+CREATE TABLE IF NOT EXISTS loyalty_rewards (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  email       TEXT NOT NULL,
+  tier        INTEGER NOT NULL,        -- 1ère récompense, 2e, ...
+  promo_code  TEXT NOT NULL,
+  created_at  TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_loyalty_email ON loyalty_rewards(email);
 
 -- ---------- Blocages manuels (dates rendues indisponibles par l'hôte) ----------
 CREATE TABLE IF NOT EXISTS manual_blocks (

@@ -174,6 +174,18 @@ export async function updateSettings(env, s) {
         Math.max(0, Math.round(s.cure_total_cents || 0))
       ).run();
   } catch (e) { /* colonnes absentes : ignorer */ }
+  // Fidélité (colonnes récentes → UPDATE tolérant).
+  try {
+    await env.DB.prepare(
+      `UPDATE settings SET loyalty_enabled=?1, loyalty_points_per_night=?2,
+         loyalty_points_per_reward=?3, loyalty_reward_pct=?4 WHERE id=1`
+    ).bind(
+      s.loyalty_enabled ? 1 : 0,
+      Math.max(1, Math.round(s.loyalty_points_per_night || 1)),
+      Math.max(1, Math.round(s.loyalty_points_per_reward || 10)),
+      Math.min(100, Math.max(0, s.loyalty_reward_pct || 0))
+    ).run();
+  } catch (e) { /* colonnes absentes : ignorer */ }
 }
 
 export async function listPromos(env) {
@@ -223,6 +235,65 @@ export async function ensurePricingSchema(env) {
   // Sources iCal à importer (calendriers des autres plateformes), gérées depuis l'admin.
   await run(`CREATE TABLE IF NOT EXISTS ical_sources (
     id INTEGER PRIMARY KEY AUTOINCREMENT, label TEXT NOT NULL, url TEXT NOT NULL, created_at TEXT NOT NULL)`);
+  // Espace voyageur : connexion par lien magique + programme fidélité.
+  await run(`CREATE TABLE IF NOT EXISTS magic_links (
+    token TEXT PRIMARY KEY, email TEXT NOT NULL, expires_at TEXT NOT NULL,
+    used INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL)`);
+  await run(`CREATE TABLE IF NOT EXISTS loyalty_rewards (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL, tier INTEGER NOT NULL,
+    promo_code TEXT NOT NULL, created_at TEXT NOT NULL)`);
+  await run(`ALTER TABLE settings ADD COLUMN loyalty_enabled INTEGER NOT NULL DEFAULT 1`);
+  await run(`ALTER TABLE settings ADD COLUMN loyalty_points_per_night INTEGER NOT NULL DEFAULT 1`);
+  await run(`ALTER TABLE settings ADD COLUMN loyalty_points_per_reward INTEGER NOT NULL DEFAULT 10`);
+  await run(`ALTER TABLE settings ADD COLUMN loyalty_reward_pct REAL NOT NULL DEFAULT 10`);
+}
+
+// ---------- Espace voyageur : liens de connexion (magic link) ----------
+export async function createMagicLink(env, email, ttlMinutes = 15) {
+  const token = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+  const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000).toISOString();
+  await env.DB.prepare(
+    `INSERT INTO magic_links (token, email, expires_at, used, created_at) VALUES (?1,?2,?3,0,?4)`
+  ).bind(token, email.toLowerCase(), expiresAt, new Date().toISOString()).run();
+  return token;
+}
+// Valide + consomme (usage unique) un token. Renvoie l'email ou null si invalide/expiré/déjà utilisé.
+export async function consumeMagicLink(env, token) {
+  if (!token) return null;
+  const row = await env.DB.prepare(`SELECT * FROM magic_links WHERE token = ?1`).bind(token).first();
+  if (!row || row.used) return null;
+  if (new Date(row.expires_at).getTime() < Date.now()) return null;
+  await env.DB.prepare(`UPDATE magic_links SET used = 1 WHERE token = ?1`).bind(token).run();
+  return row.email;
+}
+
+// ---------- Espace voyageur : réservations d'un email ----------
+export async function listBookingsByEmail(env, email) {
+  const { results } = await env.DB.prepare(
+    `SELECT id, checkin, checkout, nights, guests, amount_total_cents, currency, status, created_at
+       FROM bookings WHERE email = ?1 AND status != 'cancelled' ORDER BY checkin DESC`
+  ).bind((email || '').toLowerCase()).all();
+  return results || [];
+}
+// Nuits confirmées cumulées pour un email (base du calcul de points).
+export async function confirmedNightsByEmail(env, email) {
+  const row = await env.DB.prepare(
+    `SELECT COALESCE(SUM(nights),0) AS n FROM bookings WHERE email = ?1 AND status = 'confirmed'`
+  ).bind((email || '').toLowerCase()).first();
+  return (row && row.n) || 0;
+}
+
+// ---------- Fidélité : récompenses déjà attribuées ----------
+export async function listLoyaltyRewards(env, email) {
+  const { results } = await env.DB.prepare(
+    `SELECT id, tier, promo_code, created_at FROM loyalty_rewards WHERE email = ?1 ORDER BY tier`
+  ).bind((email || '').toLowerCase()).all();
+  return results || [];
+}
+export async function createLoyaltyReward(env, email, tier, promoCode) {
+  await env.DB.prepare(
+    `INSERT INTO loyalty_rewards (email, tier, promo_code, created_at) VALUES (?1,?2,?3,?4)`
+  ).bind((email || '').toLowerCase(), tier, promoCode, new Date().toISOString()).run();
 }
 
 // ---------- Sources iCal (calendriers entrants des autres plateformes) ----------

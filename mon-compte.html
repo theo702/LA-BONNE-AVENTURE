@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4HX22H9KXF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-4HX22H9KXF');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon espace — La Bonne Aventure</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/account.css">
+</head>
+<body class="page-doc">
+<div class="app doc">
+
+  <div class="topbar">
+    <span class="tb-brand"><svg class="brand-frond" viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/></svg><span class="brand-name">La Bonne Aventure</span></span>
+    <a class="tb-act" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Accueil
+    </a>
+  </div>
+
+  <div class="scroll">
+    <section class="page active">
+      <div class="body">
+
+        <div class="section-head reveal" style="--i:0"><span class="no">·</span><span class="kicker">Espace voyageur</span></div>
+        <h2 class="reveal" style="--i:0">Vos réservations & <span class="it">votre fidélité</span></h2>
+        <p class="lede reveal" style="--i:0">Retrouvez vos séjours et vos points fidélité avec l'email utilisé à la réservation.</p>
+
+        <div id="acctError" class="acct-banner err" hidden></div>
+
+        <!-- Connexion -->
+        <div id="acctLogin" class="card acct-card reveal" style="--i:1">
+          <form id="acctLoginForm" class="acct-form">
+            <label>Votre email<input id="acctEmail" type="email" placeholder="vous@email.com" required autocomplete="email"></label>
+            <button type="submit" class="acct-btn" id="acctLoginBtn">Recevoir mon lien de connexion</button>
+          </form>
+          <p id="acctLoginMsg" class="acct-msg" hidden></p>
+          <p class="acct-hint">Aucun mot de passe : vous recevrez un lien de connexion à usage unique par email, valable 15 minutes.</p>
+        </div>
+
+        <!-- Espace connecté -->
+        <div id="acctApp" hidden>
+          <div class="acct-hello reveal" style="--i:1">
+            <span>Bonjour, <b id="acctEmailLabel"></b></span>
+            <button id="acctLogout" class="acct-ghost">Se déconnecter</button>
+          </div>
+
+          <div id="acctLoyaltyCard" class="card acct-card reveal" style="--i:2" hidden>
+            <h3>🌴 Programme fidélité</h3>
+            <div class="acct-points">
+              <span class="acct-points-n" id="acctPoints">0</span>
+              <span class="acct-points-l">points</span>
+            </div>
+            <div class="acct-progress"><div class="acct-progress-b" id="acctProgressBar"></div></div>
+            <p class="acct-hint" id="acctNextReward"></p>
+            <div id="acctRewards" class="acct-rewards"></div>
+          </div>
+
+          <h3 class="reveal" style="--i:3">Vos séjours</h3>
+          <div id="acctBookings" class="acct-bookings reveal" style="--i:3"></div>
+          <div id="acctEmpty" class="acct-hint" hidden>Aucune réservation trouvée pour cet email.</div>
+        </div>
+
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="assets/reveal.js" defer></script>
+<script src="assets/account.js" defer></script>
+</body>
+</html>
