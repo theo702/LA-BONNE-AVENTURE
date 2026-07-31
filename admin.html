@@ -9,15 +9,19 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/site.css?v=4">
-<link rel="stylesheet" href="assets/admin.css?v=4">
+<link rel="stylesheet" href="assets/admin.css?v=5">
+<style>
+  /* Filet de sécurité anti-cache : logo jamais en taille native 720px */
+  img.adm-logo{width:96px!important;height:96px!important;max-width:96px!important;max-height:96px!important;object-fit:contain!important}
+  img.adm-brand-logo{width:36px!important;height:36px!important;max-width:36px!important;max-height:36px!important;object-fit:contain!important;flex:0 0 36px!important}
+</style>
 </head>
 <body class="adm-body">
 
   <!-- Connexion -->
   <div id="login" class="adm-login">
     <div class="adm-login-card">
-      <img class="adm-logo" src="assets/logo-black.png" width="140" height="140" alt="La Bonne Aventure">
+      <img class="adm-logo" src="assets/logo-black.png" width="96" height="96" alt="La Bonne Aventure">
       <p class="adm-kicker">Espace hôte</p>
       <h1>Administration</h1>
       <p class="adm-sub">Connectez-vous pour gérer réservations, tarifs et calendriers.</p>
@@ -32,7 +36,7 @@
   <div id="app" class="adm-app" hidden>
     <header class="adm-top">
       <div class="adm-brand">
-        <img class="adm-brand-logo" src="assets/logo-black.png" width="48" height="48" alt="La Bonne Aventure">
+        <img class="adm-brand-logo" src="assets/logo-black.png" width="36" height="36" alt="La Bonne Aventure">
         <div class="adm-brand-text">
           <strong>La Bonne Aventure</strong>
           <span>Administration</span>
@@ -320,6 +324,6 @@
     </main>
   </div>
 
-<script src="assets/admin.js?v=4" defer></script>
+<script src="assets/admin.js?v=5" defer></script>
 </body>
 </html>
