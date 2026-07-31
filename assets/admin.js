@@ -63,7 +63,7 @@
         `<td>${r.guests}</td><td>${euro(r.amount_total_cents)}</td>` +
         `<td>${euro(r.taxe_cents)}</td><td>${r.promo_code ? esc(r.promo_code) : '—'}</td>` +
         `<td><span class="adm-badge ${r.status}">${statusFr(r.status)}</span></td>` +
-        `<td>${r.stripe_payment_method ? `<button class="adm-caution" data-id="${r.id}" title="Débiter la caution">💳 Caution</button> ` : ''}<button class="adm-del" data-id="${r.id}" title="Supprimer">✕</button></td>`;
+        `<td>${r.stripe_payment_method ? `<button class="adm-caution" data-id="${r.id}" title="Débiter la caution">Caution</button> ` : ''}<button class="adm-del" data-id="${r.id}" title="Supprimer">✕</button></td>`;
       tb.appendChild(tr);
       tr.querySelector('.adm-del').addEventListener('click', async () => {
         if (!confirm('Supprimer définitivement cette réservation ?')) return;

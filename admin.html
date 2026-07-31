@@ -17,12 +17,13 @@
   <!-- Connexion -->
   <div id="login" class="adm-login">
     <div class="adm-login-card">
-      <img class="adm-logo" src="assets/logo-black.png" alt="La Bonne Aventure">
+      <img class="adm-logo" src="assets/logo-white.png" alt="La Bonne Aventure">
+      <p class="adm-kicker">Espace hôte</p>
       <h1>Administration</h1>
-      <p class="adm-sub">Accès réservé à l'hôte.</p>
+      <p class="adm-sub">Connectez-vous pour gérer réservations, tarifs et calendriers.</p>
       <label for="pw">Mot de passe</label>
       <input id="pw" type="password" placeholder="••••••••" autocomplete="current-password">
-      <button id="loginBtn" class="adm-btn">Se connecter</button>
+      <button id="loginBtn" class="adm-btn adm-btn-block">Se connecter</button>
       <div id="loginErr" class="adm-err"></div>
     </div>
   </div>
@@ -31,13 +32,16 @@
   <div id="app" class="adm-app" hidden>
     <header class="adm-top">
       <div class="adm-brand">
-        <img class="adm-brand-logo" src="assets/logo-black.png" alt="La Bonne Aventure">
-        <span class="adm-tag">admin</span>
+        <img class="adm-brand-logo" src="assets/logo-white.png" alt="La Bonne Aventure">
+        <div class="adm-brand-text">
+          <strong>La Bonne Aventure</strong>
+          <span>Administration</span>
+        </div>
       </div>
-      <button id="logoutBtn" class="adm-ghost">Déconnexion</button>
+      <button id="logoutBtn" class="adm-ghost adm-ghost-light">Déconnexion</button>
     </header>
 
-    <nav class="adm-tabs">
+    <nav class="adm-tabs" aria-label="Sections">
       <button class="on" data-tab="t-book">Réservations</button>
       <button data-tab="t-cal">Calendrier</button>
       <button data-tab="t-rates">Tarifs</button>
@@ -49,32 +53,43 @@
     </nav>
 
     <main class="adm-main">
-      <!-- Réservations -->
+
       <section id="t-book" class="adm-panel on">
-        <h2>Réservations</h2>
-        <div class="adm-scroll"><table class="adm-table" id="bookTable">
-          <thead><tr><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Voyageur</th><th>Contact</th><th>Pers.</th><th>Total</th><th>Taxe</th><th>Promo</th><th>Statut</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-        <div id="bookEmpty" class="adm-empty" hidden>Aucune réservation pour le moment.</div>
+        <header class="adm-panel-head">
+          <h2>Réservations</h2>
+          <p class="adm-lede">Séjours réservés en direct, paiements et cautions.</p>
+        </header>
+        <div class="adm-card">
+          <div class="adm-scroll"><table class="adm-table" id="bookTable">
+            <thead><tr><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Voyageur</th><th>Contact</th><th>Pers.</th><th>Total</th><th>Taxe</th><th>Promo</th><th>Statut</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div id="bookEmpty" class="adm-empty" hidden>Aucune réservation pour le moment.</div>
+        </div>
       </section>
 
-      <!-- Calendrier interactif -->
       <section id="t-cal" class="adm-panel">
-        <h2>Calendrier</h2>
-        <p class="adm-hint">Vue temps réel : réservations directes, dates bloquées et synchro Airbnb. <b>Cliquez une date</b> pour la bloquer / libérer. Les jours réservés en direct ou via Airbnb ne sont pas modifiables.</p>
+        <header class="adm-panel-head">
+          <h2>Calendrier</h2>
+          <p class="adm-lede">Vue temps réel : direct, Airbnb et blocages. Cliquez une date libre pour la bloquer ou la libérer.</p>
+        </header>
         <div class="adm-cal-legend">
           <span><i class="c-free"></i>Libre</span>
           <span><i class="c-book"></i>Réservé (direct)</span>
           <span><i class="c-ext"></i>Airbnb</span>
           <span><i class="c-block"></i>Bloqué</span>
         </div>
-        <div id="admCal" class="adm-cal"><div class="adm-cal-loading">Chargement du calendrier…</div></div>
+        <div class="adm-card adm-card-cal">
+          <div id="admCal" class="adm-cal"><div class="adm-cal-loading">Chargement du calendrier…</div></div>
+        </div>
       </section>
 
-      <!-- Tarifs (base + réductions + taxe + tarification dynamique) -->
       <section id="t-rates" class="adm-panel">
-        <h2>Tarifs</h2>
+        <header class="adm-panel-head">
+          <h2>Tarifs</h2>
+          <p class="adm-lede">Prix par durée, caution, réductions, taxe et fidélité.</p>
+        </header>
+
         <div class="adm-explain">
           <b>Tarifs par durée (ménage inclus)</b>
           <ol>
@@ -86,7 +101,8 @@
         </div>
 
         <form id="ratesForm" class="adm-form">
-          <fieldset><legend>Tarifs par durée <span style="text-transform:none;font-weight:400">(ménage inclus)</span></legend>
+          <fieldset>
+            <legend>Tarifs par durée <em>(ménage inclus)</em></legend>
             <div class="adm-grid">
               <label>Courts séjours (€ / nuit)<input name="nightly" type="number" step="1" min="0" placeholder="120"></label>
               <label>Prix d'une semaine (€ total)<input name="week_total" type="number" step="1" min="0" placeholder="300"></label>
@@ -96,46 +112,52 @@
               <label>Nuits minimum<input name="min_nights" type="number" min="1" placeholder="1"></label>
               <label>Voyageurs max<input name="max_guests" type="number" min="1" placeholder="2"></label>
             </div>
-            <p class="adm-hint">Ex. : <b>120 €/nuit</b> en court séjour · <b>300 €</b> la semaine · <b>750 €</b> la cure de 3 semaines. Les seuils sont en <b>nuits</b> : une semaine = 7 jours = <b>6 nuits</b>, une cure de 3 semaines = 21 jours = <b>20 nuits</b> (le jour du départ ne compte pas). Entre les paliers, le prix est au prorata. Ménage <b>inclus</b>.</p>
+            <p class="adm-hint">Ex. : <b>120 €/nuit</b> en court séjour · <b>300 €</b> la semaine · <b>750 €</b> la cure. Les seuils sont en <b>nuits</b> (semaine = 6 nuits, cure 3 sem. = 20 nuits).</p>
           </fieldset>
 
-          <fieldset><legend>Caution</legend>
+          <fieldset>
+            <legend>Caution</legend>
             <label>Montant de la caution (€)<input name="caution" type="number" step="1" min="0" placeholder="0"></label>
-            <p class="adm-hint"><b>Empreinte bancaire</b> : la carte du voyageur est enregistrée à la réservation, <b>rien n'est prélevé</b>. Vous pourrez <b>débiter jusqu'à ce montant en cas de dégât</b> (bouton « Débiter la caution » dans l'onglet Réservations), même longtemps après. Mettre <code>0</code> pour désactiver.</p>
+            <p class="adm-hint"><b>Empreinte bancaire</b> : rien n'est prélevé à la réservation. Vous pouvez débiter jusqu'à ce montant en cas de dégât depuis Réservations. Mettre <code>0</code> pour désactiver.</p>
           </fieldset>
 
-          <fieldset><legend>Réduction dernière minute <span style="text-transform:none;font-weight:400">(optionnel)</span></legend>
+          <fieldset>
+            <legend>Réduction dernière minute <em>(optionnel)</em></legend>
             <div class="adm-grid">
               <label>Réduction (%)<input name="lastmin_pct" type="number" step="0.1" min="0" max="100" placeholder="ex. 15"></label>
               <label>… si arrivée sous (jours)<input name="lastmin_days" type="number" min="0" placeholder="ex. 7"></label>
             </div>
-            <p class="adm-hint">Réduction appliquée si l'arrivée est proche (comble les créneaux vides). <code>0</code> = désactivée.</p>
+            <p class="adm-hint"><code>0</code> = désactivée.</p>
           </fieldset>
 
-          <fieldset><legend>Taxe de séjour</legend>
+          <fieldset>
+            <legend>Taxe de séjour</legend>
             <label class="adm-check"><input name="taxe_enabled" type="checkbox"> Activer la taxe de séjour</label>
             <div class="adm-grid">
               <label>Taux (% du coût HT/nuit)<input name="taxe_rate_pct" type="number" step="0.1" min="0"></label>
               <label>Plafond / pers / nuit (€)<input name="taxe_cap_cents" type="number" step="0.01" min="0"></label>
               <label>Taxes additionnelles (%)<input name="taxe_additional_pct" type="number" step="0.1" min="0"></label>
             </div>
-            <p class="adm-hint">Formule appliquée : <code>min(taux % × prix nuit ÷ pers, plafond) × (1 + additionnelles %)</code>, par personne et par nuit.</p>
+            <p class="adm-hint">Formule : <code>min(taux % × prix nuit ÷ pers, plafond) × (1 + additionnelles %)</code>.</p>
           </fieldset>
 
-          <fieldset><legend>Fidélité <span style="text-transform:none;font-weight:400">(espace voyageur)</span></legend>
+          <fieldset>
+            <legend>Fidélité <em>(espace voyageur)</em></legend>
             <label class="adm-check"><input name="loyalty_enabled" type="checkbox"> Activer le programme fidélité</label>
             <div class="adm-grid">
               <label>Points par nuit confirmée<input name="loyalty_points_per_night" type="number" min="1" placeholder="1"></label>
               <label>Points requis pour une récompense<input name="loyalty_points_per_reward" type="number" min="1" placeholder="10"></label>
               <label>Réduction de la récompense (%)<input name="loyalty_reward_pct" type="number" step="1" min="0" max="100" placeholder="10"></label>
             </div>
-            <p class="adm-hint">Chaque voyageur cumule des points selon ses nuits confirmées. Dès le seuil atteint, un <b>code promo à usage unique</b> est généré automatiquement et visible dans son espace (<code>/mon-compte.html</code>) — aucune action de votre part.</p>
+            <p class="adm-hint">Un code promo à usage unique est généré automatiquement dans <code>/mon-compte.html</code>.</p>
           </fieldset>
 
-          <fieldset><legend>Équipe ménage</legend>
+          <fieldset>
+            <legend>Équipe ménage</legend>
             <label>Emails des prestataires (séparés par une virgule)<input name="cleaning_emails" type="text" placeholder="menage1@email.com, menage2@email.com"></label>
-            <p class="adm-hint">Ils recevront un email automatique à chaque nouvelle réservation (dates d'arrivée et de départ, ménage à prévoir).</p>
+            <p class="adm-hint">Email automatique à chaque nouvelle réservation.</p>
           </fieldset>
+
           <div class="adm-actions">
             <button type="submit" class="adm-btn">Enregistrer</button>
             <span id="ratesMsg" class="adm-msg"></span>
@@ -143,9 +165,11 @@
         </form>
       </section>
 
-      <!-- Codes promo -->
       <section id="t-promo" class="adm-panel">
-        <h2>Codes promo</h2>
+        <header class="adm-panel-head">
+          <h2>Codes promo</h2>
+          <p class="adm-lede">Créez et suivez vos codes de réduction.</p>
+        </header>
         <form id="promoForm" class="adm-form adm-inline">
           <label>Code<input name="code" type="text" placeholder="ETE2026" required></label>
           <label>Type<select name="kind"><option value="percent">%</option><option value="fixed">Montant fixe (€)</option></select></label>
@@ -157,17 +181,20 @@
           <button type="submit" class="adm-btn">Ajouter</button>
         </form>
         <div id="promoMsg" class="adm-msg"></div>
-        <div class="adm-scroll"><table class="adm-table" id="promoTable">
-          <thead><tr><th>Code</th><th>Réduction</th><th>Nuits min</th><th>Validité</th><th>Usages</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-        <div id="promoEmpty" class="adm-empty" hidden>Aucun code promo.</div>
+        <div class="adm-card">
+          <div class="adm-scroll"><table class="adm-table" id="promoTable">
+            <thead><tr><th>Code</th><th>Réduction</th><th>Nuits min</th><th>Validité</th><th>Usages</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div id="promoEmpty" class="adm-empty" hidden>Aucun code promo.</div>
+        </div>
       </section>
 
-      <!-- Blocages manuels -->
       <section id="t-block" class="adm-panel">
-        <h2>Blocages de dates</h2>
-        <p class="adm-hint">Rendez des dates indisponibles (travaux, séjour perso, résa reçue ailleurs…). Elles sont retirées du calendrier public <b>et</b> exportées vers Airbnb via <code>/calendar.ics</code>. « Du » = première nuit bloquée, « Au » = dernière nuit bloquée (incluse).</p>
+        <header class="adm-panel-head">
+          <h2>Blocages de dates</h2>
+          <p class="adm-lede">Travaux, séjour perso… Les dates sont retirées du calendrier public et exportées vers Airbnb.</p>
+        </header>
         <form id="blockForm" class="adm-form adm-inline">
           <label>Du (1re nuit)<input name="date_from" type="date" required></label>
           <label>Au (dernière nuit)<input name="date_to" type="date" required></label>
@@ -175,18 +202,21 @@
           <button type="submit" class="adm-btn">Bloquer</button>
         </form>
         <div id="blockMsg" class="adm-msg"></div>
-        <div class="adm-scroll"><table class="adm-table" id="blockTable">
-          <thead><tr><th>Du</th><th>Au</th><th>Nuits</th><th>Motif</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-        <div id="blockEmpty" class="adm-empty" hidden>Aucun blocage.</div>
+        <div class="adm-card">
+          <div class="adm-scroll"><table class="adm-table" id="blockTable">
+            <thead><tr><th>Du</th><th>Au</th><th>Nuits</th><th>Motif</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div id="blockEmpty" class="adm-empty" hidden>Aucun blocage.</div>
+        </div>
       </section>
 
-      <!-- Extras -->
       <section id="t-extra" class="adm-panel">
-        <h2>Extras</h2>
-        <p class="adm-hint">Les options payantes proposées sur la page « Nos extras ». Le type « Départ tardif » / « Arrivée anticipée » active la règle anti-rotation : un même jour ne peut pas avoir les deux (le système bloque automatiquement l'extra opposé une fois l'autre payé).</p>
-        <form id="extraForm" class="adm-form">
+        <header class="adm-panel-head">
+          <h2>Extras</h2>
+          <p class="adm-lede">Options payantes (arrivée anticipée, départ tardif…). Anti-rotation automatique si besoin.</p>
+        </header>
+        <form id="extraForm" class="adm-form adm-form-card">
           <input type="hidden" name="id">
           <div class="adm-grid">
             <label>Titre<input name="title" type="text" placeholder="Départ tardif" required></label>
@@ -200,9 +230,9 @@
             </label>
             <label>Position<input name="position" type="number" min="0" value="0"></label>
           </div>
-          <label style="margin-top:12px">Description<input name="description" type="text" placeholder="Profitez de votre hébergement 2 h de plus…"></label>
-          <label style="margin-top:12px">Mention (petit texte)<input name="condition" type="text" placeholder="Sous réserve de disponibilité"></label>
-          <label class="adm-check" style="margin-top:12px"><input name="active" type="checkbox" checked> Actif (visible sur le site)</label>
+          <label class="adm-mt">Description<input name="description" type="text" placeholder="Profitez de votre hébergement 2 h de plus…"></label>
+          <label class="adm-mt">Mention (petit texte)<input name="condition" type="text" placeholder="Sous réserve de disponibilité"></label>
+          <label class="adm-check adm-mt"><input name="active" type="checkbox" checked> Actif (visible sur le site)</label>
           <div class="adm-actions">
             <button type="submit" class="adm-btn" id="extraSubmit">Ajouter l'extra</button>
             <button type="button" class="adm-ghost" id="extraCancel" hidden>Annuler</button>
@@ -211,31 +241,35 @@
         </form>
 
         <h3 class="adm-subhead">Liste des extras</h3>
-        <div class="adm-scroll"><table class="adm-table" id="extraTable">
-          <thead><tr><th>Titre</th><th>Prix</th><th>Type</th><th>Actif</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-        <div id="extraEmpty" class="adm-empty" hidden>Aucun extra.</div>
+        <div class="adm-card">
+          <div class="adm-scroll"><table class="adm-table" id="extraTable">
+            <thead><tr><th>Titre</th><th>Prix</th><th>Type</th><th>Actif</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div id="extraEmpty" class="adm-empty" hidden>Aucun extra.</div>
+        </div>
 
         <h3 class="adm-subhead">Commandes d'extras</h3>
-        <div class="adm-scroll"><table class="adm-table" id="orderTable">
-          <thead><tr><th>Date</th><th>Extra</th><th>Jour concerné</th><th>Client</th><th>Montant</th><th>Statut</th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-        <div id="orderEmpty" class="adm-empty" hidden>Aucune commande.</div>
+        <div class="adm-card">
+          <div class="adm-scroll"><table class="adm-table" id="orderTable">
+            <thead><tr><th>Date</th><th>Extra</th><th>Jour concerné</th><th>Client</th><th>Montant</th><th>Statut</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div id="orderEmpty" class="adm-empty" hidden>Aucune commande.</div>
+        </div>
       </section>
 
-      <!-- Prestations (ménage) -->
       <section id="t-presta" class="adm-panel">
-        <h2>Prestations — ménage</h2>
-        <p class="adm-hint"><b>Un séjour = un ménage.</b> Réglez le montant payé à votre prestataire, suivez ce que vous lui devez et cochez « payé » au fur et à mesure. La colonne <b>Nuits</b> vous indique s'il s'agit d'un court séjour ou d'une cure.</p>
+        <header class="adm-panel-head">
+          <h2>Prestations — ménage</h2>
+          <p class="adm-lede">Un séjour = un ménage. Suivez les montants dus et marquez comme payé.</p>
+        </header>
 
         <form id="prestaRateForm" class="adm-form adm-inline">
           <label>Montant par ménage (€)<input name="cleaning_pay" type="number" step="1" min="0" placeholder="ex. 30"></label>
           <button type="submit" class="adm-btn">Enregistrer le tarif</button>
           <span id="prestaRateMsg" class="adm-msg"></span>
         </form>
-        <p class="adm-hint">Ce montant s'applique à chaque ménage. Vous pouvez ajuster un séjour précis directement dans le tableau (ex. grand ménage après une cure).</p>
 
         <div class="adm-presta-bar">
           <label>Mois&nbsp;: <select id="prestaMonth"></select></label>
@@ -246,37 +280,43 @@
           </div>
         </div>
 
-        <div class="adm-scroll"><table class="adm-table" id="prestaTable">
-          <thead><tr><th>Départ (ménage)</th><th>Arrivée</th><th>Nuits</th><th>Voyageur</th><th>Montant (€)</th><th>Statut</th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-        <div id="prestaEmpty" class="adm-empty" hidden>Aucune prestation (aucun séjour confirmé).</div>
+        <div class="adm-card">
+          <div class="adm-scroll"><table class="adm-table" id="prestaTable">
+            <thead><tr><th>Départ (ménage)</th><th>Arrivée</th><th>Nuits</th><th>Voyageur</th><th>Montant (€)</th><th>Statut</th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div id="prestaEmpty" class="adm-empty" hidden>Aucune prestation (aucun séjour confirmé).</div>
+        </div>
       </section>
 
-      <!-- Synchronisation des calendriers (channel manager) -->
       <section id="t-sync" class="adm-panel">
-        <h2>Synchronisation des calendriers</h2>
-        <p class="adm-hint">Le site centralise vos disponibilités. Pour chaque plateforme (Airbnb, Booking…) : <b>(1)</b> ajoutez son calendrier ci-dessous (à importer <b>vers le site</b>), <b>(2)</b> collez le lien du site correspondant <b>chez elle</b> (à exporter). Une résa reçue n'importe où bloque partout ailleurs.</p>
+        <header class="adm-panel-head">
+          <h2>Synchronisation</h2>
+          <p class="adm-lede">Importez les calendriers Airbnb / Booking, puis collez les liens d'export du site chez chaque plateforme.</p>
+        </header>
 
-        <h3 class="adm-subhead">1. Importer — calendriers de vos plateformes</h3>
-        <p class="adm-hint">Collez le <b>lien d'export iCal</b> de la plateforme et donnez-lui un <b>nom</b> (ex. <code>airbnb</code>, <code>booking</code>). Ce nom sert à générer le bon lien d'export (il exclut ce nom pour éviter les boucles).</p>
+        <h3 class="adm-subhead">1. Importer</h3>
+        <p class="adm-hint adm-hint-block">Collez le lien iCal de la plateforme et donnez-lui un nom (ex. <code>airbnb</code>).</p>
         <form id="syncForm" class="adm-form adm-inline">
-          <label>Nom<input name="label" type="text" placeholder="airbnb" style="width:120px"></label>
-          <label style="flex:1;min-width:240px">Lien iCal de la plateforme<input name="url" type="url" placeholder="https://www.airbnb.fr/calendar/ical/XXXX.ics" required></label>
+          <label class="adm-w-sm">Nom<input name="label" type="text" placeholder="airbnb"></label>
+          <label class="adm-grow">Lien iCal de la plateforme<input name="url" type="url" placeholder="https://www.airbnb.fr/calendar/ical/XXXX.ics" required></label>
           <button type="submit" class="adm-btn">Ajouter</button>
         </form>
         <div id="syncMsg" class="adm-msg"></div>
-        <div class="adm-scroll"><table class="adm-table" id="syncTable">
-          <thead><tr><th>Nom</th><th>Lien iCal importé</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table></div>
-        <div id="syncEmpty" class="adm-empty" hidden>Aucun calendrier importé pour l'instant.</div>
+        <div class="adm-card">
+          <div class="adm-scroll"><table class="adm-table" id="syncTable">
+            <thead><tr><th>Nom</th><th>Lien iCal importé</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div id="syncEmpty" class="adm-empty" hidden>Aucun calendrier importé pour l'instant.</div>
+        </div>
         <p id="syncEnv" class="adm-hint" hidden></p>
 
-        <h3 class="adm-subhead">2. Exporter — liens du site à coller dans vos plateformes</h3>
-        <p class="adm-hint">Dans chaque plateforme, importez <b>son</b> lien ci-dessous : il contient toutes vos dates occupées <b>sauf</b> celles de cette plateforme.</p>
+        <h3 class="adm-subhead">2. Exporter</h3>
+        <p class="adm-hint adm-hint-block">Dans chaque plateforme, importez <b>son</b> lien : il contient toutes les dates occupées sauf celles de cette plateforme.</p>
         <div id="syncExport" class="sync-links"></div>
       </section>
+
     </main>
   </div>
 
