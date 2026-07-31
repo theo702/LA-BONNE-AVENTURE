@@ -71,9 +71,8 @@ a{color:inherit}
   transition:background .35s var(--ease),border-color .35s ease,color .35s ease,box-shadow .35s ease;
 }
 .tb-actions{display:flex;align-items:center;gap:8px}
-.tb-brand{display:inline-flex;align-items:center;gap:8px;color:var(--green);font-weight:500}
-.brand-frond{width:16px;height:26px;color:var(--clay)}
-.brand-name{font-family:'Fraunces',serif;font-size:15px;letter-spacing:.01em}
+.tb-brand{display:inline-flex;align-items:center;gap:8px;color:var(--green);font-weight:500;text-decoration:none}
+.tb-logo{height:44px;width:auto;display:block}
 .tb-act{
   display:inline-flex;align-items:center;gap:6px;text-decoration:none;
   color:var(--green);font-weight:500;font-size:13px;
@@ -90,9 +89,6 @@ a{color:inherit}
   color:var(--ink);
   box-shadow:none;
 }
-.page-home .topbar.topbar-over .tb-brand{color:var(--green)}
-.page-home .topbar.topbar-over .brand-frond{color:var(--gold-deep)}
-.page-home .topbar.topbar-over .brand-name{color:var(--green)}
 .page-home .topbar.topbar-over .tb-act{
   color:var(--green);background:var(--paper);border-color:var(--line);
 }
@@ -546,7 +542,6 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 /* ---------- Accents dorés (marque) ---------- */
 .it{color:var(--gold-deep)}
 .section-head .no{color:var(--gold-deep)}
-.brand-frond{color:var(--gold-deep)}
 .hero .rule{background:var(--gold)}
 .divider svg{color:var(--gold-deep)}
 .footer-credit svg{color:var(--gold-deep)}
@@ -648,7 +643,7 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 
 @media(max-width:420px){
   .page-home .tb-act{padding:8px 10px;font-size:12px}
-  .page-home .brand-name{font-size:13.5px}
+  .tb-logo{height:38px}
   .hero h1{font-size:42px}
   .hero-cta .ghost span,.hero-cta a{padding:12px 16px}
 }
