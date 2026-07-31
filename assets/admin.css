@@ -311,3 +311,5 @@ tr.presta-paid td:last-child{opacity:1}
 @media (prefers-reduced-motion:reduce){
   .adm-panel.on,.adm-btn{animation:none;transition:none}
 }
+
+/* deploy bump 20260731220244 */
