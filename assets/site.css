@@ -170,10 +170,8 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 }
 .hero-logo.hero-in{
   transform:none;
-  animation:
-    heroFade .9s var(--ease) forwards,
-    floaty 6s ease-in-out infinite;
-  animation-delay:calc(.18s + var(--hi,0) * .1s), 1.2s;
+  animation:heroFade .9s var(--ease) forwards;
+  animation-delay:calc(.18s + var(--hi,0) * .1s);
 }
 @keyframes heroFade{to{opacity:1}}
 .hero .kick{
