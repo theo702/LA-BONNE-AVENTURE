@@ -72,7 +72,10 @@ a{color:inherit}
 }
 .tb-actions{display:flex;align-items:center;gap:8px}
 .tb-brand{display:inline-flex;align-items:center;gap:8px;color:var(--green);font-weight:500;text-decoration:none}
-.tb-logo{height:44px;width:auto;display:block}
+.tb-logo{
+  height:44px;width:auto;max-width:none;max-height:44px;
+  aspect-ratio:400 / 460;object-fit:contain;flex-shrink:0;display:block;
+}
 .tb-act{
   display:inline-flex;align-items:center;gap:6px;text-decoration:none;
   color:var(--green);font-weight:500;font-size:13px;
@@ -160,7 +163,11 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .hero .frond{position:absolute;top:8%;right:-18px;width:140px;height:230px;color:rgba(251,247,238,.22);opacity:.95;pointer-events:none}
 .hero .frond svg{width:100%;height:100%}
 .hero .inner{position:relative;z-index:2;margin-top:auto;padding:88px 22px 56px;width:100%}
-.hero-logo{width:168px;height:auto;margin-bottom:18px;filter:drop-shadow(0 8px 24px rgba(6,16,32,.55))}
+.hero-logo{
+  width:168px;height:auto;max-width:min(168px,70vw);
+  aspect-ratio:400 / 460;object-fit:contain;display:block;
+  margin-bottom:18px;filter:drop-shadow(0 8px 24px rgba(6,16,32,.55));
+}
 .hero-logo.hero-in{
   transform:none;
   animation:
@@ -565,12 +572,10 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .hero-logo{animation:none}
 .hero-logo.hero-in{
   transform:none;
-  animation:
-    heroFade .9s var(--ease) forwards,
-    floaty 6s ease-in-out infinite;
-  animation-delay:calc(.18s + var(--hi,0) * .1s), 1.2s;
+  animation: heroFade .9s var(--ease) forwards;
+  animation-delay:calc(.18s + var(--hi,0) * .1s);
 }
-@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+/* Pas de floaty sur le logo : ça déformait le rendu avec les transforms */
 .tb-act:hover{background:var(--cream2)}
 .nav button{transition:color .2s ease,background .2s ease}
 
@@ -604,7 +609,7 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   .page-doc .hero .inner{max-width:1360px;margin-left:auto;margin-right:auto;
     padding-top:100px;padding-bottom:72px;
     padding-left:clamp(24px,4vw,90px);padding-right:clamp(24px,4vw,90px)}
-  .page-doc .hero-logo{width:220px}
+  .page-doc .hero-logo{width:220px;max-width:220px;height:auto}
   .page-doc .hero h1{font-size:clamp(64px,7.2vw,118px)}
   .page-doc .hero .rule{width:80px}
   .page-doc .hero p{font-size:clamp(16px,1.35vw,21px);max-width:40ch}
@@ -634,7 +639,7 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   .app:not(.doc) .hero{min-height:78vh}
   .app:not(.doc) .hero .inner{max-width:1200px;margin-left:auto;margin-right:auto;
     padding-left:clamp(24px,4vw,80px);padding-right:clamp(24px,4vw,80px)}
-  .app:not(.doc) .hero-logo{width:190px}
+  .app:not(.doc) .hero-logo{width:190px;max-width:190px;height:auto}
   .app:not(.doc) .nav{justify-content:center}
   .app:not(.doc) .body{max-width:1140px;margin-left:auto;margin-right:auto;
     padding-left:clamp(24px,4vw,70px);padding-right:clamp(24px,4vw,70px)}
@@ -643,7 +648,7 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 
 @media(max-width:420px){
   .page-home .tb-act{padding:8px 10px;font-size:12px}
-  .tb-logo{height:38px}
+  .tb-logo{height:38px;max-height:38px;width:auto;max-width:none}
   .hero h1{font-size:42px}
   .hero-cta .ghost span,.hero-cta a{padding:12px 16px}
 }

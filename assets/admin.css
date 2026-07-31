@@ -28,7 +28,11 @@
   box-shadow:0 28px 60px rgba(6,16,32,.35),inset 0 0 0 1px rgba(255,255,255,.5);
   text-align:center;
 }
-.adm-logo{display:block;width:148px;height:auto;margin:0 auto 18px;filter:drop-shadow(0 6px 16px rgba(15,42,74,.12))}
+.adm-logo{
+  display:block;width:148px;height:auto;max-width:100%;
+  aspect-ratio:400 / 460;object-fit:contain;
+  margin:0 auto 18px;filter:drop-shadow(0 6px 16px rgba(15,42,74,.12));
+}
 .adm-login-card h1{
   font-family:'Fraunces',serif;font-size:28px;font-weight:400;
   margin:0 0 6px;color:var(--ink);letter-spacing:-.01em;
@@ -80,7 +84,10 @@
   display:flex;align-items:center;gap:10px;
   font-family:'Fraunces',serif;font-size:17px;color:var(--green);
 }
-.adm-brand-logo{height:40px;width:auto;display:block}
+.adm-brand-logo{
+  height:40px;width:auto;max-width:none;max-height:40px;
+  aspect-ratio:400 / 460;object-fit:contain;flex-shrink:0;display:block;
+}
 .adm-tag{
   font-family:'Jost';font-size:10px;font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:#fff;background:var(--gold-deep);
