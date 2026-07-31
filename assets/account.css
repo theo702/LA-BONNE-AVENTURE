@@ -1,5 +1,9 @@
 /* Espace voyageur — s'appuie sur les variables de site.css */
-.acct-card{padding:20px 22px;margin:16px 0}
+.acct-card{
+  padding:22px 22px;margin:16px 0;border:0;border-radius:20px;
+  background:linear-gradient(165deg,#fff,rgba(241,236,224,.65));
+  box-shadow:var(--sh-soft),inset 0 0 0 1px var(--line);
+}
 .acct-card h3{font-family:'Fraunces',serif;font-size:19px;font-weight:400;color:var(--ink);margin:0 0 12px}
 
 .acct-banner{padding:12px 16px;border-radius:12px;font-size:13.5px;margin:10px 0 18px}

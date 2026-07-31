@@ -21,19 +21,21 @@
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/booking.css">
 <style>
-  .hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;position:relative;z-index:2}
-  .hero-cta a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:'Jost';font-weight:500;font-size:14px;padding:12px 22px;border-radius:30px}
-  .hero-cta .primary{background:var(--clay);color:#fff;box-shadow:var(--sh)}
-  .hero-cta .ghost{background:rgba(252,249,241,.12);color:var(--cream);border:1px solid rgba(252,249,241,.42)}
+  .hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px;position:relative;z-index:2}
+  .hero-cta a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-family:'Jost';font-weight:500;font-size:14px;padding:13px 22px;border-radius:30px;transition:transform .2s ease,background .2s ease,box-shadow .2s ease}
+  .hero-cta .primary{background:var(--gold);color:#1a1408;box-shadow:0 12px 28px rgba(0,0,0,.28)}
+  .hero-cta .primary:hover{transform:translateY(-2px);filter:brightness(1.05)}
+  .hero-cta .ghost{background:rgba(251,247,241,.08);color:var(--cream);border:1px solid rgba(251,247,241,.38)}
+  .hero-cta .ghost:hover{background:rgba(251,247,241,.16)}
   .hero-cta svg{width:16px;height:16px}
 </style>
 </head>
-<body class="page-doc">
+<body class="page-doc page-home">
 <div class="app doc">
 
-  <div class="topbar">
+  <div class="topbar topbar-over" id="topbar">
     <span class="tb-brand"><svg class="brand-frond" viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/></svg><span class="brand-name">La Bonne Aventure</span></span>
-    <div style="display:flex;align-items:center;gap:8px">
+    <div class="tb-actions">
       <a class="tb-act" href="mon-compte.html">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
         Mon espace
@@ -45,37 +47,37 @@
     </div>
   </div>
 
-  <div class="scroll">
+  <div class="scroll" id="main-scroll">
     <section class="page active">
 
-      <div class="hero">
+      <div class="hero" id="hero">
         <div class="bg"><img src="assets/aix-aerial.jpg" onerror="this.onerror=null;this.src='assets/placeholder.svg'" alt="Aix-les-Bains — centre-ville et montagnes"></div>
         <div class="wash"></div>
-        <div class="frond"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/><path d="M62 82 C80 76 88 68 92 56"/></svg></div>
+        <div class="frond" aria-hidden="true"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/><path d="M62 82 C80 76 88 68 92 56"/></svg></div>
         <div class="inner">
-          <img class="hero-logo" src="assets/logo-white.png" alt="La Bonne Aventure">
-          <div class="kick">Réservation directe · Aix-les-Bains</div>
-          <h1><span class="b">Réservez</span><span class="a">en direct</span></h1>
-          <div class="rule"></div>
-          <p>Studio de charme au cœur d'Aix-les-Bains, à 10 min à pied des thermes et à deux pas du lac du Bourget. Au meilleur tarif, sans frais de plateforme.</p>
-          <div class="hero-cta">
+          <img class="hero-logo hero-in" style="--hi:0" src="assets/logo-white.png" alt="La Bonne Aventure">
+          <div class="kick hero-in" style="--hi:1">Réservation directe · Aix-les-Bains</div>
+          <h1 class="hero-in" style="--hi:2"><span class="b">Réservez</span><span class="a">en direct</span></h1>
+          <div class="rule hero-in" style="--hi:3"></div>
+          <p class="hero-in" style="--hi:4">Studio de charme au cœur d'Aix-les-Bains — thermes, lac du Bourget, meilleur tarif sans frais de plateforme.</p>
+          <div class="hero-cta hero-in" style="--hi:5">
             <a class="primary" href="#booking"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>Voir les disponibilités</a>
             <a class="ghost" href="extras.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>Les extras</a>
           </div>
         </div>
-        <div class="scrollcue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9l6 6 6-6"/></svg></div>
+        <a class="scrollcue" href="#logement" aria-label="Découvrir le logement"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9l6 6 6-6"/></svg></a>
       </div>
 
-      <div class="body">
+      <div class="body" id="logement">
         <div class="section-head reveal" style="--i:0"><span class="no">01</span><span class="kicker">Le logement</span></div>
         <h2 class="reveal" style="--i:0">Un studio à <span class="it">l'esprit Bali</span></h2>
         <p class="lede reveal" style="--i:0">Évadez-vous à « La Bonne Aventure » : un cocon ~25 m² aux tons beige, lin et bois naturel, pensé pour un séjour simple et serein — à pied du lac, des thermes et du centre.</p>
-        <p class="reveal" style="--i:0;max-width:60ch;color:var(--ink-soft)">Poussez la porte et laissez la ville derrière vous. Lit en rotin, linge en coton lavé, matières brutes et lumière douce : tout invite au calme, dans une ambiance d'escale tropicale au cœur d'Aix-les-Bains. On y pose ses valises pour une nuit comme pour une cure, et l'on s'y sent chez soi dès la première minute. Le lac du Bourget est à quelques minutes, les Thermes Chevalley à ~10 min à pied, et les cafés du centre juste en bas de la rue.</p>
+        <p class="copy reveal" style="--i:0">Poussez la porte et laissez la ville derrière vous. Lit en rotin, linge en coton lavé, matières brutes et lumière douce : tout invite au calme, dans une ambiance d'escale tropicale au cœur d'Aix-les-Bains. On y pose ses valises pour une nuit comme pour une cure, et l'on s'y sent chez soi dès la première minute.</p>
 
         <div class="amen reveal" style="--i:1">
           <div class="a">
             <div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21V9l9-6 9 6v12M3 21h18M9 21v-6h6v6"/></svg></div>
-            <b>~25 m² · centre-ville</b><span>En plein cœur d'Aix, à pied de tout. Adresse exacte communiquée après réservation.</span>
+            <b>~25 m² · centre-ville</b><span>En plein cœur d'Aix, à pied de tout.</span>
           </div>
           <div class="a">
             <div class="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 18v-5a2 2 0 012-2h14a2 2 0 012 2v5M3 18v2M21 18v2M5 11V8a2 2 0 012-2h10a2 2 0 012 2v3"/></svg></div>
@@ -112,14 +114,14 @@
         </div>
 
         <div class="why reveal" style="--i:2">
-          <div class="frond"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg></div>
+          <div class="frond" aria-hidden="true"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg></div>
           <h3>Pourquoi réserver <span class="it">en direct</span> ?</h3>
-          <p>En réservant ici plutôt que sur une plateforme, vous profitez d'un tarif plus doux et d'un échange direct avec moi pour adapter votre séjour.</p>
-          <div class="pts">
-            <div class="pt"><b>0 %</b><span>frais de plateforme</span></div>
-            <div class="pt"><b>Direct</b><span>contact avec l'hôte</span></div>
-            <div class="pt"><b>Flexible</b><span>séjour sur mesure</span></div>
-          </div>
+          <p>En réservant ici plutôt que sur une plateforme, vous profitez d'un tarif plus doux et d'un échange direct pour adapter votre séjour.</p>
+          <ul class="pts">
+            <li><b>0&nbsp;%</b> frais de plateforme</li>
+            <li><b>Direct</b> avec l'hôte</li>
+            <li><b>Flexible</b> sur mesure</li>
+          </ul>
         </div>
       </div>
 
@@ -131,9 +133,7 @@
         <div class="gallery">
           <a class="g-item g-lg reveal" style="--i:0" href="assets/aix-aerial.jpg" data-lb="Le lac du Bourget"><img src="assets/aix-aerial.jpg" alt="Le lac du Bourget" loading="lazy"><span class="g-cap">Le lac du Bourget</span></a>
           <a class="g-item reveal" style="--i:1" href="assets/centre-ville.jpg" data-lb="Le centre-ville"><img src="assets/centre-ville.jpg" alt="Le centre-ville d'Aix-les-Bains" loading="lazy"><span class="g-cap">Le centre-ville</span></a>
-          <a class="g-item reveal" style="--i:2" href="assets/lac.jpg" data-lb="La plage"><img src="assets/lac.jpg" alt="La plage du lac" loading="lazy"><span class="g-cap">La plage</span></a>
-          <a class="g-item reveal" style="--i:3" href="assets/thermes.jpg" data-lb="Les thermes"><img src="assets/thermes.jpg" alt="Les thermes d'Aix" loading="lazy"><span class="g-cap">Les thermes</span></a>
-          <a class="g-item reveal" style="--i:4" href="assets/montagne.jpg" data-lb="Les montagnes en hiver" title="Balade en raquettes près d'Aix"><img src="assets/montagne.jpg" alt="Balade en raquettes dans les montagnes autour d'Aix-les-Bains" loading="lazy"><span class="g-cap">Les montagnes en hiver</span></a>
+          <a class="g-item reveal" style="--i:2" href="assets/montagne.jpg" data-lb="Les montagnes en hiver" title="Balade en raquettes près d'Aix"><img src="assets/montagne.jpg" alt="Balade en raquettes dans les montagnes autour d'Aix-les-Bains" loading="lazy"><span class="g-cap">Les montagnes en hiver</span></a>
         </div>
       </div>
 
@@ -196,5 +196,17 @@
 <script src="assets/reveal.js" defer></script>
 <script src="assets/gallery.js" defer></script>
 <script src="assets/booking.js" defer></script>
+<script>
+(function(){
+  var tb=document.getElementById('topbar');
+  var sc=document.getElementById('main-scroll');
+  if(!tb) return;
+  function top(){ return sc ? sc.scrollTop : (window.scrollY||document.documentElement.scrollTop||0); }
+  function sync(){ tb.classList.toggle('is-solid', top()>36); }
+  if(sc) sc.addEventListener('scroll', sync, {passive:true});
+  window.addEventListener('scroll', sync, {passive:true});
+  sync();
+})();
+</script>
 </body>
 </html>
