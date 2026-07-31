@@ -80,7 +80,6 @@
   display:flex;align-items:center;gap:10px;
   font-family:'Fraunces',serif;font-size:17px;color:var(--green);
 }
-.adm-brand svg{width:15px;height:24px;color:var(--gold-deep);flex:0 0 auto}
 .adm-tag{
   font-family:'Jost';font-size:10px;font-weight:600;letter-spacing:.12em;
   text-transform:uppercase;color:#fff;background:var(--gold-deep);
