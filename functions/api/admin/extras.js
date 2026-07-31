@@ -2,11 +2,14 @@
 import { listExtras, createExtra, updateExtra, deleteExtra, listExtraOrders } from '../../_lib/db.js';
 
 function parse(b) {
+  const kindRaw = (b.kind || 'none').toString().trim();
+  const kind = ['none', 'late_checkout', 'early_checkin'].includes(kindRaw) ? kindRaw : 'none';
   return {
     title: (b.title || '').toString().trim(),
     description: (b.description || '').toString().trim(),
     condition: (b.condition || '').toString().trim(),
     price_cents: Math.max(0, Math.round(Number(b.price_cents) || 0)),
+    kind,
     active: b.active ? 1 : 0,
     position: Math.max(0, Math.round(Number(b.position) || 0)),
   };
