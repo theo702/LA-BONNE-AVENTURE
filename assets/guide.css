@@ -16,54 +16,64 @@
   min-height:100vh;
 }
 
-/* ---- Topbar ---- */
-.page-guide .topbar{
+/* ---- Header unique (logo + sections + langue) ---- */
+.page-guide .guide-bar{
   position:sticky;top:0;z-index:40;
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:10px clamp(14px,3vw,40px);
-  background:rgba(251,247,238,.92);
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px 14px;
+  padding:8px clamp(12px,3vw,36px);
+  background:rgba(251,247,238,.96);
   backdrop-filter:blur(12px) saturate(1.1);
   border-bottom:1px solid var(--line-soft,#F0ECE1);
 }
-.page-guide .tb-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.page-guide .guide-bar .tb-brand{
+  display:inline-flex;align-items:center;
+  text-decoration:none;flex-shrink:0;
+}
+.page-guide .guide-bar .tb-logo{
+  width:40px!important;height:40px!important;
+  max-width:40px!important;max-height:40px!important;
+}
 .page-guide .tb-lang{
-  background:var(--paper,#fff);
+  background:transparent;
   border:1px solid var(--line,#E6E1D4);
   color:var(--green,#0f2a4a);
   cursor:pointer;
-  font-family:'Jost',sans-serif;font-weight:600;font-size:12px;letter-spacing:.05em;
-  padding:7px 12px;border-radius:22px;
-  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Jost',sans-serif;font-weight:600;font-size:11px;letter-spacing:.08em;
+  padding:7px 11px;border-radius:999px;
+  line-height:1;
 }
-.page-guide .tb-lang:hover{border-color:var(--gold,#d9971a)}
-.page-guide .tb-lang svg{width:14px;height:14px;flex:0 0 auto}
+.page-guide .tb-lang:hover{border-color:var(--gold,#d9971a);background:rgba(217,151,26,.08)}
 
-/* ---- Nav pills ---- */
 .page-guide .nav{
-  position:sticky;top:64px;z-index:35;
-  display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;
-  padding:10px clamp(14px,3vw,40px);
-  background:#EBE4D6;
-  border-bottom:1px solid #DDD5C4;
+  position:static;
+  display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;
+  padding:0;margin:0;
+  background:transparent;border:0;
+  justify-content:flex-start;
+  min-width:0;
 }
 .page-guide .nav::-webkit-scrollbar{display:none}
 .page-guide .nav button{
   flex:0 0 auto;
-  display:inline-flex;align-items:center;gap:7px;
+  display:inline-flex;align-items:center;
+  flex-direction:row;
   font-family:'Jost',sans-serif;font-weight:500;font-size:13px;
-  padding:9px 14px;border:1px solid transparent;border-radius:999px;
-  background:transparent;color:#5f6675;cursor:pointer;
-  transition:background .15s,color .15s,border-color .15s;
+  padding:8px 12px;border:0;border-radius:999px;
+  background:transparent;color:var(--ink-soft,#5f6675);cursor:pointer;
+  transition:background .15s,color .15s;
+  letter-spacing:.01em;
 }
-.page-guide .nav button .ico{display:inline-flex}
-.page-guide .nav button svg{width:16px;height:16px;stroke-width:1.7}
-.page-guide .nav button:hover{color:var(--green,#0f2a4a);background:rgba(255,255,255,.55)}
+.page-guide .nav button:hover{color:var(--green,#0f2a4a);background:rgba(15,42,74,.05)}
 .page-guide .nav button.on{
-  color:var(--green,#0f2a4a);background:#fff;
-  border-color:#E0D7C6;
-  box-shadow:0 4px 12px rgba(15,42,74,.06);
+  color:var(--green,#0f2a4a);
+  background:rgba(217,151,26,.14);
+  font-weight:600;
 }
 .page-guide .nav button.ext-link{color:var(--gold-deep,#a9760f)}
+.page-guide .nav button.ext-link.on{background:rgba(217,151,26,.14)}
 
 /* ---- Hero livret ---- */
 .page-guide .hero{min-height:78svh;min-height:78vh}
@@ -302,7 +312,12 @@
 .page-guide .pop a svg{width:14px;height:14px}
 
 @media(min-width:760px){
-  .page-guide .nav{top:68px;justify-content:center}
+  .page-guide .guide-bar{
+    grid-template-columns:auto 1fr auto;
+    padding:10px clamp(24px,4vw,80px);
+  }
+  .page-guide .nav{justify-content:center}
+  .page-guide .nav button{padding:8px 14px;font-size:13.5px}
   .page-guide .hero{min-height:85svh;min-height:85vh}
   .page-guide .hero .inner{
     max-width:1200px;margin-left:auto;margin-right:auto;
@@ -316,8 +331,11 @@
   .page-guide .up-hero{padding-left:clamp(24px,4vw,80px);padding-right:clamp(24px,4vw,80px)}
 }
 
-@media(max-width:420px){
-  .page-guide .nav button{padding:8px 11px;font-size:12px}
-  .page-guide .nav button .ico{display:none}
+@media(max-width:560px){
+  .page-guide .guide-bar{
+    grid-template-columns:auto 1fr auto;
+    gap:8px;
+  }
+  .page-guide .nav button{padding:7px 10px;font-size:12px}
   .page-guide .hours .sv{font-size:26px}
 }
