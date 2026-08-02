@@ -89,7 +89,7 @@
 
 /* ---- Hero livret ---- */
 .page-guide .hero{min-height:78svh;min-height:78vh}
-.page-guide .hero .inner{padding:110px 22px 52px}
+.page-guide .hero .inner{padding:148px 22px 52px}
 .page-guide .hero h1{
   color:#FBF7EE;
   font-size:clamp(34px,7.5vw,52px);
@@ -124,9 +124,9 @@
 /* ---- Body rhythm ---- */
 .page-guide .body{
   max-width:920px;margin:0 auto;
-  padding:72px clamp(16px,3vw,40px) 72px;
+  padding:96px clamp(16px,3vw,40px) 72px;
 }
-.page-guide #p-home .body{padding-top:36px}
+.page-guide #p-home .body{padding-top:48px}
 .page-guide .page{display:none}
 .page-guide .page.active{display:block}
 
@@ -298,7 +298,7 @@
 /* Urgences */
 .page-guide .up-hero{
   position:relative;overflow:hidden;
-  padding:88px clamp(16px,3vw,40px) 36px;
+  padding:112px clamp(16px,3vw,40px) 36px;
   background:linear-gradient(165deg,#0f2a4a 0%,#0a1f38 100%);
   color:#FBF7EE;
 }
