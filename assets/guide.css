@@ -16,62 +16,80 @@
   min-height:100vh;
 }
 
-/* ---- Pas de header : langue coin + dock sections ---- */
-.page-guide .edge-lang{
-  position:fixed;top:14px;right:14px;z-index:45;
-  background:rgba(251,247,238,.88);
-  border:1px solid rgba(230,225,212,.9);
-  color:var(--green,#0f2a4a);
+/* ---- Header fondu dans le fond (héro / crème) ---- */
+.page-guide .guide-chrome{
+  position:fixed;top:0;left:0;right:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px clamp(12px,3vw,40px);
+  background:transparent;
+  border:0;
+  transition:background .28s ease, backdrop-filter .28s ease, box-shadow .28s ease;
+}
+.page-guide .guide-chrome .tb-lang{
+  flex:0 0 auto;
+  background:transparent;
+  border:1px solid rgba(251,247,238,.35);
+  color:#FBF7EE;
   cursor:pointer;
   font-family:'Jost',sans-serif;font-weight:600;font-size:11px;letter-spacing:.1em;
-  padding:8px 12px;border-radius:999px;
-  backdrop-filter:blur(10px);
-  line-height:1;
+  padding:7px 12px;border-radius:999px;line-height:1;
+  transition:border-color .2s,color .2s,background .2s;
 }
-.page-guide .edge-lang:hover{border-color:var(--gold,#d9971a)}
+.page-guide .guide-chrome .tb-lang:hover{border-color:rgba(251,247,238,.7);background:rgba(251,247,238,.1)}
 
-.page-guide .nav.guide-dock{
-  position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
-  z-index:45;
-  display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;
-  max-width:calc(100vw - 24px);
-  padding:6px;
-  margin:0;
-  background:rgba(251,247,238,.94);
-  border:1px solid rgba(230,225,212,.95);
-  border-radius:999px;
-  box-shadow:0 12px 36px rgba(15,30,55,.14);
-  backdrop-filter:blur(14px) saturate(1.1);
+.page-guide .guide-chrome .nav{
+  position:static;
+  display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;
+  padding:0;margin:0;min-width:0;flex:1;
+  background:transparent;border:0;
   justify-content:flex-start;
 }
-.page-guide .nav.guide-dock::-webkit-scrollbar{display:none}
-.page-guide .nav.guide-dock button{
+.page-guide .guide-chrome .nav::-webkit-scrollbar{display:none}
+.page-guide .guide-chrome .nav button{
   flex:0 0 auto;
-  display:inline-flex;align-items:center;
-  flex-direction:row;
-  font-family:'Jost',sans-serif;font-weight:500;font-size:12.5px;
-  padding:9px 13px;border:0;border-radius:999px;
-  background:transparent;color:var(--ink-soft,#5f6675);cursor:pointer;
+  display:inline-flex;align-items:center;flex-direction:row;
+  font-family:'Jost',sans-serif;font-weight:500;font-size:13px;
+  padding:8px 12px;border:0;border-radius:999px;
+  background:transparent;color:rgba(251,247,238,.78);cursor:pointer;
   transition:background .15s,color .15s;
-  letter-spacing:.01em;
-  white-space:nowrap;
+  letter-spacing:.01em;white-space:nowrap;
 }
-.page-guide .nav.guide-dock button:hover{color:var(--green,#0f2a4a);background:rgba(15,42,74,.05)}
-.page-guide .nav.guide-dock button.on{
-  color:var(--green,#0f2a4a);
-  background:rgba(217,151,26,.16);
-  font-weight:600;
+.page-guide .guide-chrome .nav button:hover{color:#FBF7EE;background:rgba(251,247,238,.12)}
+.page-guide .guide-chrome .nav button.on{
+  color:#FBF7EE;background:rgba(251,247,238,.16);font-weight:600;
 }
-.page-guide .nav.guide-dock button.ext-link{color:var(--gold-deep,#a9760f)}
-.page-guide .scroll{padding-bottom:88px}
-.page-guide .bot-fab{bottom:86px}
-@media(min-width:760px){
-  .page-guide .bot-fab{bottom:96px}
+.page-guide .guide-chrome .nav button.ext-link{color:var(--clay-soft,#e6a92c)}
+
+/* Sur pages crème / après scroll : même fond que la page, fondu vers le bas */
+.page-guide .guide-chrome:not(.is-over-hero){
+  background:linear-gradient(180deg,
+    #FBF7EF 0%,
+    rgba(251,247,239,.97) 55%,
+    rgba(251,247,239,0) 100%);
+  backdrop-filter:blur(10px);
+  padding-bottom:28px;
 }
+.page-guide .guide-chrome:not(.is-over-hero) .nav button{color:var(--ink-soft,#5f6675)}
+.page-guide .guide-chrome:not(.is-over-hero) .nav button:hover{
+  color:var(--green,#0f2a4a);background:rgba(15,42,74,.05);
+}
+.page-guide .guide-chrome:not(.is-over-hero) .nav button.on{
+  color:var(--green,#0f2a4a);background:rgba(217,151,26,.14);font-weight:600;
+}
+.page-guide .guide-chrome:not(.is-over-hero) .nav button.ext-link{color:var(--gold-deep,#a9760f)}
+.page-guide .guide-chrome:not(.is-over-hero) .tb-lang{
+  color:var(--green,#0f2a4a);border-color:var(--line,#E6E1D4);
+}
+.page-guide .guide-chrome:not(.is-over-hero) .tb-lang:hover{
+  border-color:var(--gold,#d9971a);background:rgba(217,151,26,.08);
+}
+
+.page-guide .scroll{padding-bottom:24px}
+.page-guide .bot-fab{bottom:18px}
 
 /* ---- Hero livret ---- */
 .page-guide .hero{min-height:78svh;min-height:78vh}
-.page-guide .hero .inner{padding:96px 22px 52px}
+.page-guide .hero .inner{padding:110px 22px 52px}
 .page-guide .hero h1{
   color:#FBF7EE;
   font-size:clamp(34px,7.5vw,52px);
@@ -106,8 +124,9 @@
 /* ---- Body rhythm ---- */
 .page-guide .body{
   max-width:920px;margin:0 auto;
-  padding:36px clamp(16px,3vw,40px) 72px;
+  padding:72px clamp(16px,3vw,40px) 72px;
 }
+.page-guide #p-home .body{padding-top:36px}
 .page-guide .page{display:none}
 .page-guide .page.active{display:block}
 
@@ -306,8 +325,12 @@
 .page-guide .pop a svg{width:14px;height:14px}
 
 @media(min-width:760px){
-  .page-guide .nav.guide-dock{bottom:24px}
-  .page-guide .nav.guide-dock button{padding:9px 15px;font-size:13px}
+  .page-guide .guide-chrome{
+    padding-left:clamp(24px,4vw,80px);
+    padding-right:clamp(24px,4vw,80px);
+  }
+  .page-guide .guide-chrome .nav{justify-content:center}
+  .page-guide .guide-chrome .nav button{padding:8px 14px;font-size:13.5px}
   .page-guide .hero{min-height:85svh;min-height:85vh}
   .page-guide .hero .inner{
     max-width:1200px;margin-left:auto;margin-right:auto;
@@ -322,7 +345,7 @@
 }
 
 @media(max-width:560px){
-  .page-guide .nav.guide-dock{bottom:14px;padding:5px;gap:2px}
-  .page-guide .nav.guide-dock button{padding:8px 10px;font-size:11.5px}
+  .page-guide .guide-chrome{padding:12px 10px;gap:8px}
+  .page-guide .guide-chrome .nav button{padding:7px 10px;font-size:12px}
   .page-guide .hours .sv{font-size:26px}
 }

@@ -21,7 +21,7 @@
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/site.css?v=8">
-<link rel="stylesheet" href="assets/guide.css?v=5">
+<link rel="stylesheet" href="assets/guide.css?v=6">
 <style>
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
@@ -30,18 +30,19 @@
 <body class="page-guide">
 <div class="app">
 
-  <button type="button" id="langToggle" class="edge-lang" onclick="toggleLang()" aria-label="Language">
-    <span id="langLabel">EN</span>
-  </button>
-
-  <nav class="nav guide-dock" aria-label="Sections du livret">
-    <button type="button" class="on" data-p="p-home" onclick="go(this)">Accueil</button>
-    <button type="button" data-p="p-info" onclick="go(this)">Infos</button>
-    <button type="button" data-p="p-rules" onclick="go(this)">Règles</button>
-    <button type="button" data-p="p-spots" onclick="go(this)">Adresses</button>
-    <button type="button" data-p="p-sos" onclick="go(this)">Urgences</button>
-    <button type="button" class="ext-link" onclick="location.href='extras.html'">Extras</button>
-  </nav>
+  <header class="guide-chrome is-over-hero" id="guideChrome">
+    <nav class="nav" aria-label="Sections du livret">
+      <button type="button" class="on" data-p="p-home" onclick="go(this)">Accueil</button>
+      <button type="button" data-p="p-info" onclick="go(this)">Infos</button>
+      <button type="button" data-p="p-rules" onclick="go(this)">Règles</button>
+      <button type="button" data-p="p-spots" onclick="go(this)">Adresses</button>
+      <button type="button" data-p="p-sos" onclick="go(this)">Urgences</button>
+      <button type="button" class="ext-link" onclick="location.href='extras.html'">Extras</button>
+    </nav>
+    <button type="button" id="langToggle" class="tb-lang" onclick="toggleLang()" aria-label="Language">
+      <span id="langLabel">EN</span>
+    </button>
+  </header>
 
   <div class="scroll" id="scroll">
 
@@ -424,11 +425,31 @@
   function askBot(q){botSay(q,true);setTimeout(function(){botSay(botAnswer(q));},280);}
   function sendBot(){var i=document.getElementById('botInput');var q=i.value.trim();if(!q)return;i.value='';askBot(q);}
 
+  function syncChrome(){
+    var chrome=document.getElementById('guideChrome');
+    if(!chrome) return;
+    var sc=document.getElementById('scroll');
+    var y=sc ? sc.scrollTop : (window.scrollY||0);
+    var home=document.getElementById('p-home');
+    var sos=document.getElementById('p-sos');
+    var over=false;
+    if(home && home.classList.contains('active')){
+      var hero=home.querySelector('.hero');
+      var h=hero ? hero.offsetHeight : 420;
+      over = y < Math.max(80, h * 0.55);
+    } else if(sos && sos.classList.contains('active')){
+      var uh=sos.querySelector('.up-hero');
+      var hh=uh ? uh.offsetHeight : 220;
+      over = y < Math.max(60, hh * 0.7);
+    }
+    chrome.classList.toggle('is-over-hero', !!over);
+  }
   function goPage(id){
     document.querySelectorAll('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===id)});
     document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
     document.getElementById(id).classList.add('active');
     try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+    syncChrome();
   }
   function go(btn){
     document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('on')});
@@ -438,6 +459,7 @@
     document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});
     try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
     if(btn.dataset.p==='p-spots'){setTimeout(initMap,90);}
+    syncChrome();
   }
 
   var _map=null;
@@ -507,6 +529,13 @@
     var btn = document.querySelector('.nav button[data-p="' + id + '"]');
     if(btn) go(btn);
   }
+
+  (function initChrome(){
+    var sc=document.getElementById('scroll');
+    if(sc) sc.addEventListener('scroll', syncChrome, {passive:true});
+    window.addEventListener('scroll', syncChrome, {passive:true});
+    syncChrome();
+  })();
 
   /* ---- Demande ciblée par produit ---- */
 
