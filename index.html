@@ -18,10 +18,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/site.css?v=7">
+<link rel="stylesheet" href="assets/site.css?v=8">
 <link rel="stylesheet" href="assets/booking.css?v=7">
 <style>
-  img.tb-logo{width:52px!important;height:52px!important;max-width:52px!important;max-height:52px!important;object-fit:contain!important}
   img.hero-logo{width:148px!important;height:148px!important;max-width:148px!important;max-height:148px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:176px!important;height:176px!important;max-width:176px!important;max-height:176px!important}}
   .hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px;position:relative;z-index:2}
@@ -36,27 +35,13 @@
 <body class="page-doc page-home">
 <div class="app doc">
 
-  <div class="topbar topbar-over" id="topbar">
-    <span class="tb-brand"><img class="tb-logo" src="assets/logo-black.png" width="52" height="52" alt="La Bonne Aventure"></span>
-    <div class="tb-actions">
-      <a class="tb-act" href="mon-compte.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
-        Mon espace
-      </a>
-      <a class="tb-act" href="extras.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-        Nos extras
-      </a>
-    </div>
-  </div>
-
   <div class="scroll" id="main-scroll">
     <section class="page active">
 
       <div class="hero" id="hero">
         <div class="bg"><img src="assets/aix-aerial.jpg" onerror="this.onerror=null;this.src='assets/placeholder.svg'" alt="Aix-les-Bains — centre-ville et montagnes"></div>
         <div class="wash"></div>
-        <div class="frond" aria-hidden="true"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/><path d="M62 82 C80 76 88 68 92 56"/></svg></div>
+        <a class="edge-link edge-light" href="mon-compte.html">Mon espace</a>
         <div class="inner">
           <img class="hero-logo hero-in" style="--hi:0" src="assets/logo-white.png" width="176" height="176" alt="La Bonne Aventure">
           <div class="kick hero-in" style="--hi:1">Réservation directe · Aix-les-Bains</div>
@@ -189,7 +174,7 @@
           Une question ? Écrivez-moi sur WhatsApp
         </a>
 
-        <div class="footer-credit reveal" style="--i:3">La Bonne Aventure <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3C8 7 6 12 6 21c6-2 11-7 13-13C16 6 14 5 12 3z"/></svg> Aix-les-Bains</div>
+        <div class="footer-credit reveal" style="--i:3">La Bonne Aventure · Aix-les-Bains · <a href="mon-compte.html">Mon espace</a></div>
       </div>
 
     </section>
@@ -200,17 +185,5 @@
 <script src="assets/reveal.js" defer></script>
 <script src="assets/gallery.js" defer></script>
 <script src="assets/booking.js" defer></script>
-<script>
-(function(){
-  var tb=document.getElementById('topbar');
-  var sc=document.getElementById('main-scroll');
-  if(!tb) return;
-  function top(){ return sc ? sc.scrollTop : (window.scrollY||document.documentElement.scrollTop||0); }
-  function sync(){ tb.classList.toggle('is-solid', top()>36); }
-  if(sc) sc.addEventListener('scroll', sync, {passive:true});
-  window.addEventListener('scroll', sync, {passive:true});
-  sync();
-})();
-</script>
 </body>
 </html>

@@ -85,7 +85,30 @@ a{color:inherit}
 }
 .tb-act svg{width:16px;height:16px}
 
-/* Accueil : barre crème toujours lisible (texte navy), un peu plus opaque au scroll */
+/* Lien discret en coin — remplace les topbars */
+.edge-link{
+  position:fixed;top:16px;left:16px;z-index:40;
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:'Jost',sans-serif;font-weight:500;font-size:13px;
+  color:var(--green);text-decoration:none;
+  padding:8px 14px;border-radius:999px;
+  background:rgba(251,247,238,.92);
+  border:1px solid var(--line-soft);
+  backdrop-filter:blur(10px);
+  box-shadow:0 8px 24px rgba(15,30,55,.08);
+}
+.edge-link:hover{border-color:var(--gold);background:#fff}
+.edge-link.edge-light{
+  top:18px;right:18px;left:auto;
+  color:#FBF7EE;
+  background:rgba(15,30,55,.28);
+  border-color:rgba(251,247,238,.28);
+  box-shadow:none;
+}
+.edge-link.edge-light:hover{background:rgba(15,30,55,.42);border-color:rgba(251,247,238,.5)}
+.footer-credit a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+
+/* Accueil : barre crème (legacy, pages sans topbar) */
 .page-home .topbar.topbar-over{
   background:rgba(251,247,238,.88);
   border-bottom-color:rgba(230,225,212,.7);

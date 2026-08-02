@@ -20,10 +20,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/site.css?v=7">
-<link rel="stylesheet" href="assets/guide.css?v=4">
+<link rel="stylesheet" href="assets/site.css?v=8">
+<link rel="stylesheet" href="assets/guide.css?v=5">
 <style>
-  img.tb-logo{width:40px!important;height:40px!important;max-width:40px!important;max-height:40px!important;object-fit:contain!important}
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
 </style>
@@ -31,22 +30,18 @@
 <body class="page-guide">
 <div class="app">
 
-  <header class="guide-bar">
-    <a class="tb-brand" href="/" aria-label="La Bonne Aventure — retour au site">
-      <img class="tb-logo" src="assets/logo-black.png" width="40" height="40" alt="La Bonne Aventure">
-    </a>
-    <nav class="nav" aria-label="Sections du livret">
-      <button type="button" class="on" data-p="p-home" onclick="go(this)">Accueil</button>
-      <button type="button" data-p="p-info" onclick="go(this)">Infos</button>
-      <button type="button" data-p="p-rules" onclick="go(this)">Règles</button>
-      <button type="button" data-p="p-spots" onclick="go(this)">Adresses</button>
-      <button type="button" data-p="p-sos" onclick="go(this)">Urgences</button>
-      <button type="button" class="ext-link" onclick="location.href='extras.html'">Extras</button>
-    </nav>
-    <button type="button" id="langToggle" class="tb-lang" onclick="toggleLang()" aria-label="Language">
-      <span id="langLabel">EN</span>
-    </button>
-  </header>
+  <button type="button" id="langToggle" class="edge-lang" onclick="toggleLang()" aria-label="Language">
+    <span id="langLabel">EN</span>
+  </button>
+
+  <nav class="nav guide-dock" aria-label="Sections du livret">
+    <button type="button" class="on" data-p="p-home" onclick="go(this)">Accueil</button>
+    <button type="button" data-p="p-info" onclick="go(this)">Infos</button>
+    <button type="button" data-p="p-rules" onclick="go(this)">Règles</button>
+    <button type="button" data-p="p-spots" onclick="go(this)">Adresses</button>
+    <button type="button" data-p="p-sos" onclick="go(this)">Urgences</button>
+    <button type="button" class="ext-link" onclick="location.href='extras.html'">Extras</button>
+  </nav>
 
   <div class="scroll" id="scroll">
 

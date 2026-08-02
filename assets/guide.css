@@ -16,64 +16,58 @@
   min-height:100vh;
 }
 
-/* ---- Header unique (logo + sections + langue) ---- */
-.page-guide .guide-bar{
-  position:sticky;top:0;z-index:40;
-  display:grid;
-  grid-template-columns:auto minmax(0,1fr) auto;
-  align-items:center;
-  gap:10px 14px;
-  padding:8px clamp(12px,3vw,36px);
-  background:rgba(251,247,238,.96);
-  backdrop-filter:blur(12px) saturate(1.1);
-  border-bottom:1px solid var(--line-soft,#F0ECE1);
-}
-.page-guide .guide-bar .tb-brand{
-  display:inline-flex;align-items:center;
-  text-decoration:none;flex-shrink:0;
-}
-.page-guide .guide-bar .tb-logo{
-  width:40px!important;height:40px!important;
-  max-width:40px!important;max-height:40px!important;
-}
-.page-guide .tb-lang{
-  background:transparent;
-  border:1px solid var(--line,#E6E1D4);
+/* ---- Pas de header : langue coin + dock sections ---- */
+.page-guide .edge-lang{
+  position:fixed;top:14px;right:14px;z-index:45;
+  background:rgba(251,247,238,.88);
+  border:1px solid rgba(230,225,212,.9);
   color:var(--green,#0f2a4a);
   cursor:pointer;
-  font-family:'Jost',sans-serif;font-weight:600;font-size:11px;letter-spacing:.08em;
-  padding:7px 11px;border-radius:999px;
+  font-family:'Jost',sans-serif;font-weight:600;font-size:11px;letter-spacing:.1em;
+  padding:8px 12px;border-radius:999px;
+  backdrop-filter:blur(10px);
   line-height:1;
 }
-.page-guide .tb-lang:hover{border-color:var(--gold,#d9971a);background:rgba(217,151,26,.08)}
+.page-guide .edge-lang:hover{border-color:var(--gold,#d9971a)}
 
-.page-guide .nav{
-  position:static;
-  display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;
-  padding:0;margin:0;
-  background:transparent;border:0;
+.page-guide .nav.guide-dock{
+  position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+  z-index:45;
+  display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;
+  max-width:calc(100vw - 24px);
+  padding:6px;
+  margin:0;
+  background:rgba(251,247,238,.94);
+  border:1px solid rgba(230,225,212,.95);
+  border-radius:999px;
+  box-shadow:0 12px 36px rgba(15,30,55,.14);
+  backdrop-filter:blur(14px) saturate(1.1);
   justify-content:flex-start;
-  min-width:0;
 }
-.page-guide .nav::-webkit-scrollbar{display:none}
-.page-guide .nav button{
+.page-guide .nav.guide-dock::-webkit-scrollbar{display:none}
+.page-guide .nav.guide-dock button{
   flex:0 0 auto;
   display:inline-flex;align-items:center;
   flex-direction:row;
-  font-family:'Jost',sans-serif;font-weight:500;font-size:13px;
-  padding:8px 12px;border:0;border-radius:999px;
+  font-family:'Jost',sans-serif;font-weight:500;font-size:12.5px;
+  padding:9px 13px;border:0;border-radius:999px;
   background:transparent;color:var(--ink-soft,#5f6675);cursor:pointer;
   transition:background .15s,color .15s;
   letter-spacing:.01em;
+  white-space:nowrap;
 }
-.page-guide .nav button:hover{color:var(--green,#0f2a4a);background:rgba(15,42,74,.05)}
-.page-guide .nav button.on{
+.page-guide .nav.guide-dock button:hover{color:var(--green,#0f2a4a);background:rgba(15,42,74,.05)}
+.page-guide .nav.guide-dock button.on{
   color:var(--green,#0f2a4a);
-  background:rgba(217,151,26,.14);
+  background:rgba(217,151,26,.16);
   font-weight:600;
 }
-.page-guide .nav button.ext-link{color:var(--gold-deep,#a9760f)}
-.page-guide .nav button.ext-link.on{background:rgba(217,151,26,.14)}
+.page-guide .nav.guide-dock button.ext-link{color:var(--gold-deep,#a9760f)}
+.page-guide .scroll{padding-bottom:88px}
+.page-guide .bot-fab{bottom:86px}
+@media(min-width:760px){
+  .page-guide .bot-fab{bottom:96px}
+}
 
 /* ---- Hero livret ---- */
 .page-guide .hero{min-height:78svh;min-height:78vh}
@@ -312,12 +306,8 @@
 .page-guide .pop a svg{width:14px;height:14px}
 
 @media(min-width:760px){
-  .page-guide .guide-bar{
-    grid-template-columns:auto 1fr auto;
-    padding:10px clamp(24px,4vw,80px);
-  }
-  .page-guide .nav{justify-content:center}
-  .page-guide .nav button{padding:8px 14px;font-size:13.5px}
+  .page-guide .nav.guide-dock{bottom:24px}
+  .page-guide .nav.guide-dock button{padding:9px 15px;font-size:13px}
   .page-guide .hero{min-height:85svh;min-height:85vh}
   .page-guide .hero .inner{
     max-width:1200px;margin-left:auto;margin-right:auto;
@@ -332,10 +322,7 @@
 }
 
 @media(max-width:560px){
-  .page-guide .guide-bar{
-    grid-template-columns:auto 1fr auto;
-    gap:8px;
-  }
-  .page-guide .nav button{padding:7px 10px;font-size:12px}
+  .page-guide .nav.guide-dock{bottom:14px;padding:5px;gap:2px}
+  .page-guide .nav.guide-dock button{padding:8px 10px;font-size:11.5px}
   .page-guide .hours .sv{font-size:26px}
 }
