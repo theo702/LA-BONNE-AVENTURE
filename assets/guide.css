@@ -298,7 +298,7 @@
 /* Urgences */
 .page-guide .up-hero{
   position:relative;overflow:hidden;
-  padding:48px clamp(16px,3vw,40px) 36px;
+  padding:88px clamp(16px,3vw,40px) 36px;
   background:linear-gradient(165deg,#0f2a4a 0%,#0a1f38 100%);
   color:#FBF7EE;
 }
