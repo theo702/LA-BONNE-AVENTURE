@@ -21,13 +21,13 @@
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/site.css?v=8">
-<link rel="stylesheet" href="assets/guide.css?v=7">
+<link rel="stylesheet" href="assets/guide.css?v=8">
 <style>
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
 </style>
 </head>
-<body class="page-guide">
+<body class="page-guide over-hero">
 <div class="app">
 
   <header class="guide-chrome is-over-hero" id="guideChrome">
@@ -443,6 +443,7 @@
       over = y < Math.max(60, hh * 0.7);
     }
     chrome.classList.toggle('is-over-hero', !!over);
+    document.body.classList.toggle('over-hero', !!over);
   }
   function goPage(id){
     document.querySelectorAll('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===id)});

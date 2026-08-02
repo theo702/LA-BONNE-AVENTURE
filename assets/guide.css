@@ -16,14 +16,14 @@
   min-height:100vh;
 }
 
-/* ---- Header fondu dans le fond (héro / crème) ---- */
+/* ---- Header : transparent sur héro, crème opaque ensuite ---- */
 .page-guide .guide-chrome{
   position:fixed;top:0;left:0;right:0;z-index:40;
   display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:14px clamp(12px,3vw,40px);
+  padding:12px clamp(12px,3vw,40px);
   background:transparent;
   border:0;
-  transition:background .28s ease, backdrop-filter .28s ease, box-shadow .28s ease;
+  transition:background .25s ease, color .25s ease;
 }
 .page-guide .guide-chrome .tb-lang{
   flex:0 0 auto;
@@ -60,14 +60,11 @@
 }
 .page-guide .guide-chrome .nav button.ext-link{color:var(--clay-soft,#e6a92c)}
 
-/* Sur pages crème / après scroll : même fond que la page, fondu vers le bas */
+/* Pages crème : même couleur que le fond, opaque — le contenu commence EN DESSOUS */
 .page-guide .guide-chrome:not(.is-over-hero){
-  background:linear-gradient(180deg,
-    #FBF7EF 0%,
-    rgba(251,247,239,.97) 55%,
-    rgba(251,247,239,0) 100%);
-  backdrop-filter:blur(10px);
-  padding-bottom:28px;
+  background:#FBF7EF;
+  backdrop-filter:none;
+  padding-bottom:12px;
 }
 .page-guide .guide-chrome:not(.is-over-hero) .nav button{color:var(--ink-soft,#5f6675)}
 .page-guide .guide-chrome:not(.is-over-hero) .nav button:hover{
@@ -84,7 +81,9 @@
   border-color:var(--gold,#d9971a);background:rgba(217,151,26,.08);
 }
 
-.page-guide .scroll{padding-bottom:24px}
+/* Réserve la place du header fixe hors héro */
+.page-guide .scroll{padding-bottom:24px;padding-top:0;transition:padding-top .2s ease}
+.page-guide:not(.over-hero) .scroll{padding-top:72px}
 .page-guide .bot-fab{bottom:18px}
 
 /* ---- Hero livret ---- */
@@ -124,9 +123,9 @@
 /* ---- Body rhythm ---- */
 .page-guide .body{
   max-width:920px;margin:0 auto;
-  padding:96px clamp(16px,3vw,40px) 72px;
+  padding:28px clamp(16px,3vw,40px) 72px;
 }
-.page-guide #p-home .body{padding-top:48px}
+.page-guide #p-home .body{padding-top:36px}
 .page-guide .page{display:none}
 .page-guide .page.active{display:block}
 
