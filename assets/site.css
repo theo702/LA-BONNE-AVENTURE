@@ -957,7 +957,18 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   padding-top:48px;padding-bottom:56px;
 }
 
-/* 02 — bandeau navy immersif, photos d'abord */
+/* 02 — cures & séjours (éditorial SEO) */
+.sec-cures{
+  padding-top:40px;padding-bottom:48px;
+  background:
+    linear-gradient(180deg,rgba(241,236,224,.55) 0%,transparent 100%);
+}
+.sec-cures .pull{margin-bottom:12px}
+.sec-cures .lede{max-width:54ch;margin-bottom:6px}
+.sec-cures .fineprint a{color:var(--green);text-decoration:underline;text-underline-offset:3px}
+.sec-cures .fineprint a:hover{color:var(--gold)}
+
+/* 03 — bandeau navy immersif, photos d'abord */
 .sec-aix{
   background:
     radial-gradient(ellipse at 12% 0%,rgba(217,151,26,.2),transparent 48%),

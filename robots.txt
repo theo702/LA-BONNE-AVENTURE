@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+Disallow: /mon-compte.html
+Disallow: /guide.html
+Disallow: /api/
+
+Sitemap: https://labonneaventure-aixlesbains.fr/sitemap.xml
