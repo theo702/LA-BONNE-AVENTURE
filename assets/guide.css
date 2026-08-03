@@ -257,7 +257,11 @@
   position:relative;border-radius:16px;overflow:hidden;margin:0 0 22px;
   aspect-ratio:21/9;max-height:220px;
 }
-.page-guide .photo-band img{width:100%;height:100%;object-fit:cover;display:block}
+.page-guide .photo-band img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transform-origin:center;animation:guideKen 24s ease-in-out infinite alternate;
+}
+@keyframes guideKen{from{transform:scale(1)}to{transform:scale(1.08)}}
 .page-guide .photo-band .cap{
   position:absolute;left:0;right:0;bottom:0;padding:28px 16px 14px;
   background:linear-gradient(180deg,transparent,rgba(10,25,50,.7));
@@ -272,11 +276,17 @@
   padding:0;margin:0;overflow:hidden;
   border:1px solid var(--line,#E6E1D4);border-radius:16px;background:var(--paper,#fff);
   box-shadow:0 8px 22px rgba(15,42,74,.04);
+  transition:transform .4s cubic-bezier(.22,.7,.2,1),box-shadow .4s ease;
 }
+.page-guide .place:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(15,42,74,.1)}
 .page-guide .place .ph{
   aspect-ratio:16/10;overflow:hidden;background:#EBE4D6;
 }
-.page-guide .place .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.page-guide .place .ph img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .7s cubic-bezier(.2,.7,.2,1);
+}
+.page-guide .place:hover .ph img{transform:scale(1.06)}
 .page-guide .place .pd{padding:16px 16px 18px}
 .page-guide .place .cat{
   font-family:'Jost',sans-serif;font-weight:600;text-transform:uppercase;
@@ -347,4 +357,11 @@
   .page-guide .guide-chrome{padding:12px 10px;gap:8px}
   .page-guide .guide-chrome .nav button{padding:7px 10px;font-size:12px}
   .page-guide .hours .sv{font-size:26px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .page-guide .photo-band img{animation:none}
+  .page-guide .place,.page-guide .place .ph img{transition:none}
+  .page-guide .place:hover{transform:none}
+  .page-guide .place:hover .ph img{transform:none}
 }
