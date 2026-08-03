@@ -598,10 +598,8 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 
 @media(min-width:760px){
   .page-doc .review{
-    border-bottom:0;padding:0 8px 0 0;
-    border-right:1px solid var(--line);
+    border-bottom:0;padding:4px 4px 8px 0;
   }
-  .page-doc .reviews-track .review:last-child{border-right:0}
 }
 .btn-review{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border:1px solid var(--line);border-radius:30px;background:#fff;color:var(--ink);font-family:'Jost';font-weight:500;font-size:14.5px;text-decoration:none;box-shadow:var(--sh-soft);transition:transform .12s,box-shadow .12s,border-color .12s}
 .btn-review:hover{transform:translateY(-2px);box-shadow:var(--sh);border-color:var(--gold)}
