@@ -168,12 +168,29 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .lede{font-size:15.5px;color:var(--ink-soft);font-weight:300;margin:0 0 14px;max-width:42ch;line-height:1.55}
 .copy{max-width:58ch;color:var(--ink-soft);font-weight:300;font-size:14.5px;line-height:1.65;margin:0 0 8px}
 
-.pull{font-size:16.5px;line-height:1.6;color:var(--ink);margin:8px 0 6px}
+.pull{font-size:16.5px;line-height:1.6;color:var(--ink);margin:8px 0 6px;max-width:54ch}
 .pull .drop{
   float:left;font-family:'Fraunces',serif;font-size:52px;line-height:.8;
-  color:var(--clay);padding:6px 10px 0 0;font-weight:400;
+  color:var(--gold-deep);padding:6px 10px 0 0;font-weight:400;
 }
 .sign{font-family:'Fraunces',serif;font-style:italic;color:var(--green);font-size:18px;margin:2px 0 18px}
+
+/* Faits logement — liste éditoriale, sans cartes */
+.facts{
+  list-style:none;margin:28px 0 10px;padding:20px 0 4px;
+  display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;
+  border-top:1px solid var(--line);
+}
+.facts li{
+  margin:0;padding:0 0 0 14px;
+  border-left:1.5px solid var(--gold);
+  font-size:13.5px;font-weight:300;color:var(--ink-soft);line-height:1.4;
+}
+.facts b{
+  display:block;
+  font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+  font-size:17px;color:var(--green);margin-bottom:3px;letter-spacing:-.01em;
+}
 
 /* ---------- Hero ---------- */
 .hero{position:relative;overflow:hidden;min-height:100svh;min-height:100vh;display:flex;color:#FBF7EE}
@@ -257,7 +274,7 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .stat .sv{font-family:'Fraunces',serif;font-size:27px;color:var(--ink);margin:3px 0}
 .stat .sx{font-size:11px;color:var(--ink-soft);font-weight:300}
 
-/* ---------- Amenities (grille studio) ---------- */
+/* ---------- Amenities (legacy / autres pages) ---------- */
 .amen{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 8px}
 .amen .a{
   padding:16px 14px 15px;border:0;border-radius:var(--r);
@@ -825,6 +842,11 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
     padding-left:clamp(24px,4vw,90px);padding-right:clamp(24px,4vw,90px)}
   .page-doc h2{font-size:clamp(32px,3.2vw,48px)}
   .page-doc .lede{max-width:58ch;font-size:17px}
+  .page-doc .pull{font-size:18.5px;max-width:62ch;line-height:1.65}
+  .page-doc .pull .drop{font-size:64px;padding:4px 12px 0 0}
+  .page-doc .facts{grid-template-columns:repeat(3,1fr);gap:22px 36px;padding:28px 0 8px;margin:36px 0 14px}
+  .page-doc .facts li{font-size:14px}
+  .page-doc .facts b{font-size:19px}
   .page-doc .amen{grid-template-columns:repeat(3,1fr);gap:16px}
   .page-doc .why{padding:40px 44px}
   .page-doc .why h3{font-size:28px;max-width:22ch}
