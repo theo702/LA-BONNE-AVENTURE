@@ -251,50 +251,112 @@
   border:1px solid var(--line,#E6E1D4);margin:12px 0 10px;
   z-index:1;
 }
-.page-guide .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--ink-soft,#5f6675);margin-bottom:18px}
+.page-guide .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--ink-soft,#5f6675);margin:0}
 .page-guide .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-.page-guide .photo-band{
-  position:relative;border-radius:16px;overflow:hidden;margin:0 0 22px;
-  aspect-ratio:21/9;max-height:220px;
+
+/* Carte des adresses */
+.page-guide .spots-map{margin:8px 0 36px}
+.page-guide .spots-map .map-hint{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:300;color:var(--ink-soft,#5f6675);margin:0 0 10px;
 }
-.page-guide .photo-band img{
-  width:100%;height:100%;object-fit:cover;display:block;
-  transform-origin:center;animation:guideKen 24s ease-in-out infinite alternate;
+.page-guide .spots-map .map-hint svg{flex:0 0 auto;color:var(--gold-deep,#a9760f)}
+.page-guide .spots-map .legend{margin-top:12px}
+
+/* Groupes par catégorie */
+.page-guide .spot-group{margin:0 0 36px}
+.page-guide .spot-group-head{
+  display:flex;align-items:center;gap:14px;margin:0 0 18px;
 }
-@keyframes guideKen{from{transform:scale(1)}to{transform:scale(1.08)}}
-.page-guide .photo-band .cap{
-  position:absolute;left:0;right:0;bottom:0;padding:28px 16px 14px;
-  background:linear-gradient(180deg,transparent,rgba(10,25,50,.7));
-  color:#FBF7EE;font-family:'Fraunces',serif;font-style:italic;font-size:17px;
+.page-guide .spot-group-head .lab{
+  font-family:'Jost',sans-serif;font-weight:600;text-transform:uppercase;
+  letter-spacing:.14em;font-size:11px;color:var(--green,#0f2a4a);white-space:nowrap;
 }
-.page-guide .spots{display:grid;gap:16px}
-@media(min-width:700px){
-  .page-guide .spots{grid-template-columns:1fr 1fr}
+.page-guide .spot-group-head .ln{
+  flex:1;height:1px;background:var(--line,#E6E1D4);
 }
-.page-guide .place{
-  display:flex;flex-direction:column;
-  padding:0;margin:0;overflow:hidden;
-  border:1px solid var(--line,#E6E1D4);border-radius:16px;background:var(--paper,#fff);
-  box-shadow:0 8px 22px rgba(15,42,74,.04);
-  transition:transform .4s cubic-bezier(.22,.7,.2,1),box-shadow .4s ease;
+
+/* Fiche adresse — rangée éditoriale, pas de carte */
+.page-guide .spot{
+  display:grid;grid-template-columns:1fr;gap:14px;
+  margin:0 0 28px;padding:0 0 28px;
+  border:0;border-bottom:1px solid var(--line-soft,#F0ECE1);
+  background:transparent;box-shadow:none;border-radius:0;
 }
-.page-guide .place:hover{transform:translateY(-4px);box-shadow:0 16px 36px rgba(15,42,74,.1)}
-.page-guide .place .ph{
-  aspect-ratio:16/10;overflow:hidden;background:#EBE4D6;
+.page-guide .spot:last-child{margin-bottom:0;padding-bottom:0;border-bottom:0}
+.page-guide .spot-ph{
+  position:relative;overflow:hidden;border-radius:14px;
+  aspect-ratio:16/10;background:#EBE4D6;
 }
-.page-guide .place .ph img{
+.page-guide .spot-ph img{
   width:100%;height:100%;object-fit:cover;display:block;
   transition:transform .7s cubic-bezier(.2,.7,.2,1);
 }
-.page-guide .place:hover .ph img{transform:scale(1.06)}
-.page-guide .place .pd{padding:16px 16px 18px}
-.page-guide .place .cat{
+.page-guide .spot:hover .spot-ph img{transform:scale(1.04)}
+.page-guide .spot-bd{min-width:0}
+.page-guide .spot-cat{
   font-family:'Jost',sans-serif;font-weight:600;text-transform:uppercase;
-  letter-spacing:.1em;font-size:10.5px;color:var(--gold-deep,#a9760f);margin-bottom:5px;
+  letter-spacing:.12em;font-size:10.5px;color:var(--gold-deep,#a9760f);
+  margin:0 0 6px;
 }
-.page-guide .place h3{font-size:20px;margin:0 0 8px;color:var(--ink,#1f2838)}
-.page-guide .place p{font-size:13.5px;font-weight:300;line-height:1.55;color:var(--ink-soft,#5f6675);margin:0 0 12px}
-.page-guide .place .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.page-guide .spot h3{
+  font-family:'Fraunces',serif;font-weight:400;font-size:24px;
+  letter-spacing:-.015em;margin:0 0 8px;color:var(--ink,#1f2838);line-height:1.15;
+}
+.page-guide .spot p{
+  font-size:14.5px;font-weight:300;line-height:1.55;
+  color:var(--ink-soft,#5f6675);margin:0 0 14px;max-width:48ch;
+}
+.page-guide .spot-facts{
+  list-style:none;margin:0 0 16px;padding:0;
+  display:grid;gap:8px 20px;
+}
+.page-guide .spot-facts > div{
+  display:grid;grid-template-columns:72px 1fr;gap:8px;align-items:baseline;
+}
+.page-guide .spot-facts dt{
+  margin:0;font-size:11px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-soft,#5f6675);
+}
+.page-guide .spot-facts dd{
+  margin:0;font-size:13.5px;font-weight:300;color:var(--ink,#1f2838);line-height:1.4;
+}
+.page-guide .spot-acts{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;
+}
+.page-guide .spot-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-family:'Jost',sans-serif;font-weight:500;font-size:13.5px;
+  padding:10px 18px;border-radius:999px;text-decoration:none;
+  background:var(--green,#0f2a4a);color:#FBF7EE;
+  transition:transform .2s ease,filter .2s ease;
+}
+.page-guide .spot-btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.page-guide .spot-link{
+  font-size:13.5px;font-weight:500;color:var(--green,#0f2a4a);
+  text-decoration:none;
+  background-image:linear-gradient(var(--gold),var(--gold));
+  background-size:0% 1.5px;background-position:0 100%;background-repeat:no-repeat;
+  padding-bottom:1px;transition:background-size .25s ease;
+}
+.page-guide .spot-link:hover{background-size:100% 1.5px}
+.page-guide .spots-note{
+  margin:8px 0 0;font-size:13px;font-weight:300;font-style:italic;
+  color:var(--ink-soft,#5f6675);text-align:center;
+}
+
+@media(min-width:700px){
+  .page-guide .spot{
+    grid-template-columns:minmax(220px,38%) 1fr;
+    gap:28px;align-items:center;
+    margin:0 0 32px;padding:0 0 32px;
+  }
+  .page-guide .spot-ph{aspect-ratio:5/4;border-radius:16px}
+  .page-guide .spot h3{font-size:28px}
+  .page-guide .spot-facts{gap:10px}
+}
+
+/* Legacy place/chip (autres pages éventuelles) */
 .page-guide .chip{
   display:inline-flex;align-items:center;gap:5px;
   font-size:12px;font-weight:500;padding:5px 10px;border-radius:999px;
