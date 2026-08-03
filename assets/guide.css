@@ -422,8 +422,6 @@
 }
 
 @media (prefers-reduced-motion:reduce){
-  .page-guide .photo-band img{animation:none}
-  .page-guide .place,.page-guide .place .ph img{transition:none}
-  .page-guide .place:hover{transform:none}
-  .page-guide .place:hover .ph img{transform:none}
+  .page-guide .spot-ph img{transition:none}
+  .page-guide .spot:hover .spot-ph img{transform:none}
 }
