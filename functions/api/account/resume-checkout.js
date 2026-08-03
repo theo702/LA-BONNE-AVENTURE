@@ -27,6 +27,18 @@ export async function onRequestPost({ env, request }) {
     }, { status: 400 });
   }
 
+  // Expire dès J-1 (même règle que le cron / l’espace voyageur).
+  const tomorrow = new Date();
+  tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+  const tomorrowIso = tomorrow.toISOString().slice(0, 10);
+  if (booking.checkin <= tomorrowIso) {
+    return Response.json({
+      ok: false,
+      error: 'expired',
+      message: 'Ce séjour a expiré. Choisissez de nouvelles dates pour réserver.',
+    }, { status: 410 });
+  }
+
   if (!env.STRIPE_SECRET_KEY) {
     return Response.json({ ok: false, error: 'config', message: 'Paiement non configuré.' }, { status: 500 });
   }

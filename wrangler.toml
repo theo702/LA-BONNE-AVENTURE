@@ -28,6 +28,7 @@ MAX_GUESTS = "2"
 TAXE_CENTS = "0"          # taxe de séjour €/personne/nuit en centimes (0 = désactivée)
 HOST_EMAIL = "theobonaventure1@gmail.com"
 FROM_EMAIL = "contact@labonneaventure-aixlesbains.fr"   # domaine vérifié dans Resend requis
+SITE_URL = "https://labonneaventure-aixlesbains.fr"
 # ⚠️ Cette adresse ne fonctionne QUE si le domaine labonneaventure-aixlesbains.fr est
 # « Verified » (vert) dans Resend (enregistrements DNS ajoutés). Sinon les emails ne
 # partent pas — repasser temporairement à "onboarding@resend.dev".
@@ -43,3 +44,4 @@ FROM_EMAIL = "contact@labonneaventure-aixlesbains.fr"   # domaine vérifié dans
 # wrangler pages secret put RESEND_API_KEY
 # wrangler pages secret put ADMIN_PASSWORD     # mot de passe de la page /admin
 # wrangler pages secret put ADMIN_SECRET       # chaîne aléatoire, signe le cookie admin
+# wrangler pages secret put CRON_SECRET        # protège /api/cron/pending-reminders

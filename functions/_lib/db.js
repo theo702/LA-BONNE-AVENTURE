@@ -257,6 +257,8 @@ export async function ensurePricingSchema(env) {
   await run(`ALTER TABLE settings ADD COLUMN loyalty_points_per_night INTEGER NOT NULL DEFAULT 1`);
   await run(`ALTER TABLE settings ADD COLUMN loyalty_points_per_reward INTEGER NOT NULL DEFAULT 10`);
   await run(`ALTER TABLE settings ADD COLUMN loyalty_reward_pct REAL NOT NULL DEFAULT 10`);
+  // Rappels email pour les séjours « en attente » (paiement non finalisé).
+  await run(`ALTER TABLE bookings ADD COLUMN reminder_sent_at TEXT`);
 }
 
 // ---------- Espace voyageur : liens de connexion (magic link) ----------
@@ -279,11 +281,17 @@ export async function consumeMagicLink(env, token) {
 }
 
 // ---------- Espace voyageur : réservations d'un email ----------
+// Les pending trop proches de l'arrivée (la veille ou après) sont masqués :
+// checkin <= demain → déjà expirés (ex. arrivée le 17 → disparaît dès le 16).
 export async function listBookingsByEmail(env, email) {
   const { results } = await env.DB.prepare(
     `SELECT id, checkin, checkout, nights, guests, amount_total_cents, currency, status,
             hold_expires_at, created_at
-       FROM bookings WHERE email = ?1 AND status != 'cancelled' ORDER BY checkin DESC`
+       FROM bookings
+      WHERE email = ?1
+        AND status != 'cancelled'
+        AND NOT (status = 'pending' AND checkin <= date('now', '+1 day'))
+      ORDER BY checkin DESC`
   ).bind((email || '').toLowerCase()).all();
   return results || [];
 }
@@ -413,6 +421,41 @@ export async function renewPendingHold(env, id) {
     `UPDATE bookings SET hold_expires_at = ?1 WHERE id = ?2 AND status = 'pending'`
   ).bind(holdExpires, id).run();
   return holdExpires;
+}
+
+// Pending à rappeler : pas encore arrivés à J-1, créés depuis ≥ 1 jour,
+// et jamais rappelés ou rappelés il y a ≥ 7 jours.
+export async function listPendingForReminder(env) {
+  const { results } = await env.DB.prepare(
+    `SELECT id, checkin, checkout, nights, guests, guest_name, email, phone,
+            amount_total_cents, currency, created_at, reminder_sent_at
+       FROM bookings
+      WHERE status = 'pending'
+        AND checkin > date('now', '+1 day')
+        AND date(created_at) <= date('now', '-1 day')
+        AND (reminder_sent_at IS NULL
+             OR date(reminder_sent_at) <= date('now', '-7 days'))
+      ORDER BY checkin ASC
+      LIMIT 50`
+  ).all();
+  return results || [];
+}
+
+// Expire (annule) les pending dès J-1 de l'arrivée — plus de mail, plus d'affichage compte.
+export async function expireStalePending(env) {
+  const res = await env.DB.prepare(
+    `UPDATE bookings
+        SET status = 'cancelled', hold_expires_at = NULL
+      WHERE status = 'pending'
+        AND checkin <= date('now', '+1 day')`
+  ).run();
+  return (res && res.meta && res.meta.changes) || 0;
+}
+
+export async function markReminderSent(env, id) {
+  await env.DB.prepare(
+    `UPDATE bookings SET reminder_sent_at = ?1 WHERE id = ?2`
+  ).bind(new Date().toISOString(), id).run();
 }
 
 // Enregistre le client Stripe + le moyen de paiement (empreinte bancaire) sur la résa,

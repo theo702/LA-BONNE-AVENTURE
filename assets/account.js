@@ -68,6 +68,8 @@
         errEl.hidden = false;
         if (r.j && r.j.error === 'unavailable') {
           errEl.innerHTML = esc(msg) + ' <a href="index.html#booking">Voir les disponibilités</a>';
+        } else if (r.j && r.j.error === 'expired') {
+          errEl.innerHTML = esc(msg) + ' <a href="index.html#booking">Réserver d’autres dates</a>';
         } else {
           errEl.textContent = msg;
         }

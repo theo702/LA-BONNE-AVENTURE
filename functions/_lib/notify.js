@@ -44,6 +44,44 @@ export async function sendMagicLink(env, email, url) {
   await sendResend(env, email, 'Votre lien de connexion — La Bonne Aventure', html);
 }
 
+function fmtFrDate(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+// Rappel hebdo : séjour commencé mais paiement non finalisé.
+export async function sendPendingReminder(env, booking) {
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL || !booking || !booking.email) return false;
+  const origin = env.SITE_URL || 'https://labonneaventure-aixlesbains.fr';
+  const name = (booking.guest_name || '').split(' ')[0] || '';
+  const hello = name ? `Hey ${name}` : 'Hey';
+  const total = euros(booking.amount_total_cents, booking.currency);
+  const accountUrl = `${origin}/mon-compte.html`;
+  const bookUrl = `${origin}/#booking`;
+  const html = wrap(`
+    <h2 style="color:#0f2a4a;margin:0 0 6px">${hello} — n’oublie pas de finaliser 🌴</h2>
+    <p>Tu as commencé une réservation à <b>La Bonne Aventure</b>, mais le paiement n’est pas encore terminé.</p>
+    <p>Tes dates préférées&nbsp;:</p>
+    <table style="border-collapse:collapse;margin:14px 0">
+      <tr><td style="padding:6px 14px 6px 0;color:#5f6675">Arrivée</td><td style="color:#1f2838"><b>${fmtFrDate(booking.checkin)}</b></td></tr>
+      <tr><td style="padding:6px 14px 6px 0;color:#5f6675">Départ</td><td style="color:#1f2838"><b>${fmtFrDate(booking.checkout)}</b></td></tr>
+      <tr><td style="padding:6px 14px 6px 0;color:#5f6675">Nuits</td><td style="color:#1f2838"><b>${booking.nights}</b></td></tr>
+      <tr><td style="padding:6px 14px 6px 0;color:#5f6675">Total</td><td style="color:#1f2838"><b>${total}</b></td></tr>
+    </table>
+    <p>Ces dates peuvent partir à tout moment — finalise tant qu’il est encore temps.</p>
+    <p style="text-align:center;margin:24px 0">
+      <a href="${accountUrl}" style="display:inline-block;background:#0f2a4a;color:#fff;text-decoration:none;
+        font-family:Arial,sans-serif;font-weight:bold;padding:12px 26px;border-radius:30px">Finaliser ma réservation</a>
+    </p>
+    <p style="color:#5f6675;font-size:13px;text-align:center">
+      Ou choisis d’autres dates sur <a href="${bookUrl}" style="color:#0f2a4a">le calendrier</a>.
+    </p>
+    <p style="color:#5f6675;font-size:13px;margin-top:18px">À très vite,<br>Théo · La Bonne Aventure</p>`);
+  await sendResend(env, booking.email, 'N’oublie pas de finaliser ta réservation — La Bonne Aventure', html);
+  return true;
+}
+
 async function sendEmails(env, booking) {
   if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return;
   const total = euros(booking.amount_total_cents, booking.currency);

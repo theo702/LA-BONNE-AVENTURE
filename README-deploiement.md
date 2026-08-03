@@ -193,3 +193,21 @@ wrangler.toml           config Pages + bindings + valeurs initiales
 > Après un changement de `schema.sql`, ré-exécutez :
 > `wrangler d1 execute lba-bookings --remote --file=./schema.sql` (les tables existantes sont
 > conservées ; seules les nouvelles sont créées).
+
+## Rappels « séjour en attente »
+
+Les voyageurs qui ont commencé une réservation sans payer reçoivent un email de rappel
+**une fois par semaine**. Dès la **veille de l’arrivée**, le séjour pending est annulé
+automatiquement (plus d’email, disparition de *Mon espace*).
+
+1. Créez le secret Cloudflare :
+   ```bash
+   wrangler pages secret put CRON_SECRET
+   ```
+2. Ajoutez le **même** secret `CRON_SECRET` dans GitHub → Settings → Secrets
+   (le workflow `.github/workflows/pending-reminders.yml` tourne chaque lundi).
+3. Test manuel :
+   ```bash
+   curl -X POST -H "Authorization: Bearer $CRON_SECRET" \
+     https://labonneaventure-aixlesbains.fr/api/cron/pending-reminders
+   ```

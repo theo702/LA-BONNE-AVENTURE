@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   cleaning_paid       INTEGER NOT NULL DEFAULT 0,-- ménage payé au prestataire (suivi prestations)
   cleaning_pay_cents  INTEGER,                   -- montant ménage pour CE séjour (NULL = tarif par défaut)
   hold_expires_at     TEXT,                      -- ISO 8601 : fin du blocage temporaire
+  reminder_sent_at    TEXT,                      -- dernier email de rappel (pending non payé)
   created_at          TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_bookings_status  ON bookings(status);
