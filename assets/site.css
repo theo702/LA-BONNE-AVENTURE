@@ -909,6 +909,22 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   .page-doc .book-card{max-width:560px;margin-left:auto;margin-right:auto;padding:20px}
   .page-doc .grid2{gap:18px}
 
+  .page-doc .sec-aix,
+  .page-doc .sec-avis{width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw)}
+  .page-doc .sec-aix .sec-inner,
+  .page-doc .sec-avis .sec-inner{
+    max-width:1240px;margin-left:auto;margin-right:auto;
+    padding-left:clamp(24px,4vw,90px);padding-right:clamp(24px,4vw,90px);
+  }
+  .page-doc .sec-aix{padding:72px 0 80px}
+  .page-doc .sec-aix-head{gap:28px 40px;margin-bottom:36px}
+  .page-doc .sec-aix-no{font-size:120px}
+  .page-doc .sec-aix h2{font-size:clamp(36px,3.4vw,52px)}
+  .page-doc .sec-avis{padding:80px 0 88px}
+  .page-doc .sec-avis-mark{font-size:120px}
+  .page-doc .sec-avis h2{font-size:clamp(36px,3.4vw,52px)}
+  .page-doc .sec-book-head .lede{font-size:17px}
+
   /* Guide : plein écran comme les pages publiques */
   .app:not(.doc){max-width:none;box-shadow:none;background:var(--cream)}
   .app:not(.doc) .hero{min-height:78vh}
@@ -932,6 +948,86 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   }
   .hero h1{font-size:42px}
   .hero-cta .ghost span,.hero-cta a{padding:12px 16px}
+}
+
+/* ============ Sections d'accueil distinctes ============ */
+
+/* 01 — éditorial crème (texte + faits + mosaïque) */
+.sec-logement{
+  padding-top:48px;padding-bottom:56px;
+}
+
+/* 02 — bandeau navy immersif, photos d'abord */
+.sec-aix{
+  background:
+    radial-gradient(ellipse at 12% 0%,rgba(217,151,26,.2),transparent 48%),
+    radial-gradient(ellipse at 90% 100%,rgba(251,247,238,.06),transparent 45%),
+    linear-gradient(165deg,var(--green) 0%,var(--green-deep) 100%);
+  color:#FBF7EE;
+  padding:48px 0 56px;
+  margin:12px 0 0;
+}
+.sec-aix .sec-inner{padding:0 20px}
+.sec-aix-head{
+  display:grid;grid-template-columns:auto 1fr;gap:14px 20px;
+  align-items:start;margin-bottom:26px;
+}
+.sec-aix-no{
+  font-family:'Fraunces',serif;font-style:italic;font-weight:300;
+  font-size:clamp(72px,18vw,104px);line-height:.8;
+  color:rgba(233,169,44,.5);letter-spacing:-.03em;
+}
+.sec-aix .kicker{color:rgba(251,247,238,.7);display:block;margin-bottom:8px}
+.sec-aix h2{color:#FBF7EE;margin:0 0 12px}
+.sec-aix h2 .it{color:var(--clay-soft)}
+.sec-aix .lede{color:rgba(251,247,238,.82);margin:0;max-width:40ch}
+.sec-aix .g-item{border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.28)}
+.sec-aix .g-item:hover{box-shadow:0 22px 48px rgba(0,0,0,.38)}
+
+/* 03 — avis centrés, fond chaud doux */
+.sec-avis{
+  background:
+    radial-gradient(700px 320px at 50% -10%,rgba(217,151,26,.1),transparent 55%),
+    linear-gradient(180deg,#F1ECE0 0%,var(--cream) 72%);
+  padding:56px 0 64px;
+  text-align:center;
+}
+.sec-avis .sec-inner{padding:0 20px}
+.sec-avis-head{margin:0 auto 28px;max-width:36ch}
+.sec-avis-mark{
+  display:block;font-family:'Fraunces',serif;font-size:92px;line-height:.55;
+  color:var(--gold);opacity:.38;margin:0 0 10px;font-weight:300;
+}
+.sec-avis .kicker{display:block;margin-bottom:8px}
+.sec-avis h2{margin:0 0 14px}
+.sec-avis .rev-summary{justify-content:center;margin-bottom:0}
+.sec-avis .reviews-carousel,
+.sec-avis .review{text-align:left}
+.sec-avis .review{
+  padding:18px 16px 20px;
+  background:rgba(255,255,255,.55);
+  border:0;border-radius:16px;
+  box-shadow:inset 0 0 0 1px rgba(230,225,212,.7);
+}
+.sec-avis .review .quote-mark{opacity:.1}
+
+/* 04 — réservation centrée, focus calendrier */
+.sec-book{
+  text-align:center;
+  padding-top:56px;padding-bottom:64px;
+  background:
+    radial-gradient(780px 260px at 50% 0%,rgba(217,151,26,.08),transparent 62%);
+}
+.sec-book-head{margin:0 auto 18px;max-width:40ch}
+.sec-book-head .section-head{justify-content:center}
+.sec-book-head h2{margin-bottom:10px}
+.sec-book-head .lede{margin-left:auto;margin-right:auto;margin-bottom:0}
+.sec-book .cta{margin-left:auto;margin-right:auto}
+.sec-book .footer-credit{margin-top:40px}
+
+@media(max-width:560px){
+  .sec-aix-head{grid-template-columns:1fr;gap:4px 0}
+  .sec-aix-no{font-size:64px;margin-bottom:4px}
 }
 
 /* ============ Finitions & animations avancées ============ */
