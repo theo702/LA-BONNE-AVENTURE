@@ -17,8 +17,10 @@ export async function onRequestGet({ env, request }) {
     ok: true,
     email,
     bookings: bookings.map((b) => ({
+      id: b.id,
       checkin: b.checkin, checkout: b.checkout, nights: b.nights, guests: b.guests,
       amount_total_cents: b.amount_total_cents, currency: b.currency, status: b.status,
+      hold_expires_at: b.hold_expires_at || null,
     })),
     loyalty,
   }, { headers: { 'cache-control': 'no-store' } });

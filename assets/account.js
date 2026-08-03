@@ -50,19 +50,76 @@
     });
   }
 
+  function resumeCheckout(bookingId, btn, errEl) {
+    if (!bookingId || !btn) return;
+    var old = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Redirection…';
+    if (errEl) { errEl.hidden = true; errEl.textContent = ''; }
+    api('resume-checkout', { method: 'POST', body: JSON.stringify({ booking_id: bookingId }) }).then(function (r) {
+      if (r.j && r.j.ok && r.j.url) {
+        location.href = r.j.url;
+        return;
+      }
+      btn.disabled = false;
+      btn.textContent = old;
+      var msg = (r.j && r.j.message) || 'Impossible de reprendre le paiement. Réessayez.';
+      if (errEl) {
+        errEl.hidden = false;
+        if (r.j && r.j.error === 'unavailable') {
+          errEl.innerHTML = esc(msg) + ' <a href="index.html#booking">Voir les disponibilités</a>';
+        } else {
+          errEl.textContent = msg;
+        }
+      }
+    }).catch(function () {
+      btn.disabled = false;
+      btn.textContent = old;
+      if (errEl) { errEl.hidden = false; errEl.textContent = 'Erreur réseau. Réessayez.'; }
+    });
+  }
+
   function renderBookings(bookings) {
     var box = $('#acctBookings'); box.innerHTML = '';
-    $('#acctEmpty').hidden = (bookings || []).length > 0;
-    (bookings || []).forEach(function (b) {
-      var el = document.createElement('div'); el.className = 'acct-booking';
+    var list = bookings || [];
+    $('#acctEmpty').hidden = list.length > 0;
+    var pendingNudge = $('#acctPendingNudge');
+    var hasPending = list.some(function (b) { return b.status === 'pending'; });
+    if (pendingNudge) pendingNudge.hidden = !hasPending;
+
+    list.forEach(function (b) {
+      var el = document.createElement('div');
+      var isPending = b.status === 'pending';
+      el.className = 'acct-booking' + (isPending ? ' is-pending' : '');
       var badgeCls = b.status === 'confirmed' ? 'confirmed' : 'pending';
       var badgeLabel = b.status === 'confirmed' ? 'Confirmée' : 'En attente';
-      el.innerHTML =
-        '<div><div class="acct-booking-dates">' + fmtDate(b.checkin) + ' → ' + fmtDate(b.checkout) + '</div>' +
-        '<div class="acct-booking-meta">' + b.nights + ' nuit' + (b.nights > 1 ? 's' : '') + ' · ' + b.guests + ' voyageur' + (b.guests > 1 ? 's' : '') + '</div></div>' +
-        '<div style="display:flex;align-items:center;gap:12px">' +
-        '<span class="acct-badge ' + badgeCls + '">' + badgeLabel + '</span>' +
-        '<span class="acct-booking-amount">' + euro(b.amount_total_cents) + '</span></div>';
+
+      var html =
+        '<div class="acct-booking-main">' +
+          '<div class="acct-booking-dates">' + fmtDate(b.checkin) + ' → ' + fmtDate(b.checkout) + '</div>' +
+          '<div class="acct-booking-meta">' + b.nights + ' nuit' + (b.nights > 1 ? 's' : '') +
+            ' · ' + b.guests + ' voyageur' + (b.guests > 1 ? 's' : '') + '</div>' +
+        '</div>' +
+        '<div class="acct-booking-side">' +
+          '<span class="acct-badge ' + badgeCls + '">' + badgeLabel + '</span>' +
+          '<span class="acct-booking-amount">' + euro(b.amount_total_cents) + '</span>' +
+        '</div>';
+
+      if (isPending) {
+        html +=
+          '<div class="acct-booking-cta">' +
+            '<p class="acct-booking-nudge">Paiement non terminé — finalisez pour confirmer ces dates.</p>' +
+            '<button type="button" class="acct-btn acct-pay-btn">Finaliser la réservation</button>' +
+            '<p class="acct-booking-err" hidden></p>' +
+          '</div>';
+      }
+
+      el.innerHTML = html;
+      if (isPending) {
+        var btn = el.querySelector('.acct-pay-btn');
+        var errEl = el.querySelector('.acct-booking-err');
+        btn.addEventListener('click', function () { resumeCheckout(b.id, btn, errEl); });
+      }
       box.appendChild(el);
     });
   }
@@ -80,6 +137,12 @@
     if (params.get('erreur') === 'lien_expire') {
       var err = $('#acctError'); err.hidden = false;
       err.textContent = 'Ce lien de connexion a expiré ou a déjà été utilisé. Demandez-en un nouveau ci-dessous.';
+    }
+    if (params.get('reservation') === 'annulee') {
+      var tip = $('#acctError');
+      tip.hidden = false;
+      tip.className = 'acct-banner tip';
+      tip.textContent = 'Paiement annulé — vous pouvez finaliser votre séjour en attente ci-dessous.';
     }
     api('me').then(function (r) {
       if (r.status === 200 && r.j && r.j.ok) renderApp(r.j);

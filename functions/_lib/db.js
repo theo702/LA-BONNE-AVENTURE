@@ -6,13 +6,24 @@ export function overlaps(aFrom, aTo, bFrom, bTo) {
 }
 
 // Plages occupées : réservations (confirmées + holds valides) + blocages manuels.
-export async function getBusyRanges(env) {
+export async function getBusyRanges(env, opts = {}) {
   const nowIso = new Date().toISOString();
-  const { results } = await env.DB.prepare(
-    `SELECT checkin, checkout FROM bookings
-      WHERE status = 'confirmed'
-         OR (status = 'pending' AND hold_expires_at > ?1)`
-  ).bind(nowIso).all();
+  const exceptId = opts.exceptId || null;
+  let results;
+  if (exceptId) {
+    ({ results } = await env.DB.prepare(
+      `SELECT checkin, checkout FROM bookings
+        WHERE id != ?2
+          AND (status = 'confirmed'
+           OR (status = 'pending' AND hold_expires_at > ?1))`
+    ).bind(nowIso, exceptId).all());
+  } else {
+    ({ results } = await env.DB.prepare(
+      `SELECT checkin, checkout FROM bookings
+        WHERE status = 'confirmed'
+           OR (status = 'pending' AND hold_expires_at > ?1)`
+    ).bind(nowIso).all());
+  }
   const ranges = (results || []).map((r) => ({ from: r.checkin, to: r.checkout, source: 'direct' }));
   try {
     const blocks = await env.DB.prepare(`SELECT date_from, date_to FROM manual_blocks`).all();
@@ -270,7 +281,8 @@ export async function consumeMagicLink(env, token) {
 // ---------- Espace voyageur : réservations d'un email ----------
 export async function listBookingsByEmail(env, email) {
   const { results } = await env.DB.prepare(
-    `SELECT id, checkin, checkout, nights, guests, amount_total_cents, currency, status, created_at
+    `SELECT id, checkin, checkout, nights, guests, amount_total_cents, currency, status,
+            hold_expires_at, created_at
        FROM bookings WHERE email = ?1 AND status != 'cancelled' ORDER BY checkin DESC`
   ).bind((email || '').toLowerCase()).all();
   return results || [];
@@ -393,6 +405,14 @@ export async function unblockDate(env, date) {
 export async function attachSession(env, id, sessionId) {
   await env.DB.prepare(`UPDATE bookings SET stripe_session_id = ?1 WHERE id = ?2`)
     .bind(sessionId, id).run();
+}
+
+export async function renewPendingHold(env, id) {
+  const holdExpires = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+  await env.DB.prepare(
+    `UPDATE bookings SET hold_expires_at = ?1 WHERE id = ?2 AND status = 'pending'`
+  ).bind(holdExpires, id).run();
+  return holdExpires;
 }
 
 // Enregistre le client Stripe + le moyen de paiement (empreinte bancaire) sur la résa,

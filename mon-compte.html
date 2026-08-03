@@ -18,8 +18,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/site.css?v=12">
-<link rel="stylesheet" href="assets/account.css">
+<link rel="stylesheet" href="assets/site.css?v=16">
+<link rel="stylesheet" href="assets/account.css?v=2">
 </head>
 <body class="page-doc">
 <div class="app doc">
@@ -65,8 +65,13 @@
           </div>
 
           <h3 class="reveal" style="--i:3">Vos séjours</h3>
+          <div id="acctPendingNudge" class="acct-nudge reveal" style="--i:3" hidden>
+            <b>Séjour en attente</b>
+            <span>Finalisez le paiement pour confirmer vos dates — elles ne restent pas bloquées indéfiniment.</span>
+          </div>
           <div id="acctBookings" class="acct-bookings reveal" style="--i:3"></div>
           <div id="acctEmpty" class="acct-hint" hidden>Aucune réservation trouvée pour cet email.</div>
+          <a class="acct-book-cta reveal" style="--i:3" href="index.html#booking">Réserver un séjour</a>
         </div>
 
         <div class="footer-credit reveal" style="--i:4">
@@ -80,6 +85,6 @@
 </div>
 
 <script src="assets/reveal.js" defer></script>
-<script src="assets/account.js" defer></script>
+<script src="assets/account.js?v=2" defer></script>
 </body>
 </html>
