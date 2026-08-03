@@ -66,6 +66,19 @@
   display:flex;flex-direction:column;align-items:flex-start;gap:10px;
   margin-top:4px;padding-top:12px;border-top:1px solid var(--line-soft,#F0ECE1);
 }
+.acct-hold{width:100%;margin:0 0 2px}
+.acct-hold-label{margin:0 0 8px;font-size:13px;font-weight:300;color:var(--ink);line-height:1.45}
+.acct-hold-label b{font-weight:600;font-variant-numeric:tabular-nums;color:var(--gold-deep)}
+.acct-booking.hold-released .acct-hold-label b{color:#a04a2f}
+.acct-hold-track{
+  height:6px;border-radius:999px;background:rgba(15,42,74,.08);overflow:hidden;
+}
+.acct-hold-bar{
+  display:block;height:100%;width:100%;border-radius:999px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-deep));
+  transition:width .8s linear;
+}
+.acct-booking.hold-released .acct-hold-bar{background:rgba(192,86,59,.45)}
 .acct-booking-nudge{margin:0;font-size:13px;font-weight:300;color:var(--ink-soft);line-height:1.45}
 .acct-booking-err{margin:0;font-size:13px;color:#a04a2f}
 .acct-booking-err a{color:var(--green);font-weight:500;text-decoration:underline;text-underline-offset:2px}

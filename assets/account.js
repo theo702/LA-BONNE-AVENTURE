@@ -81,7 +81,65 @@
     });
   }
 
+  function fmtCountdown(ms) {
+    if (ms <= 0) return null;
+    var totalSec = Math.ceil(ms / 1000);
+    var h = Math.floor(totalSec / 3600);
+    var m = Math.floor((totalSec % 3600) / 60);
+    var s = totalSec % 60;
+    if (h > 0) return h + ' h ' + String(m).padStart(2, '0') + ' min';
+    if (m > 0) return m + ' min ' + String(s).padStart(2, '0') + ' s';
+    return s + ' s';
+  }
+
+  function holdState(iso) {
+    if (!iso) return { active: false, ms: 0 };
+    var end = Date.parse(iso);
+    if (isNaN(end)) return { active: false, ms: 0 };
+    var ms = end - Date.now();
+    return { active: ms > 0, ms: Math.max(0, ms) };
+  }
+
+  var holdTimers = [];
+  function clearHoldTimers() {
+    holdTimers.forEach(function (id) { clearInterval(id); });
+    holdTimers = [];
+  }
+
+  function bindHoldCountdown(el, expiresAt) {
+    var label = el.querySelector('[data-hold-label]');
+    var bar = el.querySelector('[data-hold-bar]');
+    if (!label) return;
+    var end = Date.parse(expiresAt);
+    var start = Date.now();
+    var total = Math.max(1, end - start);
+
+    function tick() {
+      var st = holdState(expiresAt);
+      if (st.active) {
+        el.classList.add('hold-active');
+        el.classList.remove('hold-released');
+        label.innerHTML = 'Dates bloquées pour les autres encore <b data-hold-cd>' + esc(fmtCountdown(st.ms)) + '</b>';
+        if (bar) bar.style.width = Math.max(0, Math.min(100, (st.ms / total) * 100)) + '%';
+      } else {
+        el.classList.remove('hold-active');
+        el.classList.add('hold-released');
+        label.innerHTML = 'Les dates sont <b>libérées</b> pour les autres — finalisez vite avant qu’elles ne partent.';
+        if (bar) bar.style.width = '0%';
+        return false;
+      }
+      return true;
+    }
+
+    if (!tick()) return;
+    var id = setInterval(function () {
+      if (!tick()) clearInterval(id);
+    }, 1000);
+    holdTimers.push(id);
+  }
+
   function renderBookings(bookings) {
+    clearHoldTimers();
     var box = $('#acctBookings'); box.innerHTML = '';
     var list = bookings || [];
     $('#acctEmpty').hidden = list.length > 0;
@@ -92,7 +150,10 @@
     list.forEach(function (b) {
       var el = document.createElement('div');
       var isPending = b.status === 'pending';
-      el.className = 'acct-booking' + (isPending ? ' is-pending' : '');
+      var hold = isPending ? holdState(b.hold_expires_at) : { active: false, ms: 0 };
+      el.className = 'acct-booking' + (isPending ? ' is-pending' : '') +
+        (isPending && hold.active ? ' hold-active' : '') +
+        (isPending && !hold.active ? ' hold-released' : '');
       var badgeCls = b.status === 'confirmed' ? 'confirmed' : 'pending';
       var badgeLabel = b.status === 'confirmed' ? 'Confirmée' : 'En attente';
 
@@ -110,7 +171,11 @@
       if (isPending) {
         html +=
           '<div class="acct-booking-cta">' +
-            '<p class="acct-booking-nudge">Paiement non terminé — finalisez pour confirmer ces dates.</p>' +
+            '<div class="acct-hold">' +
+              '<p class="acct-hold-label" data-hold-label></p>' +
+              '<div class="acct-hold-track" aria-hidden="true"><span class="acct-hold-bar" data-hold-bar></span></div>' +
+            '</div>' +
+            '<p class="acct-booking-nudge">Paiement non terminé — finalisez pour confirmer votre séjour.</p>' +
             '<button type="button" class="acct-btn acct-pay-btn">Finaliser la réservation</button>' +
             '<p class="acct-booking-err" hidden></p>' +
           '</div>';
@@ -118,6 +183,7 @@
 
       el.innerHTML = html;
       if (isPending) {
+        bindHoldCountdown(el, b.hold_expires_at);
         var btn = el.querySelector('.acct-pay-btn');
         var errEl = el.querySelector('.acct-booking-err');
         btn.addEventListener('click', function () { resumeCheckout(b.id, btn, errEl); });

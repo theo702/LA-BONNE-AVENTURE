@@ -83,7 +83,7 @@ export async function onRequestPost({ env, request }) {
   form.set('line_items[0][price_data][product_data][name]', 'Séjour · La Bonne Aventure');
   form.set('line_items[0][price_data][product_data][description]',
     `${booking.checkin} → ${booking.checkout} · ${booking.nights} nuits · ménage inclus`);
-  form.set('expires_at', String(Math.floor(Date.now() / 1000) + 30 * 60));
+  form.set('expires_at', String(Math.floor(Date.now() / 1000) + 3 * 60 * 60));
 
   const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',

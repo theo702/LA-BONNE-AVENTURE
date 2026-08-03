@@ -106,7 +106,9 @@ export async function getConfirmed(env) {
 export async function createPendingBooking(env, b) {
   const id = crypto.randomUUID();
   const nowIso = new Date().toISOString();
-  const holdExpires = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 min
+  // Blocage calendrier pour les autres voyageurs : 3 h (le séjour reste visible
+  // dans Mon espace tant qu'il n'est pas payé / expiré à J-1).
+  const holdExpires = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
   await env.DB.prepare(
     `INSERT INTO bookings
        (id, checkin, checkout, nights, guest_name, email, phone, guests,
@@ -416,7 +418,8 @@ export async function attachSession(env, id, sessionId) {
 }
 
 export async function renewPendingHold(env, id) {
-  const holdExpires = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+  // Chaque reprise de paiement rebloque les dates 3 h pour les autres.
+  const holdExpires = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
   await env.DB.prepare(
     `UPDATE bookings SET hold_expires_at = ?1 WHERE id = ?2 AND status = 'pending'`
   ).bind(holdExpires, id).run();

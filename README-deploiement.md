@@ -13,7 +13,9 @@ Cloudflare Pages**. Il remplace le calendrier Smoobu.
   - **Entrant** : on lit l'iCal d'Airbnb → les dates réservées là-bas apparaissent « occupées » ici.
   - **Sortant** : nos réservations directes sont exposées sur `/calendar.ics` → **à importer
     dans Airbnb** pour bloquer les dates automatiquement.
-- **Garde-fou anti double-réservation** : les dates sont bloquées 30 min pendant le paiement,
+- **Garde-fou anti double-réservation** : les dates sont bloquées 3 h pendant le paiement
+  (ensuite le calendrier se libère ; le séjour reste visible dans Mon espace jusqu’à
+  finalisation ou expiration à J-1),
   et on refait une synchro **live** avec Airbnb juste avant de créer le paiement.
 
 > ⚠️ Limite d'Airbnb (identique à Smoobu) : Airbnb ne relit un calendrier importé que **toutes
@@ -181,7 +183,7 @@ assets/   site.css, booking.css/js, admin.css/js, logos SVG, placeholder, photos
 functions/
   api/availability.js   GET  dispo + réglages (Airbnb ⋃ résas)
   api/quote.js          POST devis validé côté serveur (remises, taxe, promo)
-  api/checkout.js       POST re-synchro live + hold 30 min + session Stripe
+  api/checkout.js       POST re-synchro live + hold 3 h + session Stripe
   api/stripe-webhook.js POST confirmation + emails + usage promo
   calendar.ics.js       GET  export .ics (à importer dans Airbnb)
   api/admin/            login/logout/bookings/settings/promos/seasons (+ _middleware)

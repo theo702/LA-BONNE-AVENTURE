@@ -38,7 +38,8 @@ export async function onRequestPost({ env, request }) {
     return Response.json({ ok: false, error: 'unavailable', message: 'Ces dates viennent d’être réservées ailleurs.' }, { status: 409 });
   }
 
-  // Blocage temporaire (hold 30 min).
+  // Blocage temporaire (hold 3 h) — après quoi le calendrier se libère,
+  // mais le séjour reste visible dans Mon espace jusqu’à paiement ou J-1.
   const { id } = await createPendingBooking(env, {
     checkin: quote.checkin, checkout: quote.checkout, nights: quote.nights,
     name, email, phone, guests: quote.guests,
@@ -68,7 +69,7 @@ export async function onRequestPost({ env, request }) {
   form.set('line_items[0][price_data][product_data][name]', 'Séjour · La Bonne Aventure');
   form.set('line_items[0][price_data][product_data][description]',
     `${quote.checkin} → ${quote.checkout} · ${quote.nights} nuits · ménage inclus`);
-  form.set('expires_at', String(Math.floor(Date.now() / 1000) + 30 * 60));
+  form.set('expires_at', String(Math.floor(Date.now() / 1000) + 3 * 60 * 60));
 
   const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',

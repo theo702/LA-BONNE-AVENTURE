@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   stripe_payment_method TEXT,                    -- moyen de paiement enregistré (débit caution off-session)
   cleaning_paid       INTEGER NOT NULL DEFAULT 0,-- ménage payé au prestataire (suivi prestations)
   cleaning_pay_cents  INTEGER,                   -- montant ménage pour CE séjour (NULL = tarif par défaut)
-  hold_expires_at     TEXT,                      -- ISO 8601 : fin du blocage temporaire
+  hold_expires_at     TEXT,                      -- ISO 8601 : fin du blocage calendrier (3 h)
   reminder_sent_at    TEXT,                      -- dernier email de rappel (pending non payé)
   created_at          TEXT NOT NULL
 );
