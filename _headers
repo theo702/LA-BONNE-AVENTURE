@@ -7,8 +7,14 @@
 /*.html
   Cache-Control: no-cache
 
+/guide
+  Cache-Control: no-cache
+
 /assets/*.js
   Cache-Control: no-cache
 
 /assets/*.css
   Cache-Control: no-cache
+
+/assets/spot-*.jpg
+  Cache-Control: public, max-age=86400, must-revalidate
