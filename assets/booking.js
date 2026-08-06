@@ -6,8 +6,22 @@
   if (!MOUNT) return;
 
   var API = (MOUNT.getAttribute('data-api') || '').replace(/\/$/, ''); // même origine par défaut
-  var MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-  var DOW = ['L','M','M','J','V','S','D'];
+  function T(key, vars){
+    try{ if(window.LBA_I18N && window.LBA_I18N.t) return window.LBA_I18N.t(key, vars); }catch(e){}
+    return key;
+  }
+  function months(){
+    var raw = T('bw.months');
+    if(raw && raw.indexOf(',')>0) return raw.split(',');
+    return ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  }
+  function dow(){
+    var raw = T('bw.dow');
+    if(raw && raw.indexOf(',')>0) return raw.split(',');
+    return ['L','M','M','J','V','S','D'];
+  }
+  var MONTHS = months();
+  var DOW = dow();
 
   // ---- utilitaires de dates (UTC, chaînes 'YYYY-MM-DD') ----
   function pad(n){ return (n<10?'0':'')+n; }
@@ -79,6 +93,7 @@
   }
 
   function render(){
+    MONTHS = months(); DOW = dow();
     var wrap = document.createElement('div');
     wrap.className = 'bw';
     wrap.innerHTML = banner();
@@ -90,8 +105,8 @@
     var atMinMonth = (y+'-'+pad(m+1)) <= firstStr.slice(0,7);
 
     var head = el('<div class="bw-cal-head"><div class="bw-cal-title">'+MONTHS[m]+' '+y+'</div>'+
-      '<div class="bw-nav"><button data-nav="-1" '+(atMinMonth?'disabled':'')+' aria-label="Mois précédent">'+icon('prev')+'</button>'+
-      '<button data-nav="1" aria-label="Mois suivant">'+icon('next')+'</button></div></div>');
+      '<div class="bw-nav"><button data-nav="-1" '+(atMinMonth?'disabled':'')+' aria-label="'+T('bw.prevMonth')+'">'+icon('prev')+'</button>'+
+      '<button data-nav="1" aria-label="'+T('bw.nextMonth')+'">'+icon('next')+'</button></div></div>');
     wrap.appendChild(head);
 
     var dow = '<div class="bw-dow">'; DOW.forEach(function(d){ dow+='<span>'+d+'</span>'; }); dow+='</div>';
@@ -109,7 +124,7 @@
     wrap.appendChild(grid);
 
     wrap.appendChild(el('<div class="bw-legend">'+
-      '<span><i class="free"></i>Libre</span><span><i class="sel"></i>Votre séjour</span><span><i class="busy"></i>Occupé</span></div>'));
+      '<span><i class="free"></i>'+T('bw.free')+'</span><span><i class="sel"></i>'+T('bw.sel')+'</span><span><i class="busy"></i>'+T('bw.busy')+'</span></div>'));
 
     // récapitulatif + formulaire
     wrap.appendChild(summaryNode());
@@ -157,18 +172,18 @@
     var ci = state.checkin, co = state.checkout;
     var q = state.quote;
     var box = '<div class="bw-summary"><div class="bw-dates">'+
-      '<div class="bw-date-box"><div class="lab">Arrivée</div><div class="val'+(ci?'':' empty')+'">'+(ci?fmtLong(ci):'—')+'</div></div>'+
+      '<div class="bw-date-box"><div class="lab">'+T('bw.arrival')+'</div><div class="val'+(ci?'':' empty')+'">'+(ci?fmtLong(ci):'—')+'</div></div>'+
       '<div class="bw-arrow">'+icon('arrow')+'</div>'+
-      '<div class="bw-date-box"><div class="lab">Départ</div><div class="val'+(co?'':' empty')+'">'+(co?fmtLong(co):'—')+'</div></div></div>';
+      '<div class="bw-date-box"><div class="lab">'+T('bw.departure')+'</div><div class="val'+(co?'':' empty')+'">'+(co?fmtLong(co):'—')+'</div></div></div>';
 
     if(q && q.ok && q.lines){
       q.lines.forEach(function(l){
         var neg = l.cents < 0;
         box += '<div class="bw-line'+(neg?' discount':'')+'"><span>'+l.label+'</span><b>'+(neg?'−':'')+euros(Math.abs(l.cents),q.currency)+'</b></div>';
       });
-      box += '<div class="bw-total"><span class="t">Total</span><span class="v">'+euros(q.totalCents,q.currency)+'</span></div>';
+      box += '<div class="bw-total"><span class="t">'+T('bw.total')+'</span><span class="v">'+euros(q.totalCents,q.currency)+'</span></div>';
       if(q.cautionCents && q.cautionCents > 0){
-        box += '<div class="bw-caution">'+icon('lock')+'<span>Caution de '+euros(q.cautionCents,q.currency)+' — simple empreinte bancaire, <b>non débitée</b>, sauf en cas de dégât.</span></div>';
+        box += '<div class="bw-caution">'+icon('lock')+'<span>'+T('bw.caution',{amount:euros(q.cautionCents,q.currency)})+'</span></div>';
       }
     } else {
       var hint = 'Sélectionnez vos dates (min. '+(state.cfg?state.cfg.minNights:2)+' nuits).';
@@ -178,22 +193,22 @@
 
     // code promo + formulaire (visibles quand un devis valide existe)
     if(q && q.ok){
-      box += '<div class="bw-promo"><input id="bwPromo" type="text" placeholder="Code promo" value="'+(state.promo||'')+'"><button type="button" id="bwPromoBtn">Appliquer</button></div>';
+      box += '<div class="bw-promo"><input id="bwPromo" type="text" placeholder="'+T('bw.promo')+'" value="'+(state.promo||'')+'"><button type="button" id="bwPromoBtn">'+T('bw.apply')+'</button></div>';
       if(state.promoError) box += '<div class="bw-promo-err">'+state.promoError+'</div>';
 
       var f = state.form || {};
       var maxG = state.cfg ? state.cfg.maxGuests : 2;
-      var opts=''; for(var g=1; g<=maxG; g++){ opts += '<option value="'+g+'"'+(g===q.guests?' selected':'')+'>'+g+' voyageur'+(g>1?'s':'')+'</option>'; }
+      var opts=''; for(var g=1; g<=maxG; g++){ opts += '<option value="'+g+'"'+(g===q.guests?' selected':'')+'>'+g+'</option>'; }
       box += '<div class="bw-form">'+
-        '<div class="bw-field"><label>Nom complet</label><input id="bwName" type="text" value="'+esc(f.name)+'" placeholder="Camille Dupont" autocomplete="name"></div>'+
+        '<div class="bw-field"><label>'+T('bw.name')+'</label><input id="bwName" type="text" value="'+esc(f.name)+'" placeholder="Camille Dupont" autocomplete="name"></div>'+
         '<div class="bw-row2">'+
-          '<div class="bw-field"><label>Email</label><input id="bwEmail" type="email" value="'+esc(f.email)+'" placeholder="vous@email.com" autocomplete="email"></div>'+
-          '<div class="bw-field"><label>Téléphone</label><input id="bwPhone" type="tel" value="'+esc(f.phone)+'" placeholder="06 12 34 56 78" autocomplete="tel"></div>'+
+          '<div class="bw-field"><label>'+T('bw.email')+'</label><input id="bwEmail" type="email" value="'+esc(f.email)+'" placeholder="vous@email.com" autocomplete="email"></div>'+
+          '<div class="bw-field"><label>'+T('bw.phone')+'</label><input id="bwPhone" type="tel" value="'+esc(f.phone)+'" placeholder="06 12 34 56 78" autocomplete="tel"></div>'+
         '</div>'+
-        '<div class="bw-field"><label>Voyageurs</label><select id="bwGuests">'+opts+'</select></div>'+
-        '<button class="bw-pay" id="bwPay"'+(state.submitting?' disabled':'')+'>'+icon('card')+(state.submitting?'Redirection…':'Réserver et payer '+euros(q.totalCents,q.currency))+'</button>'+
+        '<div class="bw-field"><label>'+T('bw.guests')+'</label><select id="bwGuests">'+opts+'</select></div>'+
+        '<button class="bw-pay" id="bwPay"'+(state.submitting?' disabled':'')+'>'+icon('card')+(state.submitting?T('bw.redirect'):(T('bw.pay')+' '+euros(q.totalCents,q.currency)))+'</button>'+
         '<div class="bw-err" id="bwErr"></div>'+
-        '<div class="bw-secure">'+icon('lock')+'Paiement sécurisé par Stripe · confirmation immédiate</div>'+
+        '<div class="bw-secure">'+icon('lock')+T('bw.secure')+'</div>'+
       '</div>';
     }
 
@@ -292,7 +307,7 @@
     var err = document.getElementById('bwErr');
     err.textContent = '';
 
-    if(!name.trim()){ err.textContent='Merci d’indiquer votre nom.'; return; }
+    if(!name.trim()){ err.textContent=T('bw.err.name'); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){ err.textContent='Email invalide.'; return; }
 
     state.form = { name:name.trim(), email:email.trim(), phone:phone.trim() };
@@ -379,4 +394,8 @@
   }
 
   start();
+
+  document.addEventListener('lba:lang', function () {
+    try { render(); } catch (e) {}
+  });
 })();
