@@ -448,6 +448,24 @@ a.adm-ghost{
 .presta-toggle:hover{border-color:#d9971a}
 tr.presta-paid td{opacity:.58}
 tr.presta-paid td:last-child{opacity:1}
+.adm-sub{font-size:11.5px;color:#8a8577}
+.presta-del{color:#a9760f}
+
+/* Ajout manuel + créneaux proposés */
+.adm-presta-add{margin-bottom:14px}
+.adm-presta-proposals{margin:0 0 14px}
+.adm-chip-list{display:flex;flex-wrap:wrap;gap:8px}
+.adm-presta-chip{
+  display:flex;flex-direction:column;gap:2px;align-items:flex-start;
+  padding:8px 12px;border-radius:12px;cursor:pointer;text-align:left;
+  border:1px solid #E3DCCA;background:#fff;color:#1f2838;
+  font-family:'Jost',sans-serif;transition:border-color .15s ease,background .15s ease;
+}
+.adm-presta-chip:hover{border-color:#d9971a;background:#FCFAF5}
+.adm-presta-chip .chip-dates{font-size:13px;font-weight:500}
+.adm-presta-chip .chip-meta{font-size:11px;color:#5f6675;text-transform:capitalize}
+.adm-presta-chip.done{opacity:.55}
+.adm-presta-chip.done:hover{opacity:.8}
 
 /* ---------- Sync ---------- */
 .sync-url{font-size:12px;color:#5f6675;word-break:break-all;max-width:460px}

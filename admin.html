@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/admin.css?v=6">
+<link rel="stylesheet" href="assets/admin.css?v=7">
 <style>
   /* Filet de sécurité anti-cache : logo jamais en taille native 720px */
   img.adm-logo{width:96px!important;height:96px!important;max-width:96px!important;max-height:96px!important;object-fit:contain!important}
@@ -270,13 +270,33 @@
       <section id="t-presta" class="adm-panel">
         <header class="adm-panel-head">
           <h2>Prestations — ménage</h2>
-          <p class="adm-lede">Un séjour = un ménage. Suivez les montants dus et marquez comme payé.</p>
+          <p class="adm-lede">Un séjour = un ménage. Les séjours directs confirmés apparaissent tout seuls&nbsp;; ajoutez à la main ceux venus d'Airbnb / Booking ou d'un blocage, avec le tarif et un extra éventuel.</p>
         </header>
 
         <form id="prestaRateForm" class="adm-form adm-inline">
           <label>Montant par ménage (€)<input name="cleaning_pay" type="number" step="1" min="0" placeholder="ex. 30"></label>
           <button type="submit" class="adm-btn">Enregistrer le tarif</button>
           <span id="prestaRateMsg" class="adm-msg"></span>
+        </form>
+
+        <!-- Créneaux occupés proposés (Airbnb / Booking / blocages) -->
+        <div id="prestaProposals" class="adm-presta-proposals" hidden>
+          <h3 class="adm-subhead">Créneaux occupés à enregistrer</h3>
+          <p class="adm-hint adm-hint-block">Séjours repérés via les calendriers externes (Airbnb, Booking…) et les blocages manuels. Cliquez sur un créneau pour préremplir le formulaire ci-dessous.</p>
+          <div id="prestaProposalList" class="adm-chip-list"></div>
+        </div>
+
+        <!-- Ajout manuel d'une prestation -->
+        <form id="prestaAddForm" class="adm-form adm-inline adm-presta-add">
+          <label class="adm-w-sm">Arrivée<input name="date_from" type="date" required></label>
+          <label class="adm-w-sm">Départ<input name="date_to" type="date" required></label>
+          <label class="adm-w-sm">Source<input name="source" type="text" placeholder="Airbnb, Booking…"></label>
+          <label class="adm-w-sm">Nb ménages<input name="count" type="number" step="1" min="1" value="1"></label>
+          <label class="adm-w-sm">€ / ménage<input name="amount" type="number" step="1" min="0" placeholder="tarif défaut"></label>
+          <label class="adm-grow">Extra (optionnel)<input name="extra_label" type="text" placeholder="ex. linge, ménage renforcé…"></label>
+          <label class="adm-w-sm">Montant extra (€)<input name="extra_amount" type="number" step="1" min="0"></label>
+          <button type="submit" class="adm-btn">Ajouter</button>
+          <span id="prestaAddMsg" class="adm-msg"></span>
         </form>
 
         <div class="adm-presta-bar">
@@ -290,10 +310,10 @@
 
         <div class="adm-card">
           <div class="adm-scroll"><table class="adm-table" id="prestaTable">
-            <thead><tr><th>Départ (ménage)</th><th>Arrivée</th><th>Nuits</th><th>Voyageur</th><th>Montant (€)</th><th>Statut</th></tr></thead>
+            <thead><tr><th>Départ (ménage)</th><th>Arrivée</th><th>Nuits</th><th>Source</th><th>Extra</th><th>Montant (€)</th><th>Statut</th><th></th></tr></thead>
             <tbody></tbody>
           </table></div>
-          <div id="prestaEmpty" class="adm-empty" hidden>Aucune prestation (aucun séjour confirmé).</div>
+          <div id="prestaEmpty" class="adm-empty" hidden>Aucune prestation. Ajoutez un séjour ci-dessus, ou depuis les créneaux occupés.</div>
         </div>
       </section>
 
@@ -328,6 +348,6 @@
     </main>
   </div>
 
-<script src="assets/admin.js?v=6" defer></script>
+<script src="assets/admin.js?v=7" defer></script>
 </body>
 </html>

@@ -187,17 +187,21 @@
   });
 
   // ---------- Prestations ménage ----------
-  const presta = { rows: [], rate: 0, month: 'all' };
+  const presta = { rows: [], proposals: [], rate: 0, month: 'all' };
   const monthKey = (d) => (d || '').slice(0, 7);            // 'YYYY-MM'
   const monthLabelFr = (k) => {
     if (k === 'all') return 'Tous les mois';
     const [y, m] = k.split('-');
     return ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'][+m - 1] + ' ' + y;
   };
+  const rowTotal = (r) => (r.amountCents || 0) + (r.extraCents || 0);
 
   async function loadPrestations() {
     const { j } = await api('prestations');
-    presta.rows = (j && j.bookings) || [];
+    const bookings = (j && j.bookings) || [];
+    const manual = (j && j.manual) || [];
+    presta.rows = bookings.concat(manual);
+    presta.proposals = (j && j.proposals) || [];
     presta.rate = (j && j.rate) || 0;
     const rateField = $('#prestaRateForm').cleaning_pay;
     if (rateField && document.activeElement !== rateField) rateField.value = presta.rate ? (presta.rate / 100).toFixed(0) : '';
@@ -206,23 +210,57 @@
     const sel = $('#prestaMonth');
     if (!months.includes(presta.month)) presta.month = 'all';
     sel.innerHTML = ['all', ...months].map((k) => `<option value="${k}"${k === presta.month ? ' selected' : ''}>${monthLabelFr(k)}</option>`).join('');
+    renderProposals();
     renderPrestations();
+  }
+
+  // Créneaux occupés (Airbnb/Booking/blocages) proposés à l'enregistrement.
+  function renderProposals() {
+    const wrap = $('#prestaProposals'); const list = $('#prestaProposalList');
+    const props = presta.proposals || [];
+    wrap.hidden = props.length === 0;
+    if (!props.length) { list.innerHTML = ''; return; }
+    list.innerHTML = props.map((p, i) =>
+      `<button type="button" class="adm-presta-chip${p.done ? ' done' : ''}" data-i="${i}">` +
+        `<span class="chip-dates">${p.from} → ${p.to}</span>` +
+        `<span class="chip-meta">${esc(p.source)} · ${p.nights}\u00a0nuit${p.nights > 1 ? 's' : ''}${p.done ? ' · déjà enregistré' : ''}</span>` +
+      `</button>`
+    ).join('');
+    list.querySelectorAll('.adm-presta-chip').forEach((b) => b.addEventListener('click', () => {
+      const p = props[+b.dataset.i]; const f = $('#prestaAddForm');
+      f.date_from.value = p.from; f.date_to.value = p.to;
+      f.source.value = (p.source && p.source !== 'blocage') ? p.source : '';
+      if (!f.amount.value && presta.rate) f.amount.value = Math.round(presta.rate / 100);
+      try { f.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+      f.count.focus();
+    }));
   }
 
   function renderPrestations() {
     const tb = $('#prestaTable tbody'); tb.innerHTML = '';
-    const rows = presta.rows.filter((r) => presta.month === 'all' || monthKey(r.checkout) === presta.month);
+    const rows = presta.rows
+      .filter((r) => presta.month === 'all' || monthKey(r.checkout) === presta.month)
+      .sort((a, b) => (a.checkout < b.checkout ? 1 : a.checkout > b.checkout ? -1 : 0));
     $('#prestaEmpty').hidden = rows.length > 0;
     let due = 0, paid = 0;
     rows.forEach((r) => {
-      if (r.paid) paid += r.amountCents; else due += r.amountCents;
+      const tot = rowTotal(r);
+      if (r.paid) paid += tot; else due += tot;
       const tr = document.createElement('tr');
       if (r.paid) tr.classList.add('presta-paid');
+      const extraCell = r.extraCents ? `${esc(r.extraLabel || 'Extra')} · ${euro(r.extraCents)}` : '—';
+      const srcCell = r.kind === 'booking'
+        ? `Direct${r.guest ? '<br><span class="adm-sub">' + esc(r.guest) + '</span>' : ''}`
+        : esc(r.source || 'manuel');
+      const del = r.kind === 'manual'
+        ? `<button class="adm-del presta-del" data-id="${r.id}" title="Supprimer">✕</button>` : '';
       tr.innerHTML =
         `<td><b>${r.checkout}</b></td><td>${r.checkin}</td><td>${r.nights}</td>` +
-        `<td>${esc(r.guest)}</td>` +
-        `<td><input class="presta-amount" type="number" step="1" min="0" value="${Math.round(r.amountCents / 100)}" data-id="${r.id}"${r.custom ? ' title="Montant personnalisé"' : ''}></td>` +
-        `<td><button class="presta-toggle ${r.paid ? 'on' : ''}" data-id="${r.id}">${r.paid ? '✓ Payé' : 'À payer'}</button></td>`;
+        `<td>${srcCell}</td>` +
+        `<td>${extraCell}</td>` +
+        `<td><input class="presta-amount" type="number" step="1" min="0" value="${Math.round((r.amountCents || 0) / 100)}" data-id="${r.id}" data-kind="${r.kind}"${r.custom ? ' title="Montant personnalisé"' : ''}></td>` +
+        `<td><button class="presta-toggle ${r.paid ? 'on' : ''}" data-id="${r.id}" data-kind="${r.kind}">${r.paid ? '✓ Payé' : 'À payer'}</button></td>` +
+        `<td>${del}</td>`;
       tb.appendChild(tr);
     });
     $('#prestaCount').textContent = rows.length;
@@ -230,12 +268,17 @@
     $('#prestaPaid').textContent = euro(paid);
 
     tb.querySelectorAll('.presta-toggle').forEach((btn) => btn.addEventListener('click', async () => {
-      const row = presta.rows.find((x) => x.id === btn.dataset.id);
-      await api('prestations', { method: 'POST', body: JSON.stringify({ bookingId: btn.dataset.id, action: row && row.paid ? 'unpaid' : 'paid' }) });
+      const row = presta.rows.find((x) => x.id === btn.dataset.id && x.kind === btn.dataset.kind);
+      await api('prestations', { method: 'POST', body: JSON.stringify({ id: btn.dataset.id, bookingId: btn.dataset.id, kind: btn.dataset.kind, action: row && row.paid ? 'unpaid' : 'paid' }) });
       loadPrestations();
     }));
     tb.querySelectorAll('.presta-amount').forEach((inp) => inp.addEventListener('change', async () => {
-      await api('prestations', { method: 'POST', body: JSON.stringify({ bookingId: inp.dataset.id, action: 'amount', amount_cents: cents(inp.value) }) });
+      await api('prestations', { method: 'POST', body: JSON.stringify({ id: inp.dataset.id, bookingId: inp.dataset.id, kind: inp.dataset.kind, action: 'amount', amount_cents: cents(inp.value) }) });
+      loadPrestations();
+    }));
+    tb.querySelectorAll('.presta-del').forEach((btn) => btn.addEventListener('click', async () => {
+      if (!confirm('Supprimer cette prestation ?')) return;
+      await api('prestations', { method: 'POST', body: JSON.stringify({ id: btn.dataset.id, kind: 'manual', action: 'delete' }) });
       loadPrestations();
     }));
   }
@@ -246,6 +289,23 @@
     const { status } = await api('prestations', { method: 'PUT', body: JSON.stringify({ cleaning_pay_cents: cents(e.target.cleaning_pay.value) }) });
     msg('#prestaRateMsg', status === 200 ? 'Tarif enregistré ✓' : 'Erreur', status !== 200);
     loadPrestations();
+  });
+  $('#prestaAddForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const body = {
+      action: 'add',
+      date_from: f.date_from.value,
+      date_to: f.date_to.value,
+      source: (f.source.value || '').trim() || 'manuel',
+      count: Math.max(1, parseInt(f.count.value, 10) || 1),
+      amount_cents: f.amount.value !== '' ? cents(f.amount.value) : presta.rate,
+      extra_label: (f.extra_label.value || '').trim(),
+      extra_cents: f.extra_amount.value !== '' ? cents(f.extra_amount.value) : 0,
+    };
+    const { status, j } = await api('prestations', { method: 'POST', body: JSON.stringify(body) });
+    if (status === 200 && j && j.ok) { msg('#prestaAddMsg', 'Ajouté ✓'); f.reset(); f.count.value = 1; loadPrestations(); }
+    else msg('#prestaAddMsg', (j && j.message) || 'Erreur', true);
   });
 
   // ---------- Synchronisation des calendriers ----------
