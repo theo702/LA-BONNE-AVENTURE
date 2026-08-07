@@ -441,38 +441,28 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 /* Cadrage : privilégier le bas de l'image (ex. la vasque de la salle d'eau) */
 .g-item.g-bottom img{object-position:50% 100%}
 
-/* Studio (5 photos) : mosaïque — 1 grande à gauche + 4 en carré, sans trou */
+/* Studio (5 photos) : masonry en colonnes — photos entières, jamais rognées
+   (ratios mixtes : 4 en 4:3 paysage + 1 en 3:4 portrait). */
 .gallery-mosaic{
-  grid-template-columns:1.2fr 1fr 1fr;
-  grid-template-rows:repeat(2,minmax(150px,26vw));
-  gap:12px;
+  display:block;
+  columns:2;
+  column-gap:12px;
+  grid-template-columns:none;
+  grid-template-rows:none;
 }
 .gallery-mosaic .g-item{
+  display:block;
+  width:100%;
+  height:auto;
   aspect-ratio:auto;
-  height:100%;
   min-height:0;
+  margin:0 0 12px;
+  break-inside:avoid;
 }
-.gallery-mosaic .g-item:nth-child(1),
-.gallery-mosaic .g-item.g-lg{
-  grid-column:1;
-  grid-row:1 / -1;
-  aspect-ratio:auto;
-}
-.gallery-mosaic .g-item:nth-child(2){grid-column:2;grid-row:1}
-.gallery-mosaic .g-item:nth-child(3){grid-column:3;grid-row:1}
-.gallery-mosaic .g-item:nth-child(4){grid-column:2;grid-row:2}
-.gallery-mosaic .g-item:nth-child(5){grid-column:3;grid-row:2}
-@media (max-width:759px){
-  .gallery-mosaic{
-    grid-template-columns:repeat(2,1fr);
-    grid-template-rows:none;
-  }
-  .gallery-mosaic .g-item{aspect-ratio:4/3;height:auto}
-  .gallery-mosaic .g-item:nth-child(1),
-  .gallery-mosaic .g-item.g-lg{
-    grid-column:1 / -1;grid-row:auto;aspect-ratio:16/9;
-  }
-  .gallery-mosaic .g-item:nth-child(n+2){grid-column:auto;grid-row:auto}
+.gallery-mosaic .g-item img{
+  height:auto;
+  object-fit:contain;
+  animation:none;
 }
 
 /* Aix (3 photos) : grande à gauche + 2 empilées à droite — plein cadre, sans trou */
@@ -878,21 +868,12 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   .page-doc .gallery{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
   .page-doc .gallery .g-item{aspect-ratio:4/3}
   .page-doc .gallery .g-item.g-lg{grid-column:auto;grid-row:auto;aspect-ratio:4/3}
-  /* Studio 5 photos : garde la mosaïque (pas d’auto-fill qui laisse un trou) */
-  .page-doc .gallery.gallery-mosaic{
-    grid-template-columns:1.25fr 1fr 1fr;
-    grid-template-rows:repeat(2,minmax(200px,22vw));
-    gap:14px;
+  /* Studio 5 photos : masonry 3 colonnes — photos entières, jamais rognées */
+  .page-doc .gallery.gallery-mosaic{columns:3;column-gap:14px}
+  .page-doc .gallery.gallery-mosaic .g-item{
+    aspect-ratio:auto;height:auto;width:100%;margin:0 0 14px;
   }
-  .page-doc .gallery.gallery-mosaic .g-item{aspect-ratio:auto;height:100%}
-  .page-doc .gallery.gallery-mosaic .g-item:nth-child(1),
-  .page-doc .gallery.gallery-mosaic .g-item.g-lg{
-    grid-column:1;grid-row:1 / -1;aspect-ratio:auto;
-  }
-  .page-doc .gallery.gallery-mosaic .g-item:nth-child(2){grid-column:2;grid-row:1}
-  .page-doc .gallery.gallery-mosaic .g-item:nth-child(3){grid-column:3;grid-row:1}
-  .page-doc .gallery.gallery-mosaic .g-item:nth-child(4){grid-column:2;grid-row:2}
-  .page-doc .gallery.gallery-mosaic .g-item:nth-child(5){grid-column:3;grid-row:2}
+  .page-doc .gallery.gallery-mosaic .g-item img{height:auto;object-fit:contain}
   /* Aix 3 photos : grande + 2, plein cadre */
   .page-doc .gallery.gallery-trio{
     grid-template-columns:1.4fr 1fr;
