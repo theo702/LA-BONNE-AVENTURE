@@ -39,17 +39,19 @@
 
 .page-guide .guide-chrome .nav{
   position:static;
-  display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:4px;
+  overflow:visible;
   padding:0;margin:0;min-width:0;flex:1;
   background:transparent;border:0;
-  justify-content:flex-start;
 }
-.page-guide .guide-chrome .nav::-webkit-scrollbar{display:none}
 .page-guide .guide-chrome .nav button{
-  flex:0 0 auto;
-  display:inline-flex;align-items:center;flex-direction:row;
-  font-family:'Jost',sans-serif;font-weight:500;font-size:13px;
-  padding:8px 12px;border:0;border-radius:999px;
+  width:100%;
+  min-width:0;
+  display:inline-flex;align-items:center;justify-content:center;flex-direction:row;
+  font-family:'Jost',sans-serif;font-weight:500;font-size:12px;
+  padding:8px 6px;border:0;border-radius:999px;
   background:transparent;color:rgba(251,247,238,.78);cursor:pointer;
   transition:background .15s,color .15s;
   letter-spacing:.01em;white-space:nowrap;
@@ -81,9 +83,9 @@
   border-color:var(--gold,#d9971a);background:rgba(217,151,26,.08);
 }
 
-/* Réserve la place du header fixe hors héro */
+/* Réserve la place du header fixe hors héro (nav 2×3 sur mobile) */
 .page-guide .scroll{padding-bottom:24px;padding-top:0;transition:padding-top .2s ease}
-.page-guide:not(.over-hero) .scroll{padding-top:72px}
+.page-guide:not(.over-hero) .scroll{padding-top:108px}
 .page-guide .bot-fab{bottom:18px}
 
 /* ---- Hero livret ---- */
@@ -395,13 +397,21 @@
 }
 .page-guide .pop a svg{width:14px;height:14px}
 
+@media(min-width:640px){
+  .page-guide .guide-chrome .nav{
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    max-width:720px;
+  }
+  .page-guide .guide-chrome .nav button{padding:8px 10px;font-size:13px}
+  .page-guide:not(.over-hero) .scroll{padding-top:72px}
+}
+
 @media(min-width:760px){
   .page-guide .guide-chrome{
     padding-left:clamp(24px,4vw,80px);
     padding-right:clamp(24px,4vw,80px);
   }
-  .page-guide .guide-chrome .nav{justify-content:center}
-  .page-guide .guide-chrome .nav button{padding:8px 14px;font-size:13.5px}
+  .page-guide .guide-chrome .nav button{padding:8px 12px;font-size:13.5px}
   .page-guide .hero{min-height:85svh;min-height:85vh}
   .page-guide .hero .inner{
     max-width:1200px;margin-left:auto;margin-right:auto;
@@ -416,8 +426,9 @@
 }
 
 @media(max-width:560px){
-  .page-guide .guide-chrome{padding:12px 10px;gap:8px}
-  .page-guide .guide-chrome .nav button{padding:7px 10px;font-size:12px}
+  .page-guide .guide-chrome{padding:10px 8px;gap:6px}
+  .page-guide .guide-chrome .nav{gap:3px}
+  .page-guide .guide-chrome .nav button{padding:7px 4px;font-size:11.5px}
   .page-guide .hours .sv{font-size:26px}
 }
 
