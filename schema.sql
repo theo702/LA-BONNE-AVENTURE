@@ -171,3 +171,21 @@ CREATE TABLE IF NOT EXISTS extra_orders (
   created_at        TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_extra_orders_status ON extra_orders(status);
+
+-- ---------- Offres / popups sur les extras (réductions & packs) ----------
+CREATE TABLE IF NOT EXISTS extra_promotions (
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  title            TEXT NOT NULL,
+  message          TEXT,
+  cta_label        TEXT NOT NULL DEFAULT 'Profiter de l''offre',
+  kind             TEXT NOT NULL DEFAULT 'percent', -- percent | pack_flex
+  percent          REAL NOT NULL DEFAULT 0,         -- pour kind=percent (0-100)
+  target           TEXT NOT NULL DEFAULT 'all',     -- all | late_checkout | early_checkin | none
+  pack_price_cents INTEGER NOT NULL DEFAULT 1500,  -- prix du pack (2 pour le prix d'1)
+  valid_from       TEXT NOT NULL,                  -- YYYY-MM-DD inclus
+  valid_to         TEXT NOT NULL,                  -- YYYY-MM-DD inclus
+  show_popup       INTEGER NOT NULL DEFAULT 1,
+  active           INTEGER NOT NULL DEFAULT 1,
+  created_at       TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_extra_promos_range ON extra_promotions(valid_from, valid_to);

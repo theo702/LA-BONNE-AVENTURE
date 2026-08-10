@@ -56,6 +56,7 @@
       <button data-tab="t-promo">Codes promo</button>
       <button data-tab="t-block">Blocages</button>
       <button data-tab="t-extra">Extras</button>
+      <button data-tab="t-extra-promo">Offres extras</button>
       <button data-tab="t-presta">Prestations</button>
       <button data-tab="t-sync">Synchro</button>
     </nav>
@@ -264,6 +265,54 @@
             <tbody></tbody>
           </table></div>
           <div id="orderEmpty" class="adm-empty" hidden>Aucune commande.</div>
+        </div>
+      </section>
+
+      <section id="t-extra-promo" class="adm-panel">
+        <header class="adm-panel-head">
+          <h2>Offres extras</h2>
+          <p class="adm-lede">Popups et promotions sur les extras : réduction en % ou pack « 2 pour le prix d’un » (départ tardif + arrivée anticipée), sur une période de dates.</p>
+        </header>
+        <form id="extraPromoForm" class="adm-form adm-form-card">
+          <input type="hidden" name="id">
+          <div class="adm-grid">
+            <label>Titre<input name="title" type="text" placeholder="Offre août–septembre" required></label>
+            <label>Type
+              <select name="kind" id="extraPromoKind">
+                <option value="pack_flex">Pack flexibilité (2 pour le prix d’1)</option>
+                <option value="percent">Réduction %</option>
+              </select>
+            </label>
+            <label id="extraPromoPercentWrap">Réduction (%)<input name="percent" type="number" min="0" max="100" step="1" value="0"></label>
+            <label id="extraPromoPackWrap">Prix du pack (€)<input name="pack_price" type="number" min="0" step="0.01" value="15"></label>
+            <label id="extraPromoTargetWrap">Cible
+              <select name="target">
+                <option value="all">Tous les extras</option>
+                <option value="late_checkout">Départ tardif</option>
+                <option value="early_checkin">Arrivée anticipée</option>
+              </select>
+            </label>
+            <label>Du<input name="valid_from" type="date" required></label>
+            <label>Au<input name="valid_to" type="date" required></label>
+          </div>
+          <label class="adm-mt">Message popup<textarea name="message" rows="3" placeholder="Achetez un départ tardif, l’arrivée anticipée est offerte."></textarea></label>
+          <label class="adm-mt">Texte du bouton<input name="cta_label" type="text" value="Profiter de l'offre"></label>
+          <label class="adm-check adm-mt"><input name="show_popup" type="checkbox" checked> Afficher une popup sur la page Extras</label>
+          <label class="adm-check"><input name="active" type="checkbox" checked> Actif</label>
+          <div class="adm-actions">
+            <button type="submit" class="adm-btn" id="extraPromoSubmit">Créer l’offre</button>
+            <button type="button" class="adm-ghost" id="extraPromoCancel" hidden>Annuler</button>
+            <span id="extraPromoMsg" class="adm-msg"></span>
+          </div>
+        </form>
+
+        <h3 class="adm-subhead">Offres configurées</h3>
+        <div class="adm-card">
+          <div class="adm-scroll"><table class="adm-table" id="extraPromoTable">
+            <thead><tr><th>Titre</th><th>Type</th><th>Détail</th><th>Période</th><th>Popup</th><th>Actif</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table></div>
+          <div id="extraPromoEmpty" class="adm-empty" hidden>Aucune offre extras.</div>
         </div>
       </section>
 

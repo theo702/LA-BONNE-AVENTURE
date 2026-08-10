@@ -1,5 +1,5 @@
 // Confirmation d'une réservation + emails (partagé par le webhook et le retour de paiement).
-import { getBooking, confirmBooking, incrementPromoUse, getExtraOrder, confirmExtraOrder, getSettings, attachStripeCustomer } from './db.js';
+import { getBooking, confirmBooking, incrementPromoUse, getExtraOrder, confirmExtraOrder, confirmExtraOrdersBySession, getSettings, attachStripeCustomer } from './db.js';
 
 function euros(cents, currency = 'eur') {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency }).format((cents || 0) / 100);
@@ -171,12 +171,17 @@ async function sendExtraEmails(env, order) {
 }
 
 // Confirme une commande d'extra (idempotent) + emails. Renvoie l'order ou null.
+// Pour un pack flexibilité, confirme aussi la ligne « offerte » liée à la même session Stripe.
 export async function confirmExtraAndNotify(env, orderId) {
   if (!orderId) return null;
   const order = await getExtraOrder(env, orderId);
   if (!order) return null;
-  if (order.status === 'confirmed') return order;
+  if (order.status === 'confirmed') {
+    if (order.stripe_session_id) await confirmExtraOrdersBySession(env, order.stripe_session_id);
+    return order;
+  }
   await confirmExtraOrder(env, orderId);
+  if (order.stripe_session_id) await confirmExtraOrdersBySession(env, order.stripe_session_id);
   await sendExtraEmails(env, { ...order, status: 'confirmed' });
   return { ...order, status: 'confirmed' };
 }

@@ -261,6 +261,104 @@ export async function ensurePricingSchema(env) {
   await run(`ALTER TABLE settings ADD COLUMN loyalty_reward_pct REAL NOT NULL DEFAULT 10`);
   // Rappels email pour les séjours « en attente » (paiement non finalisé).
   await run(`ALTER TABLE bookings ADD COLUMN reminder_sent_at TEXT`);
+  // Offres / popups extras (réductions % et packs flexibilité).
+  await run(`CREATE TABLE IF NOT EXISTS extra_promotions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    message TEXT,
+    cta_label TEXT NOT NULL DEFAULT 'Profiter de l''offre',
+    kind TEXT NOT NULL DEFAULT 'percent',
+    percent REAL NOT NULL DEFAULT 0,
+    target TEXT NOT NULL DEFAULT 'all',
+    pack_price_cents INTEGER NOT NULL DEFAULT 1500,
+    valid_from TEXT NOT NULL,
+    valid_to TEXT NOT NULL,
+    show_popup INTEGER NOT NULL DEFAULT 1,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL
+  )`);
+}
+
+// ---------- Offres extras (promotions / packs) ----------
+function todayYmd() { return new Date().toISOString().slice(0, 10); }
+
+export async function listExtraPromotions(env, { activeOnly = false, liveOnly = false } = {}) {
+  await ensurePricingSchema(env);
+  let sql = `SELECT * FROM extra_promotions`;
+  const where = [];
+  if (activeOnly) where.push(`active = 1`);
+  if (liveOnly) {
+    where.push(`active = 1`);
+    where.push(`valid_from <= ?1`);
+    where.push(`valid_to >= ?1`);
+  }
+  if (where.length) sql += ` WHERE ` + where.join(' AND ');
+  sql += ` ORDER BY valid_from DESC, id DESC`;
+  try {
+    const stmt = env.DB.prepare(sql);
+    const { results } = liveOnly ? await stmt.bind(todayYmd()).all() : await stmt.all();
+    return results || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export async function getExtraPromotion(env, id) {
+  await ensurePricingSchema(env);
+  try {
+    return await env.DB.prepare(`SELECT * FROM extra_promotions WHERE id = ?1`).bind(id).first();
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function createExtraPromotion(env, p) {
+  await ensurePricingSchema(env);
+  await env.DB.prepare(
+    `INSERT INTO extra_promotions
+      (title, message, cta_label, kind, percent, target, pack_price_cents,
+       valid_from, valid_to, show_popup, active, created_at)
+     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12)`
+  ).bind(
+    p.title, p.message || '', p.cta_label || "Profiter de l'offre",
+    p.kind || 'percent', Number(p.percent) || 0, p.target || 'all',
+    Math.max(0, Math.round(Number(p.pack_price_cents) || 1500)),
+    p.valid_from, p.valid_to, p.show_popup ? 1 : 0, p.active ? 1 : 0,
+    new Date().toISOString()
+  ).run();
+}
+
+export async function updateExtraPromotion(env, id, p) {
+  await ensurePricingSchema(env);
+  await env.DB.prepare(
+    `UPDATE extra_promotions SET
+       title=?1, message=?2, cta_label=?3, kind=?4, percent=?5, target=?6,
+       pack_price_cents=?7, valid_from=?8, valid_to=?9, show_popup=?10, active=?11
+     WHERE id=?12`
+  ).bind(
+    p.title, p.message || '', p.cta_label || "Profiter de l'offre",
+    p.kind || 'percent', Number(p.percent) || 0, p.target || 'all',
+    Math.max(0, Math.round(Number(p.pack_price_cents) || 1500)),
+    p.valid_from, p.valid_to, p.show_popup ? 1 : 0, p.active ? 1 : 0, id
+  ).run();
+}
+
+export async function deleteExtraPromotion(env, id) {
+  await ensurePricingSchema(env);
+  await env.DB.prepare(`DELETE FROM extra_promotions WHERE id = ?1`).bind(id).run();
+}
+
+/** Confirme toutes les commandes extras liées à une session Stripe (ex. pack = 2 lignes). */
+export async function confirmExtraOrdersBySession(env, sessionId) {
+  if (!sessionId) return [];
+  const { results } = await env.DB.prepare(
+    `SELECT id FROM extra_orders WHERE stripe_session_id = ?1 AND status != 'confirmed'`
+  ).bind(sessionId).all();
+  const ids = (results || []).map((r) => r.id);
+  for (const id of ids) {
+    await env.DB.prepare(`UPDATE extra_orders SET status = 'confirmed' WHERE id = ?1`).bind(id).run();
+  }
+  return ids;
 }
 
 // ---------- Espace voyageur : liens de connexion (magic link) ----------

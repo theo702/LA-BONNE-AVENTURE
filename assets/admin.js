@@ -41,9 +41,10 @@
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadCalendar(); loadPrestations(); loadSync(); }
+  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadExtraPromos(); loadCalendar(); loadPrestations(); loadSync(); }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée' };
+  var EXTRA_PROMO_KIND_FR = { percent: 'Réduction %', pack_flex: 'Pack 2 pour 1' };
 
   // dates : le stockage utilise date_to exclusif ; l'UI manipule des nuits incluses.
   const addDay = (s, n) => { const d = new Date(Date.parse(s)); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
@@ -393,6 +394,104 @@
       : await api('extras', { method: 'POST', body: JSON.stringify(body) });
     if (res.status === 200) { resetExtraForm(); msg('#extraMsg', 'Enregistré ✓'); loadExtras(); }
     else msg('#extraMsg', (res.j && res.j.message) || 'Erreur', true);
+  });
+
+  // ---------- Offres extras (popups / packs / %) ----------
+  function syncExtraPromoFields() {
+    const kind = ($('#extraPromoKind') || {}).value || 'pack_flex';
+    const isPack = kind === 'pack_flex';
+    const pw = $('#extraPromoPercentWrap');
+    const pk = $('#extraPromoPackWrap');
+    const tw = $('#extraPromoTargetWrap');
+    if (pw) pw.style.display = isPack ? 'none' : '';
+    if (pk) pk.style.display = isPack ? '' : 'none';
+    if (tw) tw.style.display = isPack ? 'none' : '';
+  }
+  const kindSel = $('#extraPromoKind');
+  if (kindSel) kindSel.addEventListener('change', syncExtraPromoFields);
+  syncExtraPromoFields();
+
+  async function loadExtraPromos() {
+    const { j } = await api('extra-promotions');
+    const tb = $('#extraPromoTable tbody'); if (!tb) return;
+    tb.innerHTML = '';
+    const rows = (j && j.promotions) || [];
+    $('#extraPromoEmpty').hidden = rows.length > 0;
+    rows.forEach((p) => {
+      const detail = p.kind === 'pack_flex'
+        ? ('Pack à ' + euro(p.pack_price_cents))
+        : ('−' + Math.round(p.percent || 0) + '% · ' + (KIND_FR[p.target] || 'Tous'));
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><b>${esc(p.title)}</b></td>` +
+        `<td>${EXTRA_PROMO_KIND_FR[p.kind] || p.kind}</td>` +
+        `<td>${esc(detail)}</td>` +
+        `<td>${esc(p.valid_from)} → ${esc(p.valid_to)}</td>` +
+        `<td>${p.show_popup ? '✓' : '—'}</td>` +
+        `<td>${p.active ? '✓' : '—'}</td>` +
+        `<td style="white-space:nowrap"><button class="adm-ghost adm-edit" data-id="${p.id}" style="padding:5px 10px">Modifier</button> <button class="adm-del" data-id="${p.id}">✕</button></td>`;
+      tb.appendChild(tr);
+      tr.querySelector('.adm-edit').addEventListener('click', () => fillExtraPromoForm(p));
+      tr.querySelector('.adm-del').addEventListener('click', async () => {
+        await api('extra-promotions?id=' + p.id, { method: 'DELETE' });
+        loadExtraPromos();
+      });
+    });
+  }
+
+  function fillExtraPromoForm(p) {
+    const f = $('#extraPromoForm');
+    f.id.value = p.id;
+    f.title.value = p.title || '';
+    f.kind.value = p.kind || 'pack_flex';
+    f.percent.value = p.percent || 0;
+    f.pack_price.value = ((p.pack_price_cents || 1500) / 100).toFixed(2);
+    f.target.value = p.target || 'all';
+    f.valid_from.value = p.valid_from || '';
+    f.valid_to.value = p.valid_to || '';
+    f.message.value = p.message || '';
+    f.cta_label.value = p.cta_label || "Profiter de l'offre";
+    f.show_popup.checked = !!p.show_popup;
+    f.active.checked = !!p.active;
+    $('#extraPromoSubmit').textContent = 'Enregistrer les modifications';
+    $('#extraPromoCancel').hidden = false;
+    syncExtraPromoFields();
+    document.querySelector('.adm-tabs button[data-tab="t-extra-promo"]').click();
+  }
+  function resetExtraPromoForm() {
+    const f = $('#extraPromoForm');
+    f.reset(); f.id.value = '';
+    f.cta_label.value = "Profiter de l'offre";
+    f.pack_price.value = '15';
+    f.show_popup.checked = true;
+    f.active.checked = true;
+    $('#extraPromoSubmit').textContent = "Créer l’offre";
+    $('#extraPromoCancel').hidden = true;
+    syncExtraPromoFields();
+  }
+  $('#extraPromoCancel').addEventListener('click', resetExtraPromoForm);
+
+  $('#extraPromoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const body = {
+      title: f.title.value,
+      message: f.message.value,
+      cta_label: f.cta_label.value,
+      kind: f.kind.value,
+      percent: +f.percent.value || 0,
+      target: f.target.value,
+      pack_price_cents: cents(f.pack_price.value),
+      valid_from: f.valid_from.value,
+      valid_to: f.valid_to.value,
+      show_popup: f.show_popup.checked,
+      active: f.active.checked,
+    };
+    const id = f.id.value;
+    const res = id
+      ? await api('extra-promotions?id=' + id, { method: 'PUT', body: JSON.stringify(body) })
+      : await api('extra-promotions', { method: 'POST', body: JSON.stringify(body) });
+    if (res.status === 200) { resetExtraPromoForm(); msg('#extraPromoMsg', 'Enregistré ✓'); loadExtraPromos(); }
+    else msg('#extraPromoMsg', (res.j && res.j.message) || 'Erreur', true);
   });
 
   // ---------- Calendrier interactif ----------
