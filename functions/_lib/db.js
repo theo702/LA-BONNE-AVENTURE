@@ -261,6 +261,11 @@ export async function ensurePricingSchema(env) {
   await run(`ALTER TABLE settings ADD COLUMN loyalty_reward_pct REAL NOT NULL DEFAULT 10`);
   // Rappels email pour les séjours « en attente » (paiement non finalisé).
   await run(`ALTER TABLE bookings ADD COLUMN reminder_sent_at TEXT`);
+  // Prestations ménage saisies à la main (séjours externes / blocages).
+  await run(`CREATE TABLE IF NOT EXISTS manual_prestations (
+    id TEXT PRIMARY KEY, checkin TEXT NOT NULL, checkout TEXT NOT NULL, source TEXT,
+    amount_cents INTEGER NOT NULL DEFAULT 0, extra_label TEXT, extra_cents INTEGER NOT NULL DEFAULT 0,
+    paid INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL)`);
 }
 
 // ---------- Espace voyageur : liens de connexion (magic link) ----------
@@ -354,6 +359,45 @@ export async function setCleaningPayRate(env, cents) {
     await env.DB.prepare(`UPDATE settings SET cleaning_pay_cents = ?1 WHERE id = 1`)
       .bind(Math.max(0, Math.round(cents || 0))).run();
   } catch (e) { /* colonne absente : ignorer */ }
+}
+
+// ---------- Prestations ménage saisies à la main (séjours externes / blocages) ----------
+export async function listManualPrestations(env) {
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT id, checkin, checkout, source, amount_cents, extra_label, extra_cents, paid
+         FROM manual_prestations ORDER BY checkout DESC`
+    ).all();
+    return results || [];
+  } catch (e) { return []; }
+}
+export async function createManualPrestation(env, p) {
+  const id = crypto.randomUUID();
+  await env.DB.prepare(
+    `INSERT INTO manual_prestations
+       (id, checkin, checkout, source, amount_cents, extra_label, extra_cents, paid, created_at)
+     VALUES (?1,?2,?3,?4,?5,?6,?7,0,?8)`
+  ).bind(
+    id, p.checkin, p.checkout, p.source || null,
+    Math.max(0, Math.round(p.amount_cents || 0)),
+    p.extra_label || null, Math.max(0, Math.round(p.extra_cents || 0)),
+    new Date().toISOString()
+  ).run();
+  return { id };
+}
+export async function setManualPrestationPaid(env, id, paid) {
+  await env.DB.prepare(`UPDATE manual_prestations SET paid = ?1 WHERE id = ?2`).bind(paid ? 1 : 0, id).run();
+}
+export async function setManualPrestationAmount(env, id, cents) {
+  await env.DB.prepare(`UPDATE manual_prestations SET amount_cents = ?1 WHERE id = ?2`)
+    .bind(Math.max(0, Math.round(cents || 0)), id).run();
+}
+export async function setManualPrestationExtra(env, id, label, cents) {
+  await env.DB.prepare(`UPDATE manual_prestations SET extra_label = ?1, extra_cents = ?2 WHERE id = ?3`)
+    .bind((label || '').toString().trim() || null, Math.max(0, Math.round(cents || 0)), id).run();
+}
+export async function deleteManualPrestation(env, id) {
+  await env.DB.prepare(`DELETE FROM manual_prestations WHERE id = ?1`).bind(id).run();
 }
 
 // Applique UNE SEULE FOIS le nouveau modèle de prix par durée (120 €/nuit, 300 € la semaine

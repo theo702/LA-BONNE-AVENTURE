@@ -171,3 +171,20 @@ CREATE TABLE IF NOT EXISTS extra_orders (
   created_at        TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_extra_orders_status ON extra_orders(status);
+
+-- ---------- Prestations ménage saisies à la main ----------
+-- Un « ménage » à payer au prestataire, non lié à une réservation directe : sert à
+-- enregistrer les séjours venus des calendriers externes (Airbnb, Booking…) ou d'un
+-- blocage manuel, avec un montant libre et un extra optionnel.
+CREATE TABLE IF NOT EXISTS manual_prestations (
+  id            TEXT PRIMARY KEY,                 -- UUID
+  checkin       TEXT NOT NULL,                    -- 'YYYY-MM-DD' arrivée
+  checkout      TEXT NOT NULL,                    -- 'YYYY-MM-DD' départ (jour du ménage)
+  source        TEXT,                             -- 'airbnb' | 'booking' | 'manuel' | note libre
+  amount_cents  INTEGER NOT NULL DEFAULT 0,       -- montant du ménage
+  extra_label   TEXT,                             -- extra optionnel (ex. « linge »)
+  extra_cents   INTEGER NOT NULL DEFAULT 0,       -- montant de l'extra
+  paid          INTEGER NOT NULL DEFAULT 0,       -- ménage payé au prestataire
+  created_at    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_manual_presta_dates ON manual_prestations(checkout);
