@@ -106,6 +106,17 @@ a{color:inherit}
   box-shadow:none;
 }
 .edge-link.edge-light:hover{background:rgba(15,30,55,.42);border-color:rgba(251,247,238,.5)}
+/* Accueil : langues + Mon espace côte à côte (plus de chevauchement) */
+.hero-top-bar{
+  position:fixed;top:18px;right:18px;z-index:40;
+  display:flex;align-items:center;justify-content:flex-end;gap:8px;
+  max-width:calc(100vw - 24px);
+  flex-wrap:wrap;
+}
+.hero-top-bar .edge-link.edge-light,
+.hero-top-bar .lba-lang-hero{
+  position:static;top:auto;right:auto;left:auto;
+}
 .footer-credit a{color:inherit;text-decoration:underline;text-underline-offset:3px}
 
 /* Accueil : barre crème (legacy, pages sans topbar) */
@@ -1082,6 +1093,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 .lba-lang-hero{
   position:absolute;top:18px;right:18px;z-index:4;
 }
+.hero-top-bar .lba-lang-hero{position:static}
 .lba-lang-hero .lba-lang{
   background:rgba(15,30,55,.35);
   border-color:rgba(251,247,238,.28);
@@ -1110,6 +1122,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
   background:var(--green,#0f2a4a);color:#FBF7EE;
 }
 @media(max-width:560px){
-  .lba-lang-hero{top:12px;right:12px}
+  .hero-top-bar{top:12px;right:12px;gap:6px}
   .lba-lang-btn{padding:5px 7px;font-size:10px}
+  .hero-top-bar .edge-link.edge-light{font-size:12px;padding:7px 11px}
 }
