@@ -125,6 +125,10 @@
   font-family:'Jost';font-weight:500;font-size:15px;padding:14px;border-radius:30px;box-shadow:var(--sh)}
 
 .bw-skeleton{padding:40px 16px;text-align:center;color:var(--ink-soft);font-size:13.5px;font-weight:300}
+.bw-skeleton.bw-error small{display:block;margin-top:8px;line-height:1.45}
+.bw-retry{margin-top:16px;padding:10px 22px;border:0;border-radius:999px;background:var(--clay);color:#fff;
+  font:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:filter .18s ease,transform .18s ease}
+.bw-retry:hover{filter:brightness(1.06);transform:translateY(-1px)}
 .bw-spin{width:22px;height:22px;border:2.5px solid var(--line);border-top-color:var(--clay);border-radius:50%;
   margin:0 auto 12px;animation:bwspin .8s linear infinite}
 @keyframes bwspin{to{transform:rotate(360deg)}}

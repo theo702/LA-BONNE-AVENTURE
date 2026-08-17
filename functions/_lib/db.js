@@ -7,22 +7,31 @@ export function overlaps(aFrom, aTo, bFrom, bTo) {
 
 // Plages occupées : réservations (confirmées + holds valides) + blocages manuels.
 export async function getBusyRanges(env, opts = {}) {
+  if (!env || !env.DB) return [];
   const nowIso = new Date().toISOString();
   const exceptId = opts.exceptId || null;
-  let results;
-  if (exceptId) {
-    ({ results } = await env.DB.prepare(
-      `SELECT checkin, checkout FROM bookings
-        WHERE id != ?2
-          AND (status = 'confirmed'
-           OR (status = 'pending' AND hold_expires_at > ?1))`
-    ).bind(nowIso, exceptId).all());
-  } else {
-    ({ results } = await env.DB.prepare(
-      `SELECT checkin, checkout FROM bookings
-        WHERE status = 'confirmed'
-           OR (status = 'pending' AND hold_expires_at > ?1)`
-    ).bind(nowIso).all());
+  let results = [];
+  try {
+    if (exceptId) {
+      ({ results } = await env.DB.prepare(
+        `SELECT checkin, checkout FROM bookings
+          WHERE id != ?2
+            AND (status = 'confirmed'
+             OR (status = 'pending' AND hold_expires_at > ?1))`
+      ).bind(nowIso, exceptId).all());
+    } else {
+      ({ results } = await env.DB.prepare(
+        `SELECT checkin, checkout FROM bookings
+          WHERE status = 'confirmed'
+             OR (status = 'pending' AND hold_expires_at > ?1)`
+      ).bind(nowIso).all());
+    }
+  } catch (e) {
+    try {
+      ({ results } = await env.DB.prepare(
+        `SELECT checkin, checkout FROM bookings WHERE status = 'confirmed'`
+      ).all());
+    } catch (e2) { results = []; }
   }
   const ranges = (results || []).map((r) => ({ from: r.checkin, to: r.checkout, source: 'direct' }));
   try {
@@ -230,6 +239,7 @@ export async function incrementPromoUse(env, code) {
 // phases si la base a été créée avec une version ancienne. Chaque instruction est idempotente
 // / tolérante (try/catch) et ne coûte qu'un aller-retour.
 export async function ensurePricingSchema(env) {
+  if (!env || !env.DB) return;
   const run = async (sql) => { try { await env.DB.prepare(sql).run(); } catch (e) { /* déjà présent : ignorer */ } };
   await run(`ALTER TABLE settings ADD COLUMN dynamic_pricing_enabled INTEGER NOT NULL DEFAULT 1`);
   await run(`ALTER TABLE settings ADD COLUMN cleaning_emails TEXT NOT NULL DEFAULT ''`);
@@ -241,6 +251,8 @@ export async function ensurePricingSchema(env) {
   // Empreinte bancaire : carte enregistrée pour débiter la caution en cas de dégât.
   await run(`ALTER TABLE bookings ADD COLUMN stripe_customer_id TEXT`);
   await run(`ALTER TABLE bookings ADD COLUMN stripe_payment_method TEXT`);
+  // Blocage calendrier temporaire (réservation en attente de paiement).
+  await run(`ALTER TABLE bookings ADD COLUMN hold_expires_at TEXT`);
   // Prestations ménage : montant payé au prestataire par séjour + suivi « payé ».
   await run(`ALTER TABLE settings ADD COLUMN cleaning_pay_cents INTEGER NOT NULL DEFAULT 0`);
   await run(`ALTER TABLE bookings ADD COLUMN cleaning_paid INTEGER NOT NULL DEFAULT 0`);

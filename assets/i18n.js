@@ -172,6 +172,9 @@
 
     /* —— Booking widget —— */
     'bw.loading': { fr: 'Chargement du calendrier…', en: 'Loading calendar…', es: 'Cargando calendario…', de: 'Kalender wird geladen…' },
+    'bw.unavailable': { fr: 'Le calendrier est momentanément indisponible.', en: 'The calendar is temporarily unavailable.', es: 'El calendario no está disponible por el momento.', de: 'Der Kalender ist vorübergehend nicht verfügbar.' },
+    'bw.unavailableHint': { fr: 'Réessayez dans un instant, ou écrivez-nous sur WhatsApp.', en: 'Try again in a moment, or message us on WhatsApp.', es: 'Inténtalo de nuevo en un momento o escríbenos por WhatsApp.', de: 'Versuche es gleich noch einmal oder schreib uns auf WhatsApp.' },
+    'bw.retry': { fr: 'Réessayer', en: 'Try again', es: 'Reintentar', de: 'Erneut versuchen' },
     'bw.confirmed': { fr: 'Merci ! Votre réservation est confirmée — un email vient de vous être envoyé.', en: 'Thank you! Your booking is confirmed — an email has just been sent.', es: '¡Gracias! Tu reserva está confirmada: te acabamos de enviar un email.', de: 'Danke! Deine Buchung ist bestätigt — eine E-Mail wurde soeben gesendet.' },
     'bw.cancelled': { fr: 'Paiement annulé — vos dates n’ont pas été réservées. Vous pouvez réessayer.', en: 'Payment cancelled — your dates were not booked. You can try again.', es: 'Pago cancelado: tus fechas no se han reservado. Puedes intentarlo de nuevo.', de: 'Zahlung abgebrochen — deine Daten wurden nicht gebucht. Du kannst es erneut versuchen.' },
     'bw.prevMonth': { fr: 'Mois précédent', en: 'Previous month', es: 'Mes anterior', de: 'Vorheriger Monat' },

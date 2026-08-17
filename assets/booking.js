@@ -93,6 +93,7 @@
   }
 
   function render(){
+    if(!state.view) return;
     MONTHS = months(); DOW = dow();
     var wrap = document.createElement('div');
     wrap.className = 'bw';
@@ -329,21 +330,59 @@
       });
   }
 
-  function loadAvailability(){
-    return fetch(API+'/api/availability')
-      .then(function(r){ return r.json(); })
-      .then(function(cfg){
+  function normalizeCfg(raw){
+    if(!raw || typeof raw !== 'object') return null;
+    return {
+      blocked: Array.isArray(raw.blocked) ? raw.blocked : [],
+      minNights: raw.minNights != null ? raw.minNights : 2,
+      maxGuests: raw.maxGuests != null ? raw.maxGuests : 2,
+      nightlyCents: raw.nightlyCents,
+      currency: raw.currency || 'eur',
+      weekTotalCents: raw.weekTotalCents,
+      cureTotalCents: raw.cureTotalCents,
+      weeklyMinNights: raw.weeklyMinNights,
+      monthlyMinNights: raw.monthlyMinNights,
+    };
+  }
+
+  function showLoadError(){
+    MOUNT.innerHTML = '<div class="bw"><div class="bw-skeleton bw-error">'
+      + T('bw.unavailable') + '<br><small>' + T('bw.unavailableHint') + '</small>'
+      + '<button type="button" class="bw-retry" id="bwRetry">' + T('bw.retry') + '</button></div></div>';
+    var btn = document.getElementById('bwRetry');
+    if(btn) btn.addEventListener('click', function(){
+      skeleton(T('bw.loading'));
+      loadAvailability(0);
+    });
+  }
+
+  function loadAvailability(retryCount){
+    retryCount = retryCount || 0;
+    return fetch(API + '/api/availability', { cache: 'no-store' })
+      .then(function(r){
+        if(!r.ok) throw new Error('http_' + r.status);
+        return r.json();
+      })
+      .then(function(raw){
+        var cfg = normalizeCfg(raw);
+        if(!cfg) throw new Error('bad_payload');
         state.cfg = cfg;
         state.blockedNights = buildBlockedSet(cfg.blocked);
-        state.view = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1));
-        render();
-        // Si on revient d'un paiement confirmé, amener l'utilisateur au bandeau vert.
+        if(!state.view){
+          state.view = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1));
+        }
+        try { render(); }
+        catch(e){ throw new Error('render'); }
         if(new URLSearchParams(location.search).get('reservation')==='confirmee'){
           try{ MOUNT.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){}
         }
       })
       .catch(function(){
-        MOUNT.innerHTML = '<div class="bw"><div class="bw-skeleton">Le calendrier est momentanément indisponible.<br><small>Réessayez dans un instant, ou écrivez-nous sur WhatsApp.</small></div></div>';
+        if(retryCount < 1){
+          setTimeout(function(){ loadAvailability(retryCount + 1); }, 1200);
+          return;
+        }
+        showLoadError();
       });
   }
 
