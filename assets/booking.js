@@ -110,8 +110,8 @@
       '<button data-nav="1" aria-label="'+T('bw.nextMonth')+'">'+icon('next')+'</button></div></div>');
     wrap.appendChild(head);
 
-    var dow = '<div class="bw-dow">'; DOW.forEach(function(d){ dow+='<span>'+d+'</span>'; }); dow+='</div>';
-    wrap.appendChild(el(dow));
+    var dowHtml = '<div class="bw-dow">'; DOW.forEach(function(d){ dowHtml+='<span>'+d+'</span>'; }); dowHtml+='</div>';
+    wrap.appendChild(el(dowHtml));
 
     var grid = document.createElement('div'); grid.className='bw-grid';
     var first = new Date(Date.UTC(y,m,1));
