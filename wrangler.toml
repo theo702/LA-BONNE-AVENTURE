@@ -45,3 +45,5 @@ SITE_URL = "https://labonneaventure-aixlesbains.fr"
 # wrangler pages secret put ADMIN_PASSWORD     # mot de passe de la page /admin
 # wrangler pages secret put ADMIN_SECRET       # chaîne aléatoire, signe le cookie admin
 # wrangler pages secret put CRON_SECRET        # protège /api/cron/pending-reminders
+# wrangler pages secret put GOOGLE_PLACES_API_KEY   # API key Google Places (avis)
+# wrangler pages secret put GOOGLE_PLACE_ID         # Place ID Google Business Profile
