@@ -2,7 +2,7 @@
 import {
   getExtra, createExtraOrder, attachExtraSession, getExtraPromotion, listExtraPromotions,
 } from '../_lib/db.js';
-import { extraAvailable } from '../_lib/extraAvail.js';
+import { extraAvailable, extraAvailableBoth } from '../_lib/extraAvail.js';
 
 function isEmail(s) { return typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
 function todayYmd() { return new Date().toISOString().slice(0, 10); }
@@ -28,6 +28,7 @@ export async function onRequestPost({ env, request }) {
   const origin = env.SITE_URL || new URL(request.url).origin;
   const promoId = body.promo_id ? parseInt(body.promo_id, 10) : 0;
   const isPack = body.kind === 'flex_pack' || String(body.extra_id || '').startsWith('pack:');
+  const isBoth = !isPack && body.kind === 'both';
 
   // ---------- Pack flexibilité : départ tardif + arrivée anticipée pour le prix d'un ----------
   if (isPack) {
@@ -87,6 +88,61 @@ export async function onRequestPost({ env, request }) {
     const session = await res.json();
     await attachExtraSession(env, paidId, session.id);
     await attachExtraSession(env, freeId, session.id);
+    return Response.json({ ok: true, url: session.url });
+  }
+
+  // ---------- Extra "both" : départ tardif + arrivée anticipée, un seul paiement ----------
+  if (isBoth) {
+    const extra = await getExtra(env, parseInt(body.extra_id, 10));
+    if (!extra || !extra.active || extra.kind !== 'both') {
+      return Response.json({ ok: false, message: 'Extra indisponible.' }, { status: 404 });
+    }
+    const lateDate = (body.late_date || '').toString().trim();
+    const earlyDate = (body.early_date || '').toString().trim();
+    const av = await extraAvailableBoth(env, lateDate, earlyDate);
+    if (!av.available) {
+      return Response.json({ ok: false, error: 'unavailable', message: av.message || 'Indisponible.' }, { status: 409 });
+    }
+    const amount = extra.price_cents;
+    const title = extra.title;
+    const { id: lateId } = await createExtraOrder(env, {
+      extra_id: extra.id, title: title + ' — Départ tardif',
+      amount_cents: amount, currency, guest_name: name, email,
+      kind: 'late_checkout', service_date: lateDate,
+    });
+    const { id: earlyId } = await createExtraOrder(env, {
+      extra_id: extra.id, title: title + ' — Arrivée anticipée',
+      amount_cents: 0, currency, guest_name: name, email,
+      kind: 'early_checkin', service_date: earlyDate,
+    });
+
+    const form = new URLSearchParams();
+    form.set('mode', 'payment');
+    form.set('success_url', `${origin}/extras?extra=confirmee&session_id={CHECKOUT_SESSION_ID}`);
+    form.set('cancel_url', `${origin}/extras?extra=annulee`);
+    form.set('customer_email', email);
+    form.set('client_reference_id', lateId);
+    form.set('metadata[kind]', 'extra');
+    form.set('metadata[order_id]', lateId);
+    form.set('metadata[pack_free_id]', earlyId);
+    form.set('payment_intent_data[metadata][kind]', 'extra');
+    form.set('payment_intent_data[metadata][order_id]', lateId);
+    form.set('line_items[0][quantity]', '1');
+    form.set('line_items[0][price_data][currency]', currency);
+    form.set('line_items[0][price_data][unit_amount]', String(amount));
+    form.set('line_items[0][price_data][product_data][name]', `${title} · La Bonne Aventure`);
+    form.set('line_items[0][price_data][product_data][description]',
+      `Départ tardif (${lateDate}) + arrivée anticipée (${earlyDate})`);
+
+    const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form,
+    });
+    if (!res.ok) return Response.json({ ok: false, message: 'Paiement impossible.' }, { status: 502 });
+    const session = await res.json();
+    await attachExtraSession(env, lateId, session.id);
+    await attachExtraSession(env, earlyId, session.id);
     return Response.json({ ok: true, url: session.url });
   }
 
