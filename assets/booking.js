@@ -125,7 +125,7 @@
     wrap.appendChild(grid);
 
     wrap.appendChild(el('<div class="bw-legend">'+
-      '<span><i class="free"></i>'+T('bw.free')+'</span><span><i class="sel"></i>'+T('bw.sel')+'</span><span><i class="busy"></i>'+T('bw.busy')+'</span></div>'));
+      '<span><i class="free"></i>'+T('bw.free')+'</span><span><i class="busy"></i>'+T('bw.busy')+'</span></div>'));
 
     // récapitulatif + formulaire
     wrap.appendChild(summaryNode());
