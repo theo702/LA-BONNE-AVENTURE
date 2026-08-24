@@ -21,7 +21,7 @@
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/site.css?v=18">
-<link rel="stylesheet" href="assets/guide.css?v=15">
+<link rel="stylesheet" href="assets/guide.css?v=16">
 <style>
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
@@ -60,7 +60,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l1.6-4.6A8.5 8.5 0 1121 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg>
               Ouvrir l'assistant
             </button>
-            <a class="ghost" href="extras.html">Réserver un extra</a>
+            <a class="ghost" href="extras.html">Offre flexibilité 15&nbsp;€</a>
           </div>
         </div>
         <a class="scrollcue" href="#guide-welcome" aria-label="Continuer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9l6 6 6-6"/></svg></a>
@@ -76,14 +76,24 @@
           <div><div class="sk">Départ</div><div class="sv">11:00</div><div class="sx">avant</div></div>
         </div>
 
-        <a class="cta reveal" style="--i:4" onclick="openBot()" href="javascript:void(0)">
+        <a class="guide-upsell reveal" style="--i:4" href="extras.html">
+          <span class="guide-upsell-badge">Meilleure offre · 15&nbsp;€</span>
+          <div class="guide-upsell-kicker">Arrivée &amp; départ flexibles</div>
+          <h3>Départ tardif + Arrivée anticipée</h3>
+          <p>Arrivez 2&nbsp;h plus tôt <b>et</b> partez 2&nbsp;h plus tard — les deux pour le prix d’un seul.</p>
+          <span class="guide-upsell-cta">Profiter de l’offre →</span>
+        </a>
+
+        <div class="guide-upsell-mini reveal" style="--i:5">
+          <a href="extras.html">Arrivée dès 14h · 10&nbsp;€</a>
+          <a href="extras.html">Départ jusqu’à 13h · 10&nbsp;€</a>
+        </div>
+
+        <a class="cta reveal" style="--i:6" onclick="openBot()" href="javascript:void(0)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l1.6-4.6A8.5 8.5 0 1121 11.5z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/></svg>
           Poser une question</a>
-        <a class="cta ghost reveal" style="--i:5" href="extras.html">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-          Réserver un extra</a>
-        <div class="note reveal" style="--i:6">Arrivée anticipée, départ tardif, kit petit-déjeuner, vidéoprojecteur… À réserver et régler en ligne <b style="font-weight:500">au moins 24&nbsp;h à l'avance</b>. Paiement sécurisé.</div>
-        <div class="note reveal" style="--i:7">L'assistant du livret répond à vos questions à tout moment.</div>
+        <div class="note reveal" style="--i:7">Extras réservables en ligne, sous réserve de disponibilité. Paiement sécurisé.</div>
+        <div class="note reveal" style="--i:8">L'assistant du livret répond à vos questions à tout moment.</div>
       </div>
     </section>
 
@@ -96,6 +106,13 @@
         <div class="divider reveal" style="--i:2"><span class="lab">Accès au logement</span><span class="ln"></span></div>
         <h2 class="reveal" style="--i:2;font-size:26px">Arrivée <span class="it">autonome</span></h2>
         <p class="lede reveal" style="--i:2">En quelques étapes simples, le jour comme le soir. Arrivée à partir de 16h00.</p>
+
+        <a class="guide-upsell guide-upsell-soft reveal" style="--i:2" href="extras.html">
+          <div class="guide-upsell-kicker">Option arrivée</div>
+          <h3>Besoin d’arriver avant 16h&nbsp;?</h3>
+          <p>Arrivée anticipée dès 14h — <b>10&nbsp;€</b>. Ou prenez le pack (arrivée + départ) à <b>15&nbsp;€</b>.</p>
+          <span class="guide-upsell-cta">Réserver maintenant →</span>
+        </a>
 
         <div class="info-list reveal" style="--i:2">
           <div class="row"><div class="tok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><div><div class="k">Adresse</div><div class="v sm">9 rue Claude de Seyssel, 73100 Aix-les-Bains<br>Entrez dans la cour : immeuble n°9 au fond à gauche, appartement au rez-de-chaussée.</div></div></div>
@@ -149,12 +166,18 @@
         </div>
 
         <div class="divider reveal" style="--i:8"><span class="lab">Services en option</span><span class="ln"></span></div>
-        <a class="emg host reveal" style="--i:8" href="extras.html">
-          <div class="big"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
-          <div class="et"><b>Réserver un extra</b><span>Arrivée anticipée, départ tardif, petit-déjeuner…</span></div>
-          <div class="go">›</div>
+        <a class="guide-upsell reveal" style="--i:8" href="extras.html">
+          <span class="guide-upsell-badge">−5&nbsp;€ vs séparément</span>
+          <div class="guide-upsell-kicker">Pack flexibilité</div>
+          <h3>Les deux pour 15&nbsp;€</h3>
+          <p>Départ tardif (jusqu’à 13h) + arrivée anticipée (dès 14h). Plus simple, moins cher.</p>
+          <span class="guide-upsell-cta">Voir l’offre →</span>
         </a>
-        <div class="note reveal" style="--i:8">Réservation et paiement en ligne, <b style="font-weight:500">au moins 24&nbsp;h avant</b> la prestation. Sous réserve de disponibilité.</div>
+        <div class="guide-upsell-mini reveal" style="--i:8">
+          <a href="extras.html">Départ tardif seul · 10&nbsp;€</a>
+          <a href="extras.html">Arrivée anticipée seule · 10&nbsp;€</a>
+        </div>
+        <div class="note reveal" style="--i:8">Sous réserve de disponibilité · confirmation immédiate par email.</div>
         <div class="divider reveal" style="--i:8"><span class="lab">Votre hôte</span><span class="ln"></span></div>
         <a class="emg host reveal" style="--i:8" onclick="openBot()" href="javascript:void(0)">
           <div class="big"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 01-12.6 7.4L3 21l1.6-4.6A8.5 8.5 0 1121 11.5z"/></svg></div>
@@ -191,6 +214,14 @@
         </div>
 
         <div class="divider reveal" style="--i:3"><span class="lab">Avant de partir</span><span class="ln"></span></div>
+
+        <a class="guide-upsell guide-upsell-soft reveal" style="--i:3" href="extras.html">
+          <div class="guide-upsell-kicker">Option départ</div>
+          <h3>Un train plus tard&nbsp;? Gardez le studio jusqu’à 13h</h3>
+          <p>Départ tardif à <b>10&nbsp;€</b> — ou le pack arrivée + départ à <b>15&nbsp;€</b>.</p>
+          <span class="guide-upsell-cta">Prolonger mon séjour →</span>
+        </a>
+
         <div class="rule-list reveal" style="--i:3">
           <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Faire la vaisselle</b><span>Lavez-la, séchez-la et rangez-la à sa place</span></div></div>
           <div class="rule-item"><div class="rdot yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l4 4L19 6"/></svg></div><div><b>Fermer les volets de la porte d'entrée</b></div></div>
@@ -400,6 +431,7 @@
       <button type="button" onclick="askBot('Où se garer ?')">Parking</button>
       <button type="button" onclick="askBot('Y a-t-il le wifi ?')">Wi-Fi</button>
       <button type="button" onclick="askBot('Heure d arrivée et de départ ?')">Horaires</button>
+      <button type="button" onclick="askBot('Puis-je arriver plus tôt ou partir plus tard ?')">Extras flexibilité</button>
       <button type="button" onclick="askBot('Que faire dans les environs ?')">À voir</button>
     </div>
     <div class="bot-input">
@@ -427,9 +459,10 @@
     {k:["clé","cles","clés","clef","boite","boîte","code","entrer","entrée","entree","acces","accès","rentrer","serrure","ouvrir la porte"],a:"L'arrivée est autonome dès 16h00. Adresse : 9 rue Claude de Seyssel, 73100 Aix-les-Bains — entrez dans la cour, immeuble n°9 au fond à gauche, rez-de-chaussée. Boîte à clés dans la boîte aux lettres du bas (3 boîtes blanches empilées, déjà ouverte). Code : 2004. Vous y trouverez la clé de la porte et celle du portail — pensez à refermer la boîte aux lettres. Au départ, remettez les clés, refermez la boîte à clés, brouillez le code et refermez la boîte aux lettres."},
     {k:["portail"],a:"Le portail est ouvert la plupart du temps. S'il est fermé, ouvrez-le avec la clé du portail (dans la boîte à clés) ; de l'intérieur, il s'ouvre simplement à la poignée."},
     {k:["parking","garer","stationnement","voiture","se garer","stationner"],a:"Stationnement gratuit et payant dans les rues à proximité. Pour du couvert : le Parking de la Chaudanne (souterrain, 24h/24) — 30 min gratuites, ~0,80 €/h, 18 € la journée, 9 € la nuit. En voirie : 30 min gratuites puis zone orange 1 €/h ou zone verte 0,50 €/h (appli Flowbird)."},
-    {k:["horaire","horaires","heure","quelle heure","quel heure","check","règlement","arrivée et départ","arrivee et depart","arrivée et de départ","heure d'arrivée et de départ","arrivée départ"],a:"Arrivée à partir de 16h00 et départ avant 11h00. L'arrivée est autonome grâce à la boîte à clés, donc vous pouvez arriver tard sans souci."},
-    {k:["arrivée","arrivee","arriver","arrivé","arrive","checkin","check-in","check in","quelle heure arriv","heure d","peux arriv"],a:"L'arrivée se fait à partir de 16h00, en autonomie via la boîte à clés. Vous pouvez arriver tard sans problème."},
-    {k:["départ","depart","partir","parti","checkout","check-out","check out","rendre","quitter","libérer","liberer"],a:"Le départ se fait avant 11h00. Avant de partir : faites la vaisselle (lavée, séchée et rangée), coupez la clim/chauffage (même unité), fermez fenêtres, volets et portail, et remettez les clés dans la boîte à clés (code brouillé)."},
+    {k:["horaire","horaires","heure","quelle heure","quel heure","check","règlement","arrivée et départ","arrivee et depart","arrivée et de départ","heure d'arrivée et de départ","arrivée départ"],a:"Arrivée à partir de 16h00 et départ avant 11h00. Besoin de plus de flexibilité ? Arrivée dès 14h (10 €), départ jusqu’à 13h (10 €), ou <a href='extras.html'><b>les deux pour 15 €</b></a>."},
+    {k:["arrivée","arrivee","arriver","arrivé","arrive","checkin","check-in","check in","quelle heure arriv","heure d","peux arriv"],a:"L'arrivée se fait à partir de 16h00, en autonomie via la boîte à clés. Vous pouvez arriver plus tôt dès 14h avec l’option <a href='extras.html'>Arrivée anticipée (10 €)</a> — ou le <a href='extras.html'><b>pack arrivée + départ à 15 €</b></a>."},
+    {k:["départ","depart","partir","parti","checkout","check-out","check out","rendre","quitter","libérer","liberer"],a:"Le départ se fait avant 11h00. Si vous avez un train plus tard, le <a href='extras.html'>Départ tardif jusqu’à 13h (10 €)</a> — ou le <a href='extras.html'><b>pack à 15 €</b></a>. Avant de partir : vaisselle, clim/chauffage off, fenêtres/volets/portail fermés, clés dans la boîte."},
+    {k:["extra","extras","tardif","anticip","flexible","flexibilité","14h","13h","plus tôt","plus tot","plus tard"],a:"Oui ! Arrivée anticipée dès 14h (10 €), départ tardif jusqu’à 13h (10 €), ou <a href='extras.html'><b>les deux pour 15 €</b></a>. Réservation et paiement en ligne, sous réserve de disponibilité."},
     {k:["animaux","animal","chien","chat"],a:"Oui, les animaux sont les bienvenus ! Merci d'en prendre soin comme si le logement était le vôtre."},
     {k:["fumer","cigarette","fumeur","vapoter","clope"],a:"Le logement est non-fumeur à l'intérieur. Vous pouvez fumer en terrasse / au jardin."},
     {k:["bruit","calme","silence","voisin","fête","fete","soirée","soiree","tapage"],a:"Merci de préserver le calme, surtout en soirée (zone résidentielle). Un détecteur mesure uniquement le niveau sonore (jamais de conversation). Le soir, pensez à fermer stores et volets pour réduire le bruit."},
