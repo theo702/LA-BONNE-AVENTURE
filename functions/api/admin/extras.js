@@ -3,7 +3,7 @@ import { listExtras, createExtra, updateExtra, deleteExtra, listExtraOrders } fr
 
 function parse(b) {
   const kindRaw = (b.kind || 'none').toString().trim();
-  const kind = ['none', 'late_checkout', 'early_checkin', 'both'].includes(kindRaw) ? kindRaw : 'none';
+  const kind = ['none', 'late_checkout', 'early_checkin', 'both', 'weekly'].includes(kindRaw) ? kindRaw : 'none';
   return {
     title: (b.title || '').toString().trim(),
     description: (b.description || '').toString().trim(),
