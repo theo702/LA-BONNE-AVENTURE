@@ -34,11 +34,20 @@
   function isFeatured(x) {
     return x && (x.kind === 'flex_pack' || x.kind === 'both');
   }
+  function isCure(x) {
+    return x && x.kind === 'weekly';
+  }
+  function priceUnit(x) {
+    return isCure(x) ? '/ sem.' : '/ séjour';
+  }
 
   function featuredFirst(items) {
-    return (items || []).slice().sort(function (a, b) {
-      return (isFeatured(b) ? 1 : 0) - (isFeatured(a) ? 1 : 0);
-    });
+    function rank(x) {
+      if (isFeatured(x)) return 2;
+      if (isCure(x)) return 1;
+      return 0;
+    }
+    return (items || []).slice().sort(function (a, b) { return rank(b) - rank(a); });
   }
 
   function packCompareCents(items, x) {
@@ -57,10 +66,10 @@
     if (compareCents && compareCents > x.price_cents) {
       var save = compareCents - x.price_cents;
       return '<div class="shop-price"><s class="shop-price-was">' + euros(compareCents, CUR) + '</s> '
-        + euros(x.price_cents, CUR) + ' <small>/ séjour</small>'
+        + euros(x.price_cents, CUR) + ' <small>' + priceUnit(x) + '</small>'
         + '<span class="shop-save">Économisez ' + euros(save, CUR) + '</span></div>';
     }
-    return '<div class="shop-price">' + euros(x.price_cents, CUR) + ' <small>/ séjour</small></div>';
+    return '<div class="shop-price">' + euros(x.price_cents, CUR) + ' <small>' + priceUnit(x) + '</small></div>';
   }
 
   function badgeHtml(x, compareCents) {
@@ -70,6 +79,7 @@
       }
       return '<span class="shop-badge">Meilleure offre</span>';
     }
+    if (isCure(x)) return '<span class="shop-badge shop-badge-cure">Idéal cure</span>';
     if (x.promo && x.promo.kind === 'percent') return '<span class="shop-badge">−' + Math.round(x.promo.percent) + ' %</span>';
     return '';
   }
@@ -80,7 +90,7 @@
     featuredFirst(items).forEach(function (x, i) {
       var featured = isFeatured(x);
       var compare = packCompareCents(items, x);
-      var node = el('<div class="shop-item reveal in' + (featured ? ' shop-item-pack' : '') + '" style="--i:' + (i + 1) + '">' + FROND +
+      var node = el('<div class="shop-item reveal in' + (featured ? ' shop-item-pack' : (isCure(x) ? ' shop-item-cure' : '')) + '" style="--i:' + (i + 1) + '">' + FROND +
         badgeHtml(x, compare) +
         (featured ? '<p class="shop-pack-kicker">Les deux pour le prix d\u2019un</p>' : '') +
         '<div class="shop-top"><div class="shop-ic">' + bag() + '</div><div>' +
@@ -134,8 +144,9 @@
   function openBuy(x) {
     var isPack = x.kind === 'flex_pack';
     var isBoth = x.kind === 'both';
-    var dated = (x.kind === 'late_checkout' || x.kind === 'early_checkin');
-    var dateLabel = x.kind === 'late_checkout' ? 'Date de votre départ' : (x.kind === 'early_checkin' ? 'Date de votre arrivée' : '');
+    var isWeekly = x.kind === 'weekly';
+    var dated = (x.kind === 'late_checkout' || x.kind === 'early_checkin' || isWeekly);
+    var dateLabel = x.kind === 'late_checkout' ? 'Date de votre départ' : (x.kind === 'early_checkin' ? 'Date de votre arrivée' : (isWeekly ? 'Semaine à partir du' : ''));
     var priceLine = euros(x.price_cents, CUR);
     if (x.price_cents_original && x.price_cents_original > x.price_cents) {
       priceLine = '<s style="opacity:.55;font-weight:400">' + euros(x.price_cents_original, CUR) + '</s> ' + euros(x.price_cents, CUR);

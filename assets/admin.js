@@ -43,7 +43,7 @@
   // ---------- Init / chargement ----------
   function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadCalendar(); loadSync(); }
 
-  var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée', both: 'Départ tardif + Arrivée anticipée' };
+  var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée', both: 'Départ tardif + Arrivée anticipée', weekly: 'Pack hebdo (cure)' };
   var EXTRA_PROMO_KIND_FR = { percent: 'Réduction %', pack_flex: 'Pack 2 pour 1' };
 
   // dates : le stockage utilise date_to exclusif ; l'UI manipule des nuits incluses.
@@ -370,7 +370,7 @@
   function fillExtraForm(x) {
     const f = $('#extraForm');
     f.id.value = x.id; f.title.value = x.title; f.price.value = (x.price_cents / 100).toFixed(2);
-    f.kind.value = ['none','late_checkout','early_checkin','both'].includes(x.kind) ? x.kind : 'none'; f.position.value = x.position || 0;
+    f.kind.value = ['none','late_checkout','early_checkin','both','weekly'].includes(x.kind) ? x.kind : 'none'; f.position.value = x.position || 0;
     f.description.value = x.description || ''; f.condition.value = x.condition || ''; f.active.checked = !!x.active;
     $('#extraSubmit').textContent = 'Enregistrer les modifications';
     $('#extraCancel').hidden = false;
