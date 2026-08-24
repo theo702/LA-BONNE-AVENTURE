@@ -31,16 +31,45 @@
     })
     .catch(function () { MOUNT.innerHTML = '<div class="book-fallback">Les extras sont momentanément indisponibles.</div>'; });
 
-  function priceHtml(x) {
-    if (x.price_cents_original && x.price_cents_original > x.price_cents) {
-      return '<div class="shop-price"><s class="shop-price-was">' + euros(x.price_cents_original, CUR) + '</s> '
-        + euros(x.price_cents, CUR) + ' <small>/ séjour</small></div>';
+  function isFeatured(x) {
+    return x && (x.kind === 'flex_pack' || x.kind === 'both');
+  }
+
+  function featuredFirst(items) {
+    return (items || []).slice().sort(function (a, b) {
+      return (isFeatured(b) ? 1 : 0) - (isFeatured(a) ? 1 : 0);
+    });
+  }
+
+  function packCompareCents(items, x) {
+    if (x.price_cents_original && x.price_cents_original > x.price_cents) return x.price_cents_original;
+    if (x.kind !== 'both') return 0;
+    var late = 0, early = 0;
+    (items || []).forEach(function (it) {
+      if (it.kind === 'late_checkout') late = it.price_cents_original || it.price_cents || 0;
+      if (it.kind === 'early_checkin') early = it.price_cents_original || it.price_cents || 0;
+    });
+    var sum = late + early;
+    return sum > x.price_cents ? sum : 0;
+  }
+
+  function priceHtml(x, compareCents) {
+    if (compareCents && compareCents > x.price_cents) {
+      var save = compareCents - x.price_cents;
+      return '<div class="shop-price"><s class="shop-price-was">' + euros(compareCents, CUR) + '</s> '
+        + euros(x.price_cents, CUR) + ' <small>/ séjour</small>'
+        + '<span class="shop-save">Économisez ' + euros(save, CUR) + '</span></div>';
     }
     return '<div class="shop-price">' + euros(x.price_cents, CUR) + ' <small>/ séjour</small></div>';
   }
 
-  function badgeHtml(x) {
-    if (x.kind === 'flex_pack') return '<span class="shop-badge">Offre spéciale</span>';
+  function badgeHtml(x, compareCents) {
+    if (isFeatured(x)) {
+      if (compareCents && compareCents > x.price_cents) {
+        return '<span class="shop-badge">Meilleure offre · −' + euros(compareCents - x.price_cents, CUR) + '</span>';
+      }
+      return '<span class="shop-badge">Meilleure offre</span>';
+    }
     if (x.promo && x.promo.kind === 'percent') return '<span class="shop-badge">−' + Math.round(x.promo.percent) + ' %</span>';
     return '';
   }
@@ -48,16 +77,19 @@
   function render(items) {
     if (!items.length) { MOUNT.innerHTML = '<div class="book-fallback">Aucun extra disponible pour le moment.</div>'; return; }
     MOUNT.innerHTML = '';
-    items.forEach(function (x, i) {
-      var node = el('<div class="shop-item reveal in' + (x.kind === 'flex_pack' ? ' shop-item-pack' : '') + '" style="--i:' + (i + 1) + '">' + FROND +
-        badgeHtml(x) +
+    featuredFirst(items).forEach(function (x, i) {
+      var featured = isFeatured(x);
+      var compare = packCompareCents(items, x);
+      var node = el('<div class="shop-item reveal in' + (featured ? ' shop-item-pack' : '') + '" style="--i:' + (i + 1) + '">' + FROND +
+        badgeHtml(x, compare) +
+        (featured ? '<p class="shop-pack-kicker">Les deux pour le prix d\u2019un</p>' : '') +
         '<div class="shop-top"><div class="shop-ic">' + bag() + '</div><div>' +
         '<h3>' + esc(x.title) + '</h3>' +
         '<p class="desc">' + esc(x.description || '') + '</p>' +
         (x.condition ? '<p class="cond">' + esc(x.condition) + '</p>' : '') +
         '</div></div>' +
-        '<div class="shop-foot">' + priceHtml(x) +
-        '<button class="shop-buy" type="button">' + bag() + 'Réserver</button></div></div>');
+        '<div class="shop-foot">' + priceHtml(x, compare) +
+        '<button class="shop-buy" type="button">' + bag() + (featured ? 'Profiter de l\u2019offre' : 'Réserver') + '</button></div></div>');
       node.querySelector('.shop-buy').addEventListener('click', function () { openBuy(x); });
       MOUNT.appendChild(node);
     });

@@ -110,8 +110,47 @@
   padding:5px 10px;border-radius:999px;background:var(--gold,#d9971a);color:#1a1408;
 }
 .shop-item{position:relative}
-.shop-item-pack{border-color:rgba(217,151,26,.45);box-shadow:0 10px 28px rgba(15,42,74,.08)}
+.shop-item-pack{
+  grid-column:1 / -1;
+  padding:26px 22px 22px;
+  background:
+    radial-gradient(ellipse at 100% 0%,rgba(217,151,26,.22),transparent 55%),
+    linear-gradient(165deg,#fffdf7,#fff8eb 55%,#fff);
+  box-shadow:0 14px 36px rgba(15,42,74,.12),inset 0 0 0 1.5px rgba(217,151,26,.55);
+  transform:translateZ(0);
+}
+.shop-item-pack::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(120deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);
+  background-size:220% 100%;animation:shopShine 4.5s ease-in-out infinite;
+}
+.shop-item-pack .shop-ic{
+  background:rgba(217,151,26,.2);color:var(--gold-deep,#a9760f);
+  box-shadow:inset 0 0 0 1px rgba(217,151,26,.25);
+}
+.shop-item-pack h3{font-size:21px;color:var(--green-deep,#0f2a4a)}
+.shop-item-pack .shop-buy{
+  background:linear-gradient(135deg,var(--gold-deep,#a9760f),var(--gold,#d9971a));
+  color:#1a1408;font-weight:600;box-shadow:0 8px 18px rgba(217,151,26,.28);
+}
+.shop-item-pack:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(15,42,74,.16),inset 0 0 0 1.5px rgba(217,151,26,.7)}
+.shop-pack-kicker{
+  margin:0 0 10px;padding-right:120px;
+  font-family:'Jost',sans-serif;font-size:11px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep,#a9760f);
+}
+.shop-save{
+  display:block;margin-top:4px;
+  font-family:'Jost',sans-serif;font-size:12px;font-weight:600;color:var(--green,#6f8f6e);
+}
 .shop-price-was{display:block;font-size:13px;font-weight:400;color:var(--ink-soft);margin-bottom:2px}
+@keyframes shopShine{
+  0%,70%{background-position:120% 0}
+  100%{background-position:-40% 0}
+}
+@media (prefers-reduced-motion:reduce){
+  .shop-item-pack::before{animation:none}
+}
 .lba-promo-card{text-align:center}
 .lba-promo-kicker{
   font-family:'Jost',sans-serif;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
