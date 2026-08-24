@@ -50,6 +50,42 @@
     return (items || []).slice().sort(function (a, b) { return rank(b) - rank(a); });
   }
 
+  var SECTIONS = [
+    {
+      id: 'flex',
+      title: 'Flexibilité des horaires',
+      lead: 'Arrivez plus tôt ou partez plus tard, sans stress.',
+      match: function (x) {
+        return x.kind === 'flex_pack' || x.kind === 'both' || x.kind === 'late_checkout' || x.kind === 'early_checkin';
+      }
+    },
+    {
+      id: 'stay',
+      title: 'Long séjour & cure',
+      lead: 'Confort hebdomadaire pour les cures et séjours prolongés.',
+      match: function (x) { return x.kind === 'weekly'; }
+    },
+    {
+      id: 'other',
+      title: 'Autres services',
+      lead: 'Options à la carte pendant votre séjour.',
+      match: function () { return true; }
+    }
+  ];
+
+  function groupBySection(items) {
+    var used = {};
+    return SECTIONS.map(function (sec) {
+      var list = featuredFirst((items || []).filter(function (x) {
+        if (used[x.id]) return false;
+        if (!sec.match(x)) return false;
+        used[x.id] = true;
+        return true;
+      }));
+      return { sec: sec, items: list };
+    }).filter(function (g) { return g.items.length; });
+  }
+
   function packCompareCents(items, x) {
     if (x.price_cents_original && x.price_cents_original > x.price_cents) return x.price_cents_original;
     if (x.kind !== 'both') return 0;
@@ -84,24 +120,40 @@
     return '';
   }
 
+  function cardNode(x, items, i) {
+    var featured = isFeatured(x);
+    var compare = packCompareCents(items, x);
+    var node = el('<div class="shop-item reveal in' + (featured ? ' shop-item-pack' : (isCure(x) ? ' shop-item-cure' : '')) + '" style="--i:' + (i + 1) + '">' + FROND +
+      badgeHtml(x, compare) +
+      (featured ? '<p class="shop-pack-kicker">Les deux pour le prix d\u2019un</p>' : '') +
+      '<div class="shop-top"><div class="shop-ic">' + bag() + '</div><div>' +
+      '<h3>' + esc(x.title) + '</h3>' +
+      '<p class="desc">' + esc(x.description || '') + '</p>' +
+      (x.condition ? '<p class="cond">' + esc(x.condition) + '</p>' : '') +
+      '</div></div>' +
+      '<div class="shop-foot">' + priceHtml(x, compare) +
+      '<button class="shop-buy" type="button">' + bag() + (featured ? 'Profiter de l\u2019offre' : 'Réserver') + '</button></div></div>');
+    node.querySelector('.shop-buy').addEventListener('click', function () { openBuy(x); });
+    return node;
+  }
+
   function render(items) {
     if (!items.length) { MOUNT.innerHTML = '<div class="book-fallback">Aucun extra disponible pour le moment.</div>'; return; }
     MOUNT.innerHTML = '';
-    featuredFirst(items).forEach(function (x, i) {
-      var featured = isFeatured(x);
-      var compare = packCompareCents(items, x);
-      var node = el('<div class="shop-item reveal in' + (featured ? ' shop-item-pack' : (isCure(x) ? ' shop-item-cure' : '')) + '" style="--i:' + (i + 1) + '">' + FROND +
-        badgeHtml(x, compare) +
-        (featured ? '<p class="shop-pack-kicker">Les deux pour le prix d\u2019un</p>' : '') +
-        '<div class="shop-top"><div class="shop-ic">' + bag() + '</div><div>' +
-        '<h3>' + esc(x.title) + '</h3>' +
-        '<p class="desc">' + esc(x.description || '') + '</p>' +
-        (x.condition ? '<p class="cond">' + esc(x.condition) + '</p>' : '') +
-        '</div></div>' +
-        '<div class="shop-foot">' + priceHtml(x, compare) +
-        '<button class="shop-buy" type="button">' + bag() + (featured ? 'Profiter de l\u2019offre' : 'Réserver') + '</button></div></div>');
-      node.querySelector('.shop-buy').addEventListener('click', function () { openBuy(x); });
-      MOUNT.appendChild(node);
+    var idx = 0;
+    groupBySection(items).forEach(function (g) {
+      var section = el(
+        '<section class="shop-section reveal in" style="--i:' + (++idx) + '" data-section="' + esc(g.sec.id) + '">' +
+          '<header class="shop-section-head">' +
+            '<h3 class="shop-section-title">' + esc(g.sec.title) + '</h3>' +
+            (g.sec.lead ? '<p class="shop-section-lead">' + esc(g.sec.lead) + '</p>' : '') +
+          '</header>' +
+          '<div class="grid2 shop-section-grid"></div>' +
+        '</section>'
+      );
+      var grid = section.querySelector('.shop-section-grid');
+      g.items.forEach(function (x, i) { grid.appendChild(cardNode(x, items, i)); });
+      MOUNT.appendChild(section);
     });
   }
 

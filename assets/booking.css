@@ -104,6 +104,17 @@
 .bw-modal-recap span{color:var(--ink-soft)}
 .bw-modal-recap b{font-family:'Fraunces',serif;font-weight:500;color:var(--ink);font-size:15px}
 .bw-modal-msg{font-size:13px;color:var(--ink-soft);font-weight:300;line-height:1.55;margin:0 0 20px}
+.shop-sections{display:flex;flex-direction:column;gap:28px}
+.shop-section-head{margin:0 0 12px}
+.shop-section-title{
+  margin:0;font-family:'Fraunces',serif;font-weight:500;font-size:22px;
+  color:var(--ink,#1a1408);letter-spacing:-.01em;
+}
+.shop-section-lead{
+  margin:6px 0 0;font-family:'Jost',sans-serif;font-size:14px;font-weight:300;
+  color:var(--ink-soft);line-height:1.45;max-width:36em;
+}
+.shop-section + .shop-section{padding-top:6px;border-top:1px solid var(--line-soft,#e8e2d6)}
 .shop-badge{
   position:absolute;top:14px;right:14px;z-index:2;
   font-family:'Jost',sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;
