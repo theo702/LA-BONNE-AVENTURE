@@ -17,7 +17,7 @@
 
     'hero.kick': { fr: "Maison d'hôtes · Aix-les-Bains", en: 'Guesthouse · Aix-les-Bains', es: 'Casa de huéspedes · Aix-les-Bains', de: 'Gästehaus · Aix-les-Bains' },
     'hero.h1.a': { fr: 'Un studio', en: 'A studio', es: 'Un estudio', de: 'Ein Studio' },
-    'hero.h1.b': { fr: "à l'esprit Bali", en: 'with a Bali spirit', es: 'con espíritu bali', de: 'im Bali-Stil' },
+    'hero.h1.b': { fr: "au cœur d'Aix", en: 'in the heart of Aix', es: 'en el corazón de Aix', de: 'im Herzen von Aix' },
     'hero.p': {
       fr: "Un cocon ~25\u00a0m² au cœur d'Aix — lac du Bourget, thermes et centre à pied. Calme, lumière douce, tout pour se sentir chez soi.",
       en: 'A cosy ~25\u00a0m² nest in the heart of Aix — Lake Bourget, thermal spas and the centre on foot. Calm, soft light, everything to feel at home.',
@@ -28,19 +28,33 @@
     'hero.cta.discover': { fr: 'Découvrir le logement', en: 'Discover the flat', es: 'Descubrir el alojamiento', de: 'Die Unterkunft entdecken' },
 
     'sec.logement.kicker': { fr: 'Le logement', en: 'The flat', es: 'El alojamiento', de: 'Die Unterkunft' },
-    'sec.logement.h2': { fr: "Un studio à <span class=\"it\">l'esprit Bali</span>", en: 'A studio with a <span class="it">Bali spirit</span>', es: 'Un estudio con <span class="it">espíritu bali</span>', de: 'Ein Studio im <span class="it">Bali-Stil</span>' },
+    'sec.logement.h2': { fr: 'Un studio <span class="it">entièrement rénové</span>', en: 'A <span class="it">fully renovated</span> studio', es: 'Un estudio <span class="it">completamente renovado</span>', de: 'Ein <span class="it">komplett renoviertes</span> Studio' },
     'sec.logement.pull': {
-      fr: "oussez la porte et laissez la ville derrière vous. Lit en rotin, linge en coton lavé, matières brutes et lumière douce : une escale tropicale au cœur d'Aix-les-Bains, où l'on se sent chez soi dès la première minute.",
-      en: 'ush the door open and leave the city behind. Rattan bed, washed-cotton linen, raw materials and soft light: a tropical stopover in the heart of Aix-les-Bains, where you feel at home from the first minute.',
-      es: 'bre la puerta y deja la ciudad atrás. Cama de ratán, ropa de cama de algodón, materiales naturales y luz suave: una escala tropical en el corazón de Aix-les-Bains, donde te sientes en casa desde el primer minuto.',
-      de: 'ffne die Tür und lass die Stadt hinter dir. Rattanbett, gewaschene Baumwollwäsche, natürliche Materialien und sanftes Licht: ein tropischer Stopp im Herzen von Aix-les-Bains, wo du dich von der ersten Minute an zu Hause fühlst.'
+      fr: "5 m² en plein hypercentre d'Aix-les-Bains, refait à neuf. Lit queen size, kitchenette complète, clim réversible, et un patio privé rien qu'à vous pour le café du matin. Commerces, restaurants et gare à pied — le lac du Bourget à 5 min en voiture.",
+      en: '5 m² in the heart of Aix-les-Bains, fully renovated. Queen-size bed, complete kitchenette, reversible air conditioning, and a private patio just for you for morning coffee. Shops, restaurants and station on foot — Lake Bourget 5 min by car.',
+      es: '5 m² en pleno centro de Aix-les-Bains, totalmente renovado. Cama queen size, cocina completa, climatización reversible y un patio privado solo para ti. Comercios, restaurantes y estación a pie — el lago Bourget a 5 min en coche.',
+      de: '5 m² mitten im Zentrum von Aix-les-Bains, komplett renoviert. Queensize-Bett, vollausgestattete Küchenzeile, reversible Klimaanlage und eine private Terrasse nur für Sie. Geschäfte, Restaurants und Bahnhof zu Fuß — Lac du Bourget 5 min mit dem Auto.'
     },
-    'fact.m2': { fr: 'Centre-ville, à pied de tout', en: 'Town centre, everything on foot', es: 'Centro, todo a pie', de: 'Zentrum, alles zu Fuß' },
-    'fact.bed': { fr: 'Linge en coton fourni', en: 'Cotton linen provided', es: 'Ropa de cama de algodón incluida', de: 'Baumwollwäsche inklusive' },
-    'fact.lake': { fr: 'À ~5 min à pied', en: '~5 min on foot', es: 'A ~5 min a pie', de: '~5 Min. zu Fuß' },
-    'fact.ac': { fr: 'Chaud / froid · stores', en: 'Heat / cool · blinds', es: 'Calor / frío · persianas', de: 'Heizen / Kühlen · Rollos' },
-    'fact.checkin': { fr: 'Boîte à clés, même tard', en: 'Lockbox, even late', es: 'Caja de llaves, incluso tarde', de: 'Schlüsselbox, auch spät' },
-    'fact.extras': { fr: 'Arrivée tôt, départ tardif…', en: 'Early check-in, late check-out…', es: 'Llegada temprana, salida tardía…', de: 'Früher Check-in, später Check-out…' },
+    'fact.m2': { fr: 'Hypercentre, à pied de tout', en: 'Town centre, everything on foot', es: 'Hipercentro, todo a pie', de: 'Zentrum, alles zu Fuß' },
+    'fact.bed': { fr: 'Matelas neuf, stores occultants', en: 'New mattress, blackout blinds', es: 'Colchón nuevo, persianas opacas', de: 'Neue Matratze, Verdunkelungsrollos' },
+    'fact.lake': { fr: 'À 5 min en voiture', en: '5 min by car', es: 'A 5 min en coche', de: '5 Min. mit dem Auto' },
+    'fact.ac': { fr: "Frais l\u2019\u00e9t\u00e9, chaud l\u2019hiver", en: 'Cool in summer, warm in winter', es: 'Frío en verano, calor en invierno', de: 'Kühl im Sommer, warm im Winter' },
+    'fact.checkin': { fr: 'Boîte à clés 24h/24', en: 'Lockbox, any time', es: 'Caja de llaves, a cualquier hora', de: 'Schlüsselbox, jederzeit' },
+    'fact.extras': { fr: 'Terrasse avec mobilier', en: 'Terrace with furniture', es: 'Terraza con mobiliario', de: 'Terrasse mit Möbeln' },
+
+    'sec.amenities.h3': { fr: 'Équipements', en: 'Amenities', es: 'Equipamiento', de: 'Ausstattung' },
+    'amen.ac': { fr: 'Climatisation réversible', en: 'Reversible air conditioning', es: 'Climatización reversible', de: 'Reversible Klimaanlage' },
+    'amen.wifi': { fr: 'Wifi fibre 38 Mbps', en: 'Fibre WiFi 38 Mbps', es: 'WiFi fibra 38 Mbps', de: 'Glasfaser-WLAN 38 Mbps' },
+    'amen.kitchen': { fr: 'Cuisine équipée', en: 'Fully equipped kitchen', es: 'Cocina equipada', de: 'Vollausgestattete Küche' },
+    'amen.patio': { fr: 'Patio privé avec mobilier', en: 'Private patio with furniture', es: 'Patio privado con mobiliario', de: 'Private Terrasse mit Möbeln' },
+    'amen.coffee': { fr: 'Cafetière + café offert', en: 'Coffee maker + complimentary coffee', es: 'Cafetera + café de regalo', de: 'Kaffeemaschine + Kaffee gratis' },
+    'amen.fridge': { fr: 'Réfrigérateur + congélateur', en: 'Fridge + freezer', es: 'Nevera + congelador', de: 'Kühlschrank + Tiefkühlschrank' },
+    'amen.shower': { fr: "Salle d'eau avec douche", en: 'Shower room', es: 'Cuarto de baño con ducha', de: 'Duschbad' },
+    'amen.hairdryer': { fr: 'Sèche-cheveux', en: 'Hair dryer', es: 'Secador de pelo', de: 'Haartrockner' },
+    'amen.checkin': { fr: 'Arrivée autonome (boîte à clés)', en: 'Self check-in (lockbox)', es: 'Entrada autónoma (caja de llaves)', de: 'Selbst-Check-in (Schlüsselbox)' },
+    'amen.pets': { fr: 'Animaux acceptés', en: 'Pets allowed', es: 'Se admiten mascotas', de: 'Haustiere erlaubt' },
+    'amen.parking': { fr: 'Parking payant à proximité', en: 'Paid parking nearby', es: 'Aparcamiento de pago cercano', de: 'Kostenpflichtiger Parkplatz in der Nähe' },
+    'amen.smoke': { fr: 'Détecteur de fumée', en: 'Smoke detector', es: 'Detector de humo', de: 'Rauchmelder' },
 
     'gallery.studio': { fr: 'Le studio en images', en: 'The studio in pictures', es: 'El estudio en imágenes', de: 'Das Studio in Bildern' },
     'cap.night': { fr: 'Le coin nuit', en: 'Sleeping area', es: 'Zona de noche', de: 'Schlafbereich' },
@@ -76,7 +90,7 @@
 
     'sec.avis.kicker': { fr: 'Avis des voyageurs', en: 'Guest reviews', es: 'Opiniones de viajeros', de: 'Gästebewertungen' },
     'sec.avis.h2': { fr: 'Ils ont <span class="it">adoré</span>', en: 'They <span class="it">loved</span> it', es: 'Les ha <span class="it">encantado</span>', de: 'Sie haben es <span class="it">geliebt</span>' },
-    'sec.avis.summary': { fr: '4 avis vérifiés', en: '4 verified reviews', es: '4 reseñas verificadas', de: '4 verifizierte Bewertungen' },
+    'sec.avis.summary': { fr: '5 avis vérifiés', en: '5 verified reviews', es: '5 reseñas verificadas', de: '5 verifizierte Bewertungen' },
     'sec.avis.google': { fr: 'Laisser un avis Google', en: 'Leave a Google review', es: 'Dejar una reseña en Google', de: 'Google-Bewertung hinterlassen' },
     'sec.avis.prev': { fr: 'Avis précédent', en: 'Previous review', es: 'Reseña anterior', de: 'Vorherige Bewertung' },
     'sec.avis.next': { fr: 'Avis suivant', en: 'Next review', es: 'Reseña siguiente', de: 'Nächste Bewertung' },
