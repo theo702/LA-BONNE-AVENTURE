@@ -41,7 +41,7 @@
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadExtraPromos(); loadCalendar(); loadPrestations(); loadSync(); }
+  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadCalendar(); loadSync(); }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée' };
   var EXTRA_PROMO_KIND_FR = { percent: 'Réduction %', pack_flex: 'Pack 2 pour 1' };
@@ -241,8 +241,10 @@
     }));
   }
 
-  $('#prestaMonth').addEventListener('change', (e) => { presta.month = e.target.value; renderPrestations(); });
-  $('#prestaRateForm').addEventListener('submit', async (e) => {
+  const prestaMonth = $('#prestaMonth');
+  if (prestaMonth) prestaMonth.addEventListener('change', (e) => { presta.month = e.target.value; renderPrestations(); });
+  const prestaRateForm = $('#prestaRateForm');
+  if (prestaRateForm) prestaRateForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const { status } = await api('prestations', { method: 'PUT', body: JSON.stringify({ cleaning_pay_cents: cents(e.target.cleaning_pay.value) }) });
     msg('#prestaRateMsg', status === 200 ? 'Tarif enregistré ✓' : 'Erreur', status !== 200);
@@ -408,8 +410,10 @@
     if (tw) tw.style.display = isPack ? 'none' : '';
   }
   const kindSel = $('#extraPromoKind');
-  if (kindSel) kindSel.addEventListener('change', syncExtraPromoFields);
-  syncExtraPromoFields();
+  if (kindSel) {
+    kindSel.addEventListener('change', syncExtraPromoFields);
+    syncExtraPromoFields();
+  }
 
   async function loadExtraPromos() {
     const { j } = await api('extra-promotions');
@@ -468,9 +472,11 @@
     $('#extraPromoCancel').hidden = true;
     syncExtraPromoFields();
   }
-  $('#extraPromoCancel').addEventListener('click', resetExtraPromoForm);
+  const extraPromoCancel = $('#extraPromoCancel');
+  if (extraPromoCancel) extraPromoCancel.addEventListener('click', resetExtraPromoForm);
 
-  $('#extraPromoForm').addEventListener('submit', async (e) => {
+  const extraPromoForm = $('#extraPromoForm');
+  if (extraPromoForm) extraPromoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = e.target;
     const body = {
