@@ -197,12 +197,13 @@
     var isPack = x.kind === 'flex_pack';
     var isBoth = x.kind === 'both';
     var isWeekly = x.kind === 'weekly';
-    var dated = (x.kind === 'late_checkout' || x.kind === 'early_checkin' || isWeekly);
-    var dateLabel = x.kind === 'late_checkout' ? 'Date de votre départ' : (x.kind === 'early_checkin' ? 'Date de votre arrivée' : (isWeekly ? 'Semaine à partir du' : ''));
+    var dated = (x.kind === 'late_checkout' || x.kind === 'early_checkin');
+    var dateLabel = x.kind === 'late_checkout' ? 'Date de votre départ' : (x.kind === 'early_checkin' ? 'Date de votre arrivée' : '');
     var priceLine = euros(x.price_cents, CUR);
     if (x.price_cents_original && x.price_cents_original > x.price_cents) {
       priceLine = '<s style="opacity:.55;font-weight:400">' + euros(x.price_cents_original, CUR) + '</s> ' + euros(x.price_cents, CUR);
     }
+    if (isWeekly) priceLine = euros(x.price_cents, CUR) + ' <small>/ sem.</small>';
     var datesHtml = '';
     if (isPack) {
       datesHtml =
@@ -214,13 +215,19 @@
         '<div class="bw-field"><label>Date de votre départ (départ tardif)</label><input id="exLate" type="date"></div>' +
         '<div class="bw-field"><label>Date de votre arrivée (arrivée anticipée)</label><input id="exEarly" type="date"></div>' +
         '<div class="bw-promo-err" id="exAvail"></div>';
+    } else if (isWeekly) {
+      datesHtml =
+        '<div class="bw-field"><label>Date d’arrivée</label><input id="exArrive" type="date"></div>' +
+        '<div class="bw-field"><label>Date de départ</label><input id="exDepart" type="date"></div>' +
+        '<p class="bw-modal-msg" style="margin:0 0 8px;font-size:12.5px">1 ménage + linge par <b>samedi</b> de votre séjour (1 à 4 semaines).</p>' +
+        '<div class="bw-promo-err" id="exAvail"></div>';
     } else if (dated) {
       datesHtml = '<div class="bw-field"><label>' + dateLabel + '</label><input id="exDate" type="date"></div><div class="bw-promo-err" id="exAvail"></div>';
     }
     var node = el('<div class="bw-modal"><div class="bw-modal-card" style="text-align:left">' +
       '<button class="bw-modal-x" aria-label="Fermer">&times;</button>' +
       '<h3 style="text-align:center">' + esc(x.title) + '</h3>' +
-      '<p class="bw-modal-sub" style="text-align:center">' + priceLine + '</p>' +
+      '<p class="bw-modal-sub" style="text-align:center" id="exPriceLine">' + priceLine + '</p>' +
       '<div class="bw-form">' +
       datesHtml +
       '<div class="bw-field"><label>Nom complet</label><input id="exName" type="text" placeholder="Camille Dupont"></div>' +
@@ -236,6 +243,12 @@
 
     var payBtn = node.querySelector('#exPay');
     var availMsg = node.querySelector('#exAvail');
+    var priceEl = node.querySelector('#exPriceLine');
+    var weeklyQuote = null;
+
+    function setPayLabel(cents) {
+      payBtn.innerHTML = card() + 'Payer ' + euros(cents, CUR);
+    }
 
     function checkOne(kind, date, done) {
       if (!date) { done(false, ''); return; }
@@ -284,6 +297,55 @@
       }
       earlyInp2.addEventListener('change', refreshBoth);
       lateInp2.addEventListener('change', refreshBoth);
+    } else if (isWeekly) {
+      payBtn.disabled = true;
+      var arriveInp = node.querySelector('#exArrive');
+      var departInp = node.querySelector('#exDepart');
+      function refreshWeekly() {
+        weeklyQuote = null;
+        var a = arriveInp.value, d = departInp.value;
+        if (!a || !d) {
+          if (availMsg) availMsg.textContent = '';
+          if (priceEl) priceEl.innerHTML = euros(x.price_cents, CUR) + ' <small>/ sem.</small>';
+          setPayLabel(x.price_cents);
+          payBtn.disabled = true;
+          return;
+        }
+        if (availMsg) { availMsg.style.color = 'var(--ink-soft)'; availMsg.textContent = 'Calcul…'; }
+        fetch('/api/extras-availability?kind=weekly&extra_id=' + encodeURIComponent(x.id)
+          + '&arrival_date=' + encodeURIComponent(a)
+          + '&departure_date=' + encodeURIComponent(d))
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            if (j && j.available && j.weeks > 0 && j.amount_cents > 0) {
+              weeklyQuote = j;
+              if (priceEl) {
+                priceEl.innerHTML = euros(j.amount_cents, CUR)
+                  + ' <small>(' + j.weeks + ' × ' + euros(j.unit_cents || x.price_cents, CUR) + ')</small>';
+              }
+              if (availMsg) {
+                availMsg.style.color = 'var(--green,#6f8f6e)';
+                availMsg.textContent = j.message || (j.weeks + ' semaine' + (j.weeks > 1 ? 's' : ''));
+              }
+              setPayLabel(j.amount_cents);
+              payBtn.disabled = false;
+            } else {
+              if (priceEl) priceEl.innerHTML = euros(x.price_cents, CUR) + ' <small>/ sem.</small>';
+              if (availMsg) {
+                availMsg.style.color = '#B3261E';
+                availMsg.textContent = (j && j.message) || 'Dates invalides.';
+              }
+              setPayLabel(x.price_cents);
+              payBtn.disabled = true;
+            }
+          })
+          .catch(function () {
+            if (availMsg) { availMsg.style.color = '#B3261E'; availMsg.textContent = 'Connexion impossible.'; }
+            payBtn.disabled = true;
+          });
+      }
+      arriveInp.addEventListener('change', refreshWeekly);
+      departInp.addEventListener('change', refreshWeekly);
     } else if (dated) {
       payBtn.disabled = true;
       var dateInp = node.querySelector('#exDate');
@@ -326,6 +388,15 @@
         payload.extra_id = x.id;
         payload.late_date = late;
         payload.early_date = early;
+      } else if (isWeekly) {
+        var arrival = ((node.querySelector('#exArrive') || {}).value || '');
+        var departure = ((node.querySelector('#exDepart') || {}).value || '');
+        if (!arrival || !departure) { err.textContent = 'Indiquez vos dates d’arrivée et de départ.'; return; }
+        if (!weeklyQuote || !weeklyQuote.weeks) { err.textContent = 'Vérifiez vos dates.'; return; }
+        payload.kind = 'weekly';
+        payload.extra_id = x.id;
+        payload.arrival_date = arrival;
+        payload.departure_date = departure;
       } else {
         var date = dated ? ((node.querySelector('#exDate') || {}).value || '') : '';
         if (dated && !date) { err.textContent = 'Indiquez la date.'; return; }
@@ -334,16 +405,17 @@
         if (x.promo && x.promo.id) payload.promo_id = x.promo.id;
       }
 
+      var payCents = (isWeekly && weeklyQuote && weeklyQuote.amount_cents) ? weeklyQuote.amount_cents : x.price_cents;
       payBtn.disabled = true; payBtn.innerHTML = card() + 'Redirection…';
       fetch('/api/extras-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload) })
         .then(function (r) { return r.json(); })
         .then(function (j) {
           if (j && j.ok && j.url) { window.location.href = j.url; return; }
-          payBtn.disabled = false; payBtn.innerHTML = card() + 'Payer ' + euros(x.price_cents, CUR);
+          payBtn.disabled = false; setPayLabel(payCents);
           err.textContent = (j && j.message) || 'Une erreur est survenue. Réessayez.';
         })
-        .catch(function () { payBtn.disabled = false; payBtn.innerHTML = card() + 'Payer ' + euros(x.price_cents, CUR); err.textContent = 'Connexion impossible.'; });
+        .catch(function () { payBtn.disabled = false; setPayLabel(payCents); err.textContent = 'Connexion impossible.'; });
     });
   }
 
