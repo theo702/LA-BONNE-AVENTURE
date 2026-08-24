@@ -4,6 +4,7 @@
 // On se base sur les extras DÉJÀ PAYÉS (mémoire), pas sur le calendrier des réservations.
 const OPPOSITE = { late_checkout: 'early_checkin', early_checkin: 'late_checkout' };
 
+// Vérifie qu'un kind simple (late_checkout ou early_checkin) est disponible à une date.
 export async function extraAvailable(env, kind, date) {
   if (!OPPOSITE[kind]) return { available: true };
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return { available: false, needsDate: true, message: 'Indiquez la date concernée.' };
@@ -29,5 +30,19 @@ export async function extraAvailable(env, kind, date) {
         : "Indisponible : un départ tardif est déjà réservé ce jour-là.",
     };
   }
+  return { available: true };
+}
+
+// Vérifie qu'un extra "both" (départ tardif + arrivée anticipée) est disponible :
+// - lateDate : pas d'arrivée anticipée déjà réservée ce jour-là
+// - earlyDate : pas de départ tardif déjà réservé ce jour-là
+export async function extraAvailableBoth(env, lateDate, earlyDate) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(lateDate || '') || !/^\d{4}-\d{2}-\d{2}$/.test(earlyDate || '')) {
+    return { available: false, needsDate: true, message: 'Indiquez les deux dates.' };
+  }
+  const avLate = await extraAvailable(env, 'late_checkout', lateDate);
+  if (!avLate.available) return avLate;
+  const avEarly = await extraAvailable(env, 'early_checkin', earlyDate);
+  if (!avEarly.available) return avEarly;
   return { available: true };
 }
