@@ -122,6 +122,61 @@
     start();
   }
 
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function norm(s) {
+    return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  function currentSignatures() {
+    var set = new Set();
+    Array.prototype.slice.call(track.querySelectorAll('.review blockquote')).forEach(function (bq) {
+      set.add(norm(bq.textContent));
+    });
+    return set;
+  }
+
+  function appendGoogleReviews(rows) {
+    var existing = currentSignatures();
+    var added = 0;
+    (rows || []).forEach(function (r) {
+      if (!r || !r.text || Number(r.rating || 0) < 5) return;
+      var sig = norm(r.text);
+      if (!sig || existing.has(sig)) return;
+      existing.add(sig);
+
+      var fig = document.createElement('figure');
+      fig.className = 'review';
+      fig.innerHTML =
+        '<span class="quote-mark" aria-hidden="true">“</span>' +
+        '<div class="rev-stars" aria-label="5 étoiles sur 5">★★★★★</div>' +
+        '<blockquote>' + esc(r.text) + '</blockquote>' +
+        '<figcaption><b>' + esc(r.author || 'Voyageur') + '</b><span>' + esc(r.relative_time || '') + '</span></figcaption>';
+      track.appendChild(fig);
+      added += 1;
+    });
+    return added;
+  }
+
+  function hydrateGoogleReviews() {
+    return fetch('/api/reviews', { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok || !Array.isArray(j.reviews) || !j.reviews.length) return;
+        var added = appendGoogleReviews(j.reviews);
+        if (added > 0) {
+          n = track.querySelectorAll('.review').length;
+          layout();
+          restart();
+        }
+      })
+      .catch(function () { /* non bloquant */ });
+  }
+
   if (btnNext) btnNext.addEventListener('click', function () { next(); restart(); });
   if (btnPrev) btnPrev.addEventListener('click', function () { prev(); restart(); });
 
@@ -175,4 +230,5 @@
 
   layout();
   start();
+  hydrateGoogleReviews();
 })();
