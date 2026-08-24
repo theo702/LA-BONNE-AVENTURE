@@ -3,6 +3,7 @@ import {
   getExtra, createExtraOrder, attachExtraSession, getExtraPromotion, listExtraPromotions,
 } from '../_lib/db.js';
 import { extraAvailable, extraAvailableBoth } from '../_lib/extraAvail.js';
+import { weeklyPackQuote } from '../_lib/weeklyPack.js';
 
 function isEmail(s) { return typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
 function todayYmd() { return new Date().toISOString().slice(0, 10); }
@@ -29,6 +30,64 @@ export async function onRequestPost({ env, request }) {
   const promoId = body.promo_id ? parseInt(body.promo_id, 10) : 0;
   const isPack = body.kind === 'flex_pack' || String(body.extra_id || '').startsWith('pack:');
   const isBoth = !isPack && body.kind === 'both';
+  const isWeekly = !isPack && !isBoth && body.kind === 'weekly';
+
+  // ---------- Pack curiste : arrivée + départ → N samedis (1–4) × prix / sem. ----------
+  if (isWeekly) {
+    const extra = await getExtra(env, parseInt(body.extra_id, 10));
+    if (!extra || !extra.active || extra.kind !== 'weekly') {
+      return Response.json({ ok: false, message: 'Extra indisponible.' }, { status: 404 });
+    }
+    const arrival = (body.arrival_date || body.early_date || body.date_arrival || '').toString().trim();
+    const departure = (body.departure_date || body.late_date || body.date_departure || '').toString().trim();
+    const quote = weeklyPackQuote(arrival, departure, extra.price_cents);
+    if (!quote.ok || quote.amount_cents <= 0) {
+      return Response.json({ ok: false, error: 'dates', message: quote.message || 'Dates invalides.' }, { status: 400 });
+    }
+    const weeks = quote.weeks;
+    const amount = quote.amount_cents;
+    const title = `${extra.title} × ${weeks} sem.`;
+    const { id } = await createExtraOrder(env, {
+      extra_id: extra.id,
+      title: `${title} (${arrival} → ${departure})`,
+      amount_cents: amount,
+      currency,
+      guest_name: name,
+      email,
+      kind: 'weekly',
+      service_date: arrival,
+    });
+
+    const form = new URLSearchParams();
+    form.set('mode', 'payment');
+    form.set('success_url', `${origin}/extras?extra=confirmee&session_id={CHECKOUT_SESSION_ID}`);
+    form.set('cancel_url', `${origin}/extras?extra=annulee`);
+    form.set('customer_email', email);
+    form.set('client_reference_id', id);
+    form.set('metadata[kind]', 'extra');
+    form.set('metadata[order_id]', id);
+    form.set('metadata[weeks]', String(weeks));
+    form.set('metadata[arrival]', arrival);
+    form.set('metadata[departure]', departure);
+    form.set('payment_intent_data[metadata][kind]', 'extra');
+    form.set('payment_intent_data[metadata][order_id]', id);
+    form.set('line_items[0][quantity]', '1');
+    form.set('line_items[0][price_data][currency]', currency);
+    form.set('line_items[0][price_data][unit_amount]', String(amount));
+    form.set('line_items[0][price_data][product_data][name]', `${title} · La Bonne Aventure`);
+    form.set('line_items[0][price_data][product_data][description]',
+      `${weeks} ménage${weeks > 1 ? 's' : ''} + linge · séjour ${arrival} → ${departure}`);
+
+    const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form,
+    });
+    if (!res.ok) return Response.json({ ok: false, message: 'Paiement impossible.' }, { status: 502 });
+    const session = await res.json();
+    await attachExtraSession(env, id, session.id);
+    return Response.json({ ok: true, url: session.url, weeks, amount_cents: amount });
+  }
 
   // ---------- Pack flexibilité : départ tardif + arrivée anticipée pour le prix d'un ----------
   if (isPack) {
@@ -149,6 +208,12 @@ export async function onRequestPost({ env, request }) {
   // ---------- Extra simple (+ éventuelle réduction %) ----------
   const extra = await getExtra(env, parseInt(body.extra_id, 10));
   if (!extra || !extra.active) return Response.json({ ok: false, message: 'Extra indisponible.' }, { status: 404 });
+  if (extra.kind === 'weekly') {
+    return Response.json({
+      ok: false,
+      message: 'Indiquez vos dates d’arrivée et de départ pour le pack curiste.',
+    }, { status: 400 });
+  }
 
   const serviceDate = (body.date || '').toString().trim();
   if (extra.kind === 'late_checkout' || extra.kind === 'early_checkin') {

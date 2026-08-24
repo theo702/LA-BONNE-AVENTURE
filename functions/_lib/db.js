@@ -79,23 +79,29 @@ export async function deleteExtra(env, id) {
   await env.DB.prepare(`DELETE FROM extras WHERE id = ?1`).bind(id).run();
 }
 
-/** Crée une fois le Pack curiste s'il n'existe pas encore. */
+/** Crée une fois le Pack curiste s'il n'existe pas encore. Met à jour le texte si déjà présent. */
 export async function seedPackCuristeOnce(env) {
   try {
     if (!env || !env.DB) return;
     const row = await env.DB.prepare(
       `SELECT id FROM extras WHERE title LIKE '%Pack curiste%' LIMIT 1`
     ).first();
-    if (row) return;
-    await createExtra(env, {
+    const copy = {
       title: 'Pack curiste : ménage + linge hebdo',
-      description: 'Ménage complet et renouvellement du linge une fois par semaine — idéal pour les cures et longs séjours.',
-      condition: 'Une intervention par semaine · sous réserve de planning',
+      description: 'Ménage complet et renouvellement du linge une fois par semaine (par samedi de séjour) — idéal pour les cures.',
+      condition: 'Facturé 1 à 4 sem. selon le nombre de samedis entre arrivée et départ · sous réserve de planning',
       price_cents: 4500,
       kind: 'weekly',
       active: 1,
       position: 5,
-    });
+    };
+    if (row) {
+      await env.DB.prepare(
+        `UPDATE extras SET description=?1, condition=?2, kind='weekly' WHERE id=?3`
+      ).bind(copy.description, copy.condition, row.id).run();
+      return;
+    }
+    await createExtra(env, copy);
   } catch (e) { /* non bloquant */ }
 }
 
