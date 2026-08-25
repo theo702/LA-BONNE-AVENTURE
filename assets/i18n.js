@@ -19,10 +19,10 @@
     'hero.h1.a': { fr: 'Un studio', en: 'A studio', es: 'Un estudio', de: 'Ein Studio' },
     'hero.h1.b': { fr: "au cœur d'Aix", en: 'in the heart of Aix', es: 'en el corazón de Aix', de: 'im Herzen von Aix' },
     'hero.p': {
-      fr: "Un cocon ~25\u00a0m² au cœur d'Aix — lac du Bourget, thermes et centre à pied. Calme, lumière douce, tout pour se sentir chez soi.",
-      en: 'A cosy ~25\u00a0m² nest in the heart of Aix — Lake Bourget, thermal spas and the centre on foot. Calm, soft light, everything to feel at home.',
-      es: 'Un rincón acogedor de ~25\u00a0m² en el corazón de Aix: lago del Bourget, termas y centro a pie. Calma, luz suave, todo para sentirte como en casa.',
-      de: 'Ein gemütliches ~25\u00a0m² Nest im Herzen von Aix — Lac du Bourget, Thermen und Zentrum zu Fuß. Ruhig, sanftes Licht, alles zum Wohlfühlen.'
+      fr: 'Face au lac du Bourget, aux thermes et à la ville — un cocon ~25\u00a0m² pour se sentir chez soi.',
+      en: 'By Lake Bourget, the spas and the town — a ~25\u00a0m² cocoon that feels like home.',
+      es: 'Junto al lago del Bourget, las termas y el centro — un rincón de ~25\u00a0m² para sentirte como en casa.',
+      de: 'Am Lac du Bourget, den Thermen und der Stadt — ein ~25\u00a0m² Cocoon zum Ankommen.'
     },
     'hero.cta.book': { fr: 'Voir les disponibilités', en: 'Check availability', es: 'Ver disponibilidad', de: 'Verfügbarkeit prüfen' },
     'hero.cta.discover': { fr: 'Découvrir le logement', en: 'Discover the flat', es: 'Descubrir el alojamiento', de: 'Die Unterkunft entdecken' },
@@ -79,12 +79,13 @@
     'sec.aix.kicker': { fr: 'Aux alentours', en: 'Nearby', es: 'Alrededores', de: 'In der Nähe' },
     'sec.aix.h2': { fr: 'Aix-les-Bains, <span class="it">à vivre</span>', en: 'Aix-les-Bains, <span class="it">to experience</span>', es: 'Aix-les-Bains, <span class="it">para vivir</span>', de: 'Aix-les-Bains, <span class="it">erleben</span>' },
     'sec.aix.lede': {
-      fr: "Entre lac du Bourget, thermes et montagnes — le meilleur d'Aix à quelques minutes à pied.",
-      en: 'Between Lake Bourget, thermal spas and mountains — the best of Aix a few minutes on foot.',
-      es: 'Entre el lago del Bourget, las termas y las montañas: lo mejor de Aix a pocos minutos a pie.',
-      de: 'Zwischen Lac du Bourget, Thermen und Bergen — das Beste von Aix nur wenige Minuten zu Fuß.'
+      fr: 'Lac du Bourget, abbaye d’Hautecombe, thermes et montagnes — le meilleur d’Aix à portée de main.',
+      en: 'Lake Bourget, Hautecombe Abbey, spas and mountains — the best of Aix within easy reach.',
+      es: 'Lago del Bourget, abadía de Hautecombe, termas y montañas: lo mejor de Aix al alcance.',
+      de: 'Lac du Bourget, Abtei Hautecombe, Thermen und Berge — das Beste von Aix in Reichweite.'
     },
     'cap.lake': { fr: 'Le lac du Bourget', en: 'Lake Bourget', es: 'El lago del Bourget', de: 'Der Lac du Bourget' },
+    'cap.hautecombe': { fr: 'Abbaye d’Hautecombe', en: 'Hautecombe Abbey', es: 'Abadía de Hautecombe', de: 'Abtei Hautecombe' },
     'cap.centre': { fr: 'Le centre-ville', en: 'The town centre', es: 'El centro', de: 'Die Innenstadt' },
     'cap.mountains': { fr: 'Les montagnes en hiver', en: 'The mountains in winter', es: 'Las montañas en invierno', de: 'Die Berge im Winter' },
 

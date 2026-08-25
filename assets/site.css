@@ -205,12 +205,12 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 
 /* ---------- Hero ---------- */
 .hero{position:relative;overflow:hidden;min-height:100svh;min-height:100vh;display:flex;color:#FBF7EE}
-.hero .bg,.hero .bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero .bg,.hero .bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:72% 42%}
 .hero .wash{
   position:absolute;inset:0;
   background:
-    linear-gradient(180deg,rgba(8,20,40,.62) 0%,rgba(15,42,74,.22) 36%,rgba(8,18,36,.93) 100%),
-    radial-gradient(ellipse at 70% 20%,rgba(217,151,26,.14),transparent 55%);
+    linear-gradient(180deg,rgba(6,16,32,.55) 0%,rgba(10,28,48,.18) 38%,rgba(6,14,28,.9) 100%),
+    radial-gradient(ellipse at 78% 28%,rgba(217,151,26,.12),transparent 52%);
 }
 .hero .frond{position:absolute;top:8%;right:-18px;width:140px;height:230px;color:rgba(251,247,238,.22);opacity:.95;pointer-events:none}
 .hero .frond svg{width:100%;height:100%}
@@ -311,6 +311,32 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .amen .ai svg{width:19px;height:19px}
 .amen b{display:block;font-family:'Jost';font-weight:600;font-size:13.5px;color:var(--ink);margin-bottom:3px}
 .amen span{font-size:12px;color:var(--ink-soft);font-weight:300;line-height:1.45}
+
+/* Accueil — grille équipements (sans emojis) */
+.amenities{margin:28px 0 8px}
+.amenities-title{
+  font-family:'Fraunces',serif;font-weight:500;font-size:22px;color:var(--ink);
+  margin:0 0 14px;letter-spacing:-.01em;
+}
+.amenities-grid{
+  list-style:none;margin:0;padding:0;
+  display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;
+}
+.amenities-grid li{
+  font-family:'Jost',sans-serif;font-size:13.5px;font-weight:400;color:var(--ink);
+  padding:11px 12px 11px 14px;border-radius:14px;
+  background:linear-gradient(165deg,#fff,rgba(241,236,224,.55));
+  box-shadow:inset 0 0 0 1px rgba(230,225,212,.85);
+  position:relative;line-height:1.35;
+}
+.amenities-grid li::before{
+  content:"";position:absolute;left:0;top:12px;bottom:12px;width:2px;
+  background:linear-gradient(180deg,var(--gold),transparent);border-radius:2px;opacity:.8;
+}
+@media (min-width:760px){
+  .amenities-grid{grid-template-columns:repeat(3,1fr);gap:10px 14px}
+  .amenities-title{font-size:26px}
+}
 
 /* ---------- Bloc « pourquoi réserver en direct » ---------- */
 .why{position:relative;overflow:hidden;margin:28px 0 8px;padding:28px 22px;
