@@ -116,6 +116,12 @@
       es: 'Pago seguro con Stripe · confirmación inmediata · tasa turística aparte.',
       de: 'Sichere Zahlung über Stripe · sofortige Bestätigung · Kurtaxe extra.'
     },
+    'sec.book.airbnb': {
+      fr: 'Vous préférez passer par Airbnb&nbsp;? <a href="https://www.airbnb.fr/h/labonneaventure" target="_blank" rel="noopener">Voir l’annonce</a>',
+      en: 'Prefer Airbnb&nbsp;? <a href="https://www.airbnb.fr/h/labonneaventure" target="_blank" rel="noopener">View the listing</a>',
+      es: '¿Prefieres Airbnb&nbsp;? <a href="https://www.airbnb.fr/h/labonneaventure" target="_blank" rel="noopener">Ver el anuncio</a>',
+      de: 'Lieber über Airbnb&nbsp;? <a href="https://www.airbnb.fr/h/labonneaventure" target="_blank" rel="noopener">Zur Anzeige</a>'
+    },
     'sec.book.whatsapp': {
       fr: 'Une question ? Écrivez-moi sur WhatsApp',
       en: 'A question? Message me on WhatsApp',
