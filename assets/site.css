@@ -277,6 +277,16 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 
 .note{font-size:12.5px;color:var(--ink-soft);font-weight:300;line-height:1.5;margin:12px 2px 0}
 .fineprint{font-size:12px;color:var(--ink-soft);font-weight:300;text-align:center;margin:12px 0 0}
+.book-airbnb{
+  text-align:center;margin:14px 0 0;font-family:'Jost',sans-serif;
+  font-size:13px;font-weight:300;color:var(--ink-soft);line-height:1.45;
+}
+.book-airbnb a{
+  color:var(--ink);font-weight:500;text-decoration:none;
+  border-bottom:1px solid rgba(26,20,8,.22);padding-bottom:1px;
+  transition:border-color .18s ease,color .18s ease;
+}
+.book-airbnb a:hover{color:var(--gold-deep,#a9760f);border-bottom-color:var(--gold-deep,#a9760f)}
 
 /* ---------- Statistiques (arrivée/départ) ---------- */
 .stat-wrap{display:flex;gap:12px;margin:20px 0 6px}
@@ -1034,6 +1044,7 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .sec-book-head h2{margin-bottom:10px}
 .sec-book-head .lede{margin-left:auto;margin-right:auto;margin-bottom:0}
 .sec-book .cta{margin-left:auto;margin-right:auto}
+.sec-book .book-airbnb{max-width:42ch;margin-left:auto;margin-right:auto}
 .sec-book .footer-credit{margin-top:40px}
 
 @media(max-width:560px){
