@@ -30,10 +30,10 @@
     'sec.logement.kicker': { fr: 'Le logement', en: 'The flat', es: 'El alojamiento', de: 'Die Unterkunft' },
     'sec.logement.h2': { fr: 'Un studio <span class="it">entièrement rénové</span>', en: 'A <span class="it">fully renovated</span> studio', es: 'Un estudio <span class="it">completamente renovado</span>', de: 'Ein <span class="it">komplett renoviertes</span> Studio' },
     'sec.logement.pull': {
-      fr: "5 m² en plein hypercentre d'Aix-les-Bains, refait à neuf. Lit queen size, kitchenette complète, clim réversible, et un patio privé rien qu'à vous pour le café du matin. Commerces, restaurants et gare à pied — le lac du Bourget à 5 min en voiture.",
-      en: '5 m² in the heart of Aix-les-Bains, fully renovated. Queen-size bed, complete kitchenette, reversible air conditioning, and a private patio just for you for morning coffee. Shops, restaurants and station on foot — Lake Bourget 5 min by car.',
-      es: '5 m² en pleno centro de Aix-les-Bains, totalmente renovado. Cama queen size, cocina completa, climatización reversible y un patio privado solo para ti. Comercios, restaurantes y estación a pie — el lago Bourget a 5 min en coche.',
-      de: '5 m² mitten im Zentrum von Aix-les-Bains, komplett renoviert. Queensize-Bett, vollausgestattete Küchenzeile, reversible Klimaanlage und eine private Terrasse nur für Sie. Geschäfte, Restaurants und Bahnhof zu Fuß — Lac du Bourget 5 min mit dem Auto.'
+      fr: "25 m² en plein hypercentre d'Aix-les-Bains, refait à neuf. Lit queen size, kitchenette complète, clim réversible, et un patio privé rien qu'à vous pour le café du matin. Commerces, restaurants et gare à pied — le lac du Bourget à 5 min en voiture.",
+      en: '25 m² in the heart of Aix-les-Bains, fully renovated. Queen-size bed, complete kitchenette, reversible air conditioning, and a private patio just for you for morning coffee. Shops, restaurants and station on foot — Lake Bourget 5 min by car.',
+      es: '25 m² en pleno centro de Aix-les-Bains, totalmente renovado. Cama queen size, cocina completa, climatización reversible y un patio privado solo para ti. Comercios, restaurantes y estación a pie — el lago Bourget a 5 min en coche.',
+      de: '25 m² mitten im Zentrum von Aix-les-Bains, komplett renoviert. Queensize-Bett, vollausgestattete Küchenzeile, reversible Klimaanlage und eine private Terrasse nur für Sie. Geschäfte, Restaurants und Bahnhof zu Fuß — Lac du Bourget 5 min mit dem Auto.'
     },
     'fact.m2': { fr: 'Hypercentre, à pied de tout', en: 'Town centre, everything on foot', es: 'Hipercentro, todo a pie', de: 'Zentrum, alles zu Fuß' },
     'fact.bed': { fr: 'Matelas neuf, stores occultants', en: 'New mattress, blackout blinds', es: 'Colchón nuevo, persianas opacas', de: 'Neue Matratze, Verdunkelungsrollos' },
