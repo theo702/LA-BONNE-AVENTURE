@@ -84,7 +84,7 @@
       es: 'Lago del Bourget, abadía de Hautecombe, termas y montañas: lo mejor de Aix al alcance.',
       de: 'Lac du Bourget, Abtei Hautecombe, Thermen und Berge — das Beste von Aix in Reichweite.'
     },
-    'cap.lake': { fr: 'Le lac du Bourget', en: 'Lake Bourget', es: 'El lago del Bourget', de: 'Der Lac du Bourget' },
+    'cap.jardins': { fr: 'Jardins fleuris', en: 'Flower gardens', es: 'Jardines en flor', de: 'Blumenparks' },
     'cap.hautecombe': { fr: 'Abbaye d’Hautecombe', en: 'Hautecombe Abbey', es: 'Abadía de Hautecombe', de: 'Abtei Hautecombe' },
     'cap.centre': { fr: 'Le centre-ville', en: 'The town centre', es: 'El centro', de: 'Die Innenstadt' },
     'cap.mountains': { fr: 'Les montagnes en hiver', en: 'The mountains in winter', es: 'Las montañas en invierno', de: 'Die Berge im Winter' },
