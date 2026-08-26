@@ -423,11 +423,30 @@
   }
 
   function thankYou(j) {
+    if (j && (j.early || j.late)) {
+      try {
+        var prev = {};
+        try { prev = JSON.parse(localStorage.getItem('lba_flex_hours') || '{}') || {}; } catch (e) {}
+        localStorage.setItem('lba_flex_hours', JSON.stringify({
+          early: !!(prev.early || j.early),
+          late: !!(prev.late || j.late),
+          email: j.email || prev.email || '',
+        }));
+      } catch (e) {}
+    }
+    var hoursLine = '';
+    if (j && (j.early || j.late)) {
+      var bits = [];
+      if (j.early) bits.push('arrivée dès <b>12h</b>');
+      if (j.late) bits.push('départ jusqu’à <b>14h</b>');
+      hoursLine = '<p class="bw-modal-msg">Horaires mis à jour dans votre livret : ' + bits.join(' · ') + '.</p>';
+    }
     var node = el('<div class="bw-modal"><div class="bw-modal-card">' +
       '<button class="bw-modal-x" aria-label="Fermer">&times;</button>' +
       '<div class="bw-modal-check">' + check() + '</div>' +
       '<h3>Merci&nbsp;!</h3><p class="bw-modal-sub">Votre extra est confirmé 🌴</p>' +
       '<div class="bw-modal-recap"><div><span>' + esc(j.title || 'Extra') + '</span><b>' + euros(j.amount_cents, j.currency) + '</b></div></div>' +
+      hoursLine +
       '<p class="bw-modal-msg">Un email de confirmation vous a été envoyé. Théo revient vers vous pour les détails. À très vite&nbsp;!</p>' +
       '<button class="bw-modal-close">Parfait, merci&nbsp;!</button></div></div>');
     document.body.appendChild(node);

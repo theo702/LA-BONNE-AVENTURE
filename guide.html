@@ -21,7 +21,7 @@
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/site.css?v=18">
-<link rel="stylesheet" href="assets/guide.css?v=17">
+<link rel="stylesheet" href="assets/guide.css?v=18">
 <style>
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
@@ -71,22 +71,23 @@
         <p class="pull reveal" style="--i:1"><span class="drop">B</span>ienvenue chez nous. Vous trouverez dans ce livret tout le nécessaire : l'accès au logement, les infos pratiques, les règles de la maison, mes adresses coups de cœur et les numéros utiles.</p>
         <div class="sign reveal" style="--i:2">— Théo</div>
 
-        <div class="hours reveal" style="--i:3">
-          <div><div class="sk">Arrivée</div><div class="sv">16:00</div><div class="sx">à partir de</div></div>
-          <div><div class="sk">Départ</div><div class="sv">11:00</div><div class="sx">avant</div></div>
+        <div class="hours reveal" style="--i:3" id="guide-hours">
+          <div><div class="sk">Arrivée</div><div class="sv" id="guide-arrive-time">16:00</div><div class="sx" id="guide-arrive-hint">à partir de</div></div>
+          <div><div class="sk">Départ</div><div class="sv" id="guide-depart-time">10:00</div><div class="sx" id="guide-depart-hint">avant</div></div>
         </div>
+        <p class="hours-flex-note" id="guide-hours-note" hidden></p>
 
         <a class="guide-upsell reveal" style="--i:4" href="extras.html">
           <span class="guide-upsell-badge">Meilleure offre · 15&nbsp;€</span>
           <div class="guide-upsell-kicker">Arrivée &amp; départ flexibles</div>
           <h3>Départ tardif + Arrivée anticipée</h3>
-          <p>Arrivez 2&nbsp;h plus tôt <b>et</b> partez 2&nbsp;h plus tard — les deux pour le prix d’un seul.</p>
+          <p>Arrivez dès 12h <b>et</b> partez jusqu’à 14h — les deux pour le prix d’un seul.</p>
           <span class="guide-upsell-cta">Profiter de l’offre →</span>
         </a>
 
         <div class="guide-upsell-mini reveal" style="--i:5">
-          <a href="extras.html">Arrivée dès 14h · 10&nbsp;€</a>
-          <a href="extras.html">Départ jusqu’à 13h · 10&nbsp;€</a>
+          <a href="extras.html">Arrivée dès 12h · 10&nbsp;€</a>
+          <a href="extras.html">Départ jusqu’à 14h · 10&nbsp;€</a>
         </div>
 
         <div class="divider reveal" style="--i:5"><span class="lab">Long séjour &amp; cure</span><span class="ln"></span></div>
@@ -113,7 +114,7 @@
         <a class="guide-upsell guide-upsell-soft reveal" style="--i:2" href="extras.html">
           <div class="guide-upsell-kicker">Option arrivée</div>
           <h3>Besoin d’arriver avant 16h&nbsp;?</h3>
-          <p>Arrivée anticipée dès 14h — <b>10&nbsp;€</b>. Ou prenez le pack (arrivée + départ) à <b>15&nbsp;€</b>.</p>
+          <p>Arrivée anticipée dès 12h — <b>10&nbsp;€</b>. Ou prenez le pack (arrivée + départ) à <b>15&nbsp;€</b>.</p>
           <span class="guide-upsell-cta">Réserver maintenant →</span>
         </a>
 
@@ -173,7 +174,7 @@
           <span class="guide-upsell-badge">−5&nbsp;€ vs séparément</span>
           <div class="guide-upsell-kicker">Pack flexibilité</div>
           <h3>Les deux pour 15&nbsp;€</h3>
-          <p>Départ tardif (jusqu’à 13h) + arrivée anticipée (dès 14h). Plus simple, moins cher.</p>
+          <p>Départ tardif (jusqu’à 14h) + arrivée anticipée (dès 12h). Plus simple, moins cher.</p>
           <span class="guide-upsell-cta">Voir l’offre →</span>
         </a>
         <div class="guide-upsell-mini reveal" style="--i:8">
@@ -229,7 +230,7 @@
 
         <a class="guide-upsell guide-upsell-soft reveal" style="--i:3" href="extras.html">
           <div class="guide-upsell-kicker">Option départ</div>
-          <h3>Un train plus tard&nbsp;? Gardez le studio jusqu’à 13h</h3>
+          <h3>Un train plus tard&nbsp;? Gardez le studio jusqu’à 14h</h3>
           <p>Départ tardif à <b>10&nbsp;€</b> — ou le pack arrivée + départ à <b>15&nbsp;€</b>.</p>
           <span class="guide-upsell-cta">Prolonger mon séjour →</span>
         </a>
@@ -471,10 +472,10 @@
     {k:["clé","cles","clés","clef","boite","boîte","code","entrer","entrée","entree","acces","accès","rentrer","serrure","ouvrir la porte"],a:"L'arrivée est autonome dès 16h00. Adresse : 9 rue Claude de Seyssel, 73100 Aix-les-Bains — entrez dans la cour, immeuble n°9 au fond à gauche, rez-de-chaussée. Boîte à clés dans la boîte aux lettres du bas (3 boîtes blanches empilées, déjà ouverte). Code : 2004. Vous y trouverez la clé de la porte et celle du portail — pensez à refermer la boîte aux lettres. Au départ, remettez les clés, refermez la boîte à clés, brouillez le code et refermez la boîte aux lettres."},
     {k:["portail"],a:"Le portail est ouvert la plupart du temps. S'il est fermé, ouvrez-le avec la clé du portail (dans la boîte à clés) ; de l'intérieur, il s'ouvre simplement à la poignée."},
     {k:["parking","garer","stationnement","voiture","se garer","stationner"],a:"Stationnement gratuit et payant dans les rues à proximité. Pour du couvert : le Parking de la Chaudanne (souterrain, 24h/24) — 30 min gratuites, ~0,80 €/h, 18 € la journée, 9 € la nuit. En voirie : 30 min gratuites puis zone orange 1 €/h ou zone verte 0,50 €/h (appli Flowbird)."},
-    {k:["horaire","horaires","heure","quelle heure","quel heure","check","règlement","arrivée et départ","arrivee et depart","arrivée et de départ","heure d'arrivée et de départ","arrivée départ"],a:"Arrivée à partir de 16h00 et départ avant 11h00. Besoin de plus de flexibilité ? Arrivée dès 14h (10 €), départ jusqu’à 13h (10 €), ou <a href='extras.html'><b>les deux pour 15 €</b></a>."},
-    {k:["arrivée","arrivee","arriver","arrivé","arrive","checkin","check-in","check in","quelle heure arriv","heure d","peux arriv"],a:"L'arrivée se fait à partir de 16h00, en autonomie via la boîte à clés. Vous pouvez arriver plus tôt dès 14h avec l’option <a href='extras.html'>Arrivée anticipée (10 €)</a> — ou le <a href='extras.html'><b>pack arrivée + départ à 15 €</b></a>."},
-    {k:["départ","depart","partir","parti","checkout","check-out","check out","rendre","quitter","libérer","liberer"],a:"Le départ se fait avant 11h00. Si vous avez un train plus tard, le <a href='extras.html'>Départ tardif jusqu’à 13h (10 €)</a> — ou le <a href='extras.html'><b>pack à 15 €</b></a>. Avant de partir : vaisselle, clim/chauffage off, fenêtres/volets/portail fermés, clés dans la boîte."},
-    {k:["extra","extras","tardif","anticip","flexible","flexibilité","14h","13h","plus tôt","plus tot","plus tard"],a:"Oui ! Arrivée anticipée dès 14h (10 €), départ tardif jusqu’à 13h (10 €), ou <a href='extras.html'><b>les deux pour 15 €</b></a>. Pour une cure : <a href='extras.html'><b>Pack curiste ménage + linge à 45 €/sem.</b></a>"},
+    {k:["horaire","horaires","heure","quelle heure","quel heure","check","règlement","arrivée et départ","arrivee et depart","arrivée et de départ","heure d'arrivée et de départ","arrivée départ"],a:"Arrivée à partir de 16h00 et départ avant 10h00. Besoin de plus de flexibilité ? Arrivée dès 12h (10 €), départ jusqu’à 14h (10 €), ou <a href='extras.html'><b>les deux pour 15 €</b></a>."},
+    {k:["arrivée","arrivee","arriver","arrivé","arrive","checkin","check-in","check in","quelle heure arriv","heure d","peux arriv"],a:"L'arrivée se fait à partir de 16h00, en autonomie via la boîte à clés. Vous pouvez arriver plus tôt dès 12h avec l’option <a href='extras.html'>Arrivée anticipée (10 €)</a> — ou le <a href='extras.html'><b>pack arrivée + départ à 15 €</b></a>."},
+    {k:["départ","depart","partir","parti","checkout","check-out","check out","rendre","quitter","libérer","liberer"],a:"Le départ se fait avant 10h00. Si vous avez un train plus tard, le <a href='extras.html'>Départ tardif jusqu’à 14h (10 €)</a> — ou le <a href='extras.html'><b>pack à 15 €</b></a>. Avant de partir : vaisselle, clim/chauffage off, fenêtres/volets/portail fermés, clés dans la boîte."},
+    {k:["extra","extras","tardif","anticip","flexible","flexibilité","12h","14h","10h","plus tôt","plus tot","plus tard"],a:"Oui ! Arrivée anticipée dès 12h (10 €), départ tardif jusqu’à 14h (10 €), ou <a href='extras.html'><b>les deux pour 15 €</b></a>. Pour une cure : <a href='extras.html'><b>Pack curiste ménage + linge à 45 €/sem.</b></a>"},
     {k:["curiste","cure","ménage","menage","linge","serviettes neuves","draps propres","hebdo","hebdomadaire","long séjour","long sejour","3 semaines","semaine"],a:"Pour les cures et longs séjours, le <a href='extras.html'><b>Pack curiste</b></a> inclut un ménage + renouvellement du linge une fois par semaine, à <b>45 €/sem.</b> On compte le nombre de <b>samedis</b> entre votre arrivée et votre départ (1 à 4). Réservation en ligne sous réserve de planning."},
     {k:["animaux","animal","chien","chat"],a:"Oui, les animaux sont les bienvenus ! Merci d'en prendre soin comme si le logement était le vôtre."},
     {k:["fumer","cigarette","fumeur","vapoter","clope"],a:"Le logement est non-fumeur à l'intérieur. Vous pouvez fumer en terrasse / au jardin."},
@@ -716,5 +717,6 @@ window.BOT_AN_EN = {"Le logement dispose du Wi-Fi. Réseau : SFR_LBA — Mot de 
 </script>
 
 <script src="assets/reveal.js" defer></script>
+<script src="assets/guide-hours.js?v=1" defer></script>
 </body>
 </html>
