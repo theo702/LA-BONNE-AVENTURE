@@ -152,8 +152,8 @@ CREATE TABLE IF NOT EXISTS extras (
   created_at  TEXT NOT NULL
 );
 INSERT OR IGNORE INTO extras (id,title,description,condition,price_cents,kind,position,created_at) VALUES
- (1,'Départ tardif','Profitez de votre hébergement 2 heures de plus le jour du départ — départ jusqu''à 13h00.','Sous réserve de disponibilité',1500,'late_checkout',1,'seed'),
- (2,'Arrivée anticipée','Accédez au logement 2 heures avant l''horaire habituel.','Sous réserve de disponibilité',1500,'early_checkin',2,'seed');
+ (1,'Départ tardif','Restez jusqu’à 14h le jour du départ (au lieu de 10h).','Sous réserve de disponibilité',1500,'late_checkout',1,'seed'),
+ (2,'Arrivée anticipée','Arrivez dès 12h (au lieu de 16h).','Sous réserve de disponibilité',1500,'early_checkin',2,'seed');
 
 -- ---------- Commandes d'extras ----------
 CREATE TABLE IF NOT EXISTS extra_orders (

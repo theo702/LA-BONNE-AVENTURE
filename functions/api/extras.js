@@ -1,5 +1,5 @@
 // GET /api/extras — liste publique des extras actifs + offres en cours.
-import { listExtras, listExtraPromotions, seedPackCuristeOnce } from '../_lib/db.js';
+import { listExtras, listExtraPromotions, seedPackCuristeOnce, seedFlexHoursCopyOnce } from '../_lib/db.js';
 
 function matchesTarget(promo, kind) {
   const t = promo.target || 'all';
@@ -8,6 +8,7 @@ function matchesTarget(promo, kind) {
 
 export async function onRequestGet({ env }) {
   try { await seedPackCuristeOnce(env); } catch (e) { /* ignore */ }
+  try { await seedFlexHoursCopyOnce(env); } catch (e) { /* ignore */ }
   let extras = [];
   let promotions = [];
   try { extras = await listExtras(env, true); } catch (e) { extras = []; }
