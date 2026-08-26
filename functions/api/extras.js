@@ -46,7 +46,7 @@ export async function onRequestGet({ env }) {
     id: 'pack:' + p.id,
     promo_id: p.id,
     title: p.title,
-    description: p.message || 'Départ tardif + arrivée anticipée pour le prix d’un seul.',
+    description: p.message || 'Arrivée dès 12h et départ jusqu’à 14h — les deux pour le prix d’un.',
     condition: 'Sous réserve de disponibilité des deux dates',
     price_cents: Math.max(0, Math.round(Number(p.pack_price_cents) || 1500)),
     price_cents_original: Math.max(0, Math.round(Number(p.pack_price_cents) || 1500) * 2),
