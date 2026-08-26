@@ -105,6 +105,29 @@ export async function seedPackCuristeOnce(env) {
   } catch (e) { /* non bloquant */ }
 }
 
+/** Aligne les textes flex (12h / 14h) sur les extras + packs déjà en base. */
+export async function seedFlexHoursCopyOnce(env) {
+  try {
+    if (!env || !env.DB) return;
+    const lateDesc = 'Restez jusqu’à 14h le jour du départ (au lieu de 10h).';
+    const earlyDesc = 'Arrivez dès 12h (au lieu de 16h).';
+    const bothDesc = 'Arrivée dès 12h et départ jusqu’à 14h — les deux pour le prix d’un.';
+    const packMsg = 'Arrivée dès 12h et départ jusqu’à 14h — les deux pour le prix d’un.';
+    await env.DB.prepare(
+      `UPDATE extras SET description=?1, condition='Sous réserve de disponibilité' WHERE kind='late_checkout'`
+    ).bind(lateDesc).run();
+    await env.DB.prepare(
+      `UPDATE extras SET description=?1, condition='Sous réserve de disponibilité' WHERE kind='early_checkin'`
+    ).bind(earlyDesc).run();
+    await env.DB.prepare(
+      `UPDATE extras SET description=?1, condition='Sous réserve de disponibilité' WHERE kind='both'`
+    ).bind(bothDesc).run();
+    await env.DB.prepare(
+      `UPDATE extra_promotions SET message=?1 WHERE kind='pack_flex'`
+    ).bind(packMsg).run();
+  } catch (e) { /* non bloquant */ }
+}
+
 // ---------- Commandes d'extras ----------
 export async function createExtraOrder(env, o) {
   const id = crypto.randomUUID();
