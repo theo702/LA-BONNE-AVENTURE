@@ -1,7 +1,7 @@
 /* La Bonne Aventure — i18n FR / EN / ES / DE
    Usage:
      - Mark text with data-i18n="key" (or data-i18n-html / data-i18n-placeholder / data-i18n-aria)
-     - Call LBA_I18N.mount() once; language persists in localStorage (lba_lang)
+     - Call LBA_I18N.mount() once; language follows the phone/browser locale automatically
 */
 (function (global) {
   var LANGS = ['fr', 'en', 'es', 'de'];
@@ -234,15 +234,28 @@
 
   var state = { lang: 'fr', ready: false };
 
+  function matchLang(code) {
+    if (!code) return null;
+    var nav = String(code).toLowerCase().replace('_', '-');
+    var short = nav.split('-')[0];
+    if (LANGS.indexOf(short) >= 0) return short;
+    return null;
+  }
+
   function detect() {
+    var list = [];
     try {
-      var saved = localStorage.getItem('lba_lang');
-      if (saved && LANGS.indexOf(saved) >= 0) return saved;
+      if (navigator.languages && navigator.languages.length) {
+        list = Array.prototype.slice.call(navigator.languages);
+      }
     } catch (e) {}
-    var nav = (navigator.language || navigator.userLanguage || 'fr').toLowerCase();
-    if (nav.indexOf('es') === 0) return 'es';
-    if (nav.indexOf('de') === 0) return 'de';
-    if (nav.indexOf('en') === 0) return 'en';
+    if (!list.length) {
+      list = [navigator.language || navigator.userLanguage || 'fr'];
+    }
+    for (var i = 0; i < list.length; i++) {
+      var hit = matchLang(list[i]);
+      if (hit) return hit;
+    }
     return 'fr';
   }
 
@@ -295,40 +308,39 @@
   function setLang(lang) {
     if (LANGS.indexOf(lang) < 0) return;
     state.lang = lang;
-    try { localStorage.setItem('lba_lang', lang); } catch (e) {}
     apply();
   }
 
   function switcherHTML(compact) {
-    var bits = LANGS.map(function (l) {
-      return '<button type="button" class="lba-lang-btn" data-lba-lang="' + l + '" aria-label="' + NAMES[l] + '">' + LABELS[l] + '</button>';
-    }).join('');
-    return '<div class="lba-lang' + (compact ? ' lba-lang-compact' : '') + '" role="group" aria-label="' + t('lang.label') + '">' + bits + '</div>';
+    // Sélecteur masqué : la langue suit automatiquement le téléphone / navigateur.
+    return '';
   }
 
   function mountSwitcher(target) {
     if (!target) return;
     if (typeof target === 'string') target = document.querySelector(target);
     if (!target) return;
-    target.innerHTML = switcherHTML(target.hasAttribute('data-compact'));
-    target.querySelectorAll('[data-lba-lang]').forEach(function (btn) {
-      btn.addEventListener('click', function () { setLang(btn.getAttribute('data-lba-lang')); });
-    });
-    apply();
+    target.innerHTML = '';
+    target.hidden = true;
+    target.setAttribute('aria-hidden', 'true');
   }
 
   function mount() {
     state.lang = detect();
+    // Nettoyage d’une éventuelle ancienne préférence manuelle
+    try { localStorage.removeItem('lba_lang'); } catch (e) {}
     document.querySelectorAll('[data-lba-switcher]').forEach(mountSwitcher);
-    // Auto-wire buttons if switcher already in DOM
-    document.querySelectorAll('[data-lba-lang]').forEach(function (btn) {
-      if (btn._lbaBound) return;
-      btn._lbaBound = true;
-      btn.addEventListener('click', function () { setLang(btn.getAttribute('data-lba-lang')); });
-    });
     apply();
     state.ready = true;
   }
+
+  // Si la langue du téléphone change pendant la visite
+  try {
+    window.addEventListener('languagechange', function () {
+      var next = detect();
+      if (next !== state.lang) setLang(next);
+    });
+  } catch (e) {}
 
   global.LBA_I18N = {
     LANGS: LANGS,
@@ -340,7 +352,8 @@
     apply: apply,
     mount: mount,
     mountSwitcher: mountSwitcher,
-    switcherHTML: switcherHTML
+    switcherHTML: switcherHTML,
+    detect: detect
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
