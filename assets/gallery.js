@@ -24,7 +24,8 @@
   });
 
   // 2) Lightbox (visionneuse plein écran) construite à la volée sur les vignettes valides.
-  var lb, lbImg, lbCap, list = [], idx = 0;
+  var lb, lbImg, lbCap, lbCount, list = [], idx = 0;
+  var swipe = { active: false, x0: 0, y0: 0, dx: 0, dy: 0, t0: 0, locked: '' };
 
   function build() {
     lb = document.createElement('div');
@@ -32,10 +33,11 @@
     lb.innerHTML = '<button class="lb-x" aria-label="Fermer">&times;</button>' +
       '<button class="lb-nav lb-prev" aria-label="Précédent">&#8249;</button>' +
       '<button class="lb-nav lb-next" aria-label="Suivant">&#8250;</button>' +
-      '<img alt=""><div class="lb-cap"></div>';
+      '<img alt=""><div class="lb-cap"></div><div class="lb-count" aria-live="polite"></div>';
     document.body.appendChild(lb);
     lbImg = lb.querySelector('img');
     lbCap = lb.querySelector('.lb-cap');
+    lbCount = lb.querySelector('.lb-count');
     lb.querySelector('.lb-x').addEventListener('click', close);
     lb.querySelector('.lb-prev').addEventListener('click', function (e) { e.stopPropagation(); step(-1); });
     lb.querySelector('.lb-next').addEventListener('click', function (e) { e.stopPropagation(); step(1); });
@@ -46,13 +48,86 @@
       else if (e.key === 'ArrowLeft') step(-1);
       else if (e.key === 'ArrowRight') step(1);
     });
+    bindSwipe(lb);
+  }
+
+  function bindSwipe(el) {
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    el.addEventListener('touchcancel', onTouchCancel, { passive: true });
+  }
+
+  function onTouchStart(e) {
+    if (!lb.classList.contains('open') || !e.touches || e.touches.length !== 1) return;
+    if (e.target.closest && e.target.closest('button')) return;
+    var t = e.touches[0];
+    swipe.active = true;
+    swipe.x0 = t.clientX;
+    swipe.y0 = t.clientY;
+    swipe.dx = 0;
+    swipe.dy = 0;
+    swipe.t0 = Date.now();
+    swipe.locked = '';
+    lbImg.style.transition = 'none';
+  }
+
+  function onTouchMove(e) {
+    if (!swipe.active) return;
+    var t = e.touches[0];
+    swipe.dx = t.clientX - swipe.x0;
+    swipe.dy = t.clientY - swipe.y0;
+    if (!swipe.locked) {
+      if (Math.abs(swipe.dx) > 8 || Math.abs(swipe.dy) > 8) {
+        swipe.locked = Math.abs(swipe.dx) > Math.abs(swipe.dy) ? 'x' : 'y';
+      }
+    }
+    if (swipe.locked === 'x') {
+      e.preventDefault();
+      var w = window.innerWidth || 1;
+      var resist = swipe.dx * (1 - Math.min(0.55, Math.abs(swipe.dx) / w));
+      lbImg.style.transform = 'translateX(' + resist + 'px)';
+      lbImg.style.opacity = String(Math.max(0.45, 1 - Math.abs(swipe.dx) / (w * 1.2)));
+    }
+  }
+
+  function onTouchEnd() {
+    if (!swipe.active) return;
+    var dx = swipe.dx;
+    var dy = swipe.dy;
+    var dt = Math.max(1, Date.now() - swipe.t0);
+    var vx = Math.abs(dx) / dt;
+    var horizontal = swipe.locked === 'x' || (swipe.locked === '' && Math.abs(dx) > Math.abs(dy));
+    swipe.active = false;
+    swipe.locked = '';
+    lbImg.style.transition = 'transform .28s ease, opacity .28s ease';
+    lbImg.style.transform = '';
+    lbImg.style.opacity = '';
+
+    if (!horizontal || list.length < 2) return;
+    var threshold = Math.min(72, (window.innerWidth || 320) * 0.18);
+    if (dx <= -threshold || (dx < -28 && vx > 0.45)) step(1);
+    else if (dx >= threshold || (dx > 28 && vx > 0.45)) step(-1);
+  }
+
+  function onTouchCancel() {
+    if (!swipe.active) return;
+    swipe.active = false;
+    swipe.locked = '';
+    lbImg.style.transition = 'transform .22s ease, opacity .22s ease';
+    lbImg.style.transform = '';
+    lbImg.style.opacity = '';
   }
 
   function show() {
     var a = list[idx];
     if (!a) return;
+    lbImg.style.transition = '';
+    lbImg.style.transform = '';
+    lbImg.style.opacity = '';
     lbImg.src = a.getAttribute('href');
     lbCap.textContent = a.getAttribute('data-lb') || '';
+    if (lbCount) lbCount.textContent = list.length > 1 ? (idx + 1) + ' / ' + list.length : '';
     lb.querySelector('.lb-prev').style.visibility = list.length > 1 ? 'visible' : 'hidden';
     lb.querySelector('.lb-next').style.visibility = list.length > 1 ? 'visible' : 'hidden';
   }
@@ -62,6 +137,11 @@
   function close() {
     lb.classList.remove('open');
     document.documentElement.style.overflow = '';
+    if (lbImg) {
+      lbImg.style.transition = '';
+      lbImg.style.transform = '';
+      lbImg.style.opacity = '';
+    }
   }
 
   function openAt(items, start) {

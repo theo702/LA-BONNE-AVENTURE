@@ -644,22 +644,36 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 }
 
 .lb{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
-  background:rgba(8,16,30,.93);opacity:0;pointer-events:none;transition:opacity .25s}
+  background:rgba(8,16,30,.93);opacity:0;pointer-events:none;transition:opacity .25s;
+  touch-action:pan-y;overscroll-behavior:contain;-webkit-user-select:none;user-select:none}
 .lb.open{opacity:1;pointer-events:auto}
-.lb img{max-width:min(1100px,93vw);max-height:86vh;border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.lb img{max-width:min(1100px,93vw);max-height:86vh;border-radius:12px;box-shadow:0 24px 70px rgba(0,0,0,.55);
+  touch-action:none;will-change:transform,opacity}
 .lb.open img{animation:lbPop .4s cubic-bezier(.2,.7,.2,1)}
 @keyframes lbPop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
 .lb-x,.lb-nav{position:absolute;background:rgba(251,247,238,.14);border:0;color:#FBF7EE;cursor:pointer;
   border-radius:50%;width:46px;height:46px;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;
-  transition:background .2s}
+  transition:background .2s;z-index:2}
 .lb-x:hover,.lb-nav:hover{background:rgba(251,247,238,.28)}
 .lb-x{top:18px;right:18px}
 .lb-prev{left:16px;top:50%;transform:translateY(-50%)}
 .lb-next{right:16px;top:50%;transform:translateY(-50%)}
 .lb-cap{position:absolute;left:0;right:0;bottom:22px;text-align:center;color:#FBF7EE;
   font-family:'Fraunces',serif;font-style:italic;font-size:16px;text-shadow:0 2px 12px rgba(0,0,0,.6);
-  opacity:0;transform:translateY(8px);transition:opacity .35s ease .15s,transform .35s ease .15s}
+  opacity:0;transform:translateY(8px);transition:opacity .35s ease .15s,transform .35s ease .15s;pointer-events:none}
 .lb.open .lb-cap{opacity:1;transform:none}
+.lb-count{position:absolute;top:22px;left:0;right:0;text-align:center;color:rgba(251,247,238,.78);
+  font-family:'Jost',sans-serif;font-weight:500;font-size:13px;letter-spacing:.06em;
+  pointer-events:none;text-shadow:0 1px 8px rgba(0,0,0,.45)}
+@media (max-width:759px){
+  .lb{padding:12px}
+  .lb img{max-width:96vw;max-height:78vh;border-radius:10px}
+  .lb-nav{width:40px;height:40px;font-size:22px;opacity:.72}
+  .lb-prev{left:8px}
+  .lb-next{right:8px}
+  .lb-cap{bottom:16px;font-size:14px;padding:0 48px}
+  .lb-count{top:16px;font-size:12px}
+}
 
 /* ---------- Avis des voyageurs (carrousel) ---------- */
 .rev-summary{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:0 0 22px;font-size:14px;color:var(--ink-soft)}
