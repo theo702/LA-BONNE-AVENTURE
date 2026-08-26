@@ -17,6 +17,18 @@ function matchesTarget(promo, kind) {
   return t === 'all' || t === kind;
 }
 
+/** Page de retour Stripe : /extras (livret) ou /extras-offre (lien partagé, sans Retour). */
+function extrasReturnBase(body) {
+  const raw = (body && body.return_path ? String(body.return_path) : '').trim().replace(/\.html$/i, '');
+  if (raw === '/extras-offre' || raw === 'extras-offre') return '/extras-offre';
+  return '/extras';
+}
+
+function setExtrasStripeUrls(form, origin, returnBase) {
+  form.set('success_url', `${origin}${returnBase}?extra=confirmee&session_id={CHECKOUT_SESSION_ID}`);
+  form.set('cancel_url', `${origin}${returnBase}?extra=annulee`);
+}
+
 export async function onRequestPost({ env, request }) {
   const body = await request.json().catch(() => ({}));
   const name = (body.name || '').toString().trim();
@@ -27,6 +39,7 @@ export async function onRequestPost({ env, request }) {
 
   const currency = 'eur';
   const origin = env.SITE_URL || new URL(request.url).origin;
+  const returnBase = extrasReturnBase(body);
   const promoId = body.promo_id ? parseInt(body.promo_id, 10) : 0;
   const isPack = body.kind === 'flex_pack' || String(body.extra_id || '').startsWith('pack:');
   const isBoth = !isPack && body.kind === 'both';
@@ -60,8 +73,7 @@ export async function onRequestPost({ env, request }) {
 
     const form = new URLSearchParams();
     form.set('mode', 'payment');
-    form.set('success_url', `${origin}/extras?extra=confirmee&session_id={CHECKOUT_SESSION_ID}`);
-    form.set('cancel_url', `${origin}/extras?extra=annulee`);
+    setExtrasStripeUrls(form, origin, returnBase);
     form.set('customer_email', email);
     form.set('client_reference_id', id);
     form.set('metadata[kind]', 'extra');
@@ -121,8 +133,7 @@ export async function onRequestPost({ env, request }) {
 
     const form = new URLSearchParams();
     form.set('mode', 'payment');
-    form.set('success_url', `${origin}/extras?extra=confirmee&session_id={CHECKOUT_SESSION_ID}`);
-    form.set('cancel_url', `${origin}/extras?extra=annulee`);
+    setExtrasStripeUrls(form, origin, returnBase);
     form.set('customer_email', email);
     form.set('client_reference_id', paidId);
     form.set('metadata[kind]', 'extra');
@@ -177,8 +188,7 @@ export async function onRequestPost({ env, request }) {
 
     const form = new URLSearchParams();
     form.set('mode', 'payment');
-    form.set('success_url', `${origin}/extras?extra=confirmee&session_id={CHECKOUT_SESSION_ID}`);
-    form.set('cancel_url', `${origin}/extras?extra=annulee`);
+    setExtrasStripeUrls(form, origin, returnBase);
     form.set('customer_email', email);
     form.set('client_reference_id', lateId);
     form.set('metadata[kind]', 'extra');
@@ -247,8 +257,7 @@ export async function onRequestPost({ env, request }) {
 
   const form = new URLSearchParams();
   form.set('mode', 'payment');
-  form.set('success_url', `${origin}/extras?extra=confirmee&session_id={CHECKOUT_SESSION_ID}`);
-  form.set('cancel_url', `${origin}/extras?extra=annulee`);
+  setExtrasStripeUrls(form, origin, returnBase);
   form.set('customer_email', email);
   form.set('client_reference_id', id);
   form.set('metadata[kind]', 'extra');

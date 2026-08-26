@@ -4,6 +4,9 @@
   var MOUNT = document.getElementById('extras-list');
   if (!MOUNT) return;
 
+  // Page à partager hors livret → rester sur extras-offre après Stripe (pas de Retour vers le guide).
+  var RETURN_PATH = /extras-offre/.test(location.pathname || '') ? '/extras-offre' : '/extras';
+
   var CUR = 'eur';
   var LIVE_PROMOS = [];
   function euros(c, cur) { try { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: cur || 'eur' }).format((c || 0) / 100); } catch (e) { return ((c || 0) / 100).toFixed(2) + ' €'; } }
@@ -370,7 +373,7 @@
       if (!name.trim()) { err.textContent = 'Merci d’indiquer votre nom.'; return; }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { err.textContent = 'Email invalide.'; return; }
 
-      var payload = { name: name.trim(), email: email.trim() };
+      var payload = { name: name.trim(), email: email.trim(), return_path: RETURN_PATH };
       if (isPack) {
         var early = ((node.querySelector('#exEarly') || {}).value || '');
         var late = ((node.querySelector('#exLate') || {}).value || '');
