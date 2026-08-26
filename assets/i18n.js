@@ -57,7 +57,6 @@
     'amen.smoke': { fr: 'Détecteur de fumée', en: 'Smoke detector', es: 'Detector de humo', de: 'Rauchmelder' },
 
     'gallery.studio': { fr: 'Le studio en images', en: 'The studio in pictures', es: 'El estudio en imágenes', de: 'Das Studio in Bildern' },
-    'gallery.all': { fr: 'Voir toutes les photos', en: 'See all photos', es: 'Ver todas las fotos', de: 'Alle Fotos ansehen' },
     'cap.night': { fr: 'Le coin nuit', en: 'Sleeping area', es: 'Zona de noche', de: 'Schlafbereich' },
     'cap.live': { fr: 'Pièce à vivre', en: 'Living area', es: 'Salón', de: 'Wohnbereich' },
     'cap.kitchen': { fr: 'Cuisine équipée', en: 'Equipped kitchen', es: 'Cocina equipada', de: 'Ausgestattete Küche' },

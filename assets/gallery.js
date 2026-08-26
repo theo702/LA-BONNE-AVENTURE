@@ -175,15 +175,6 @@
   }
 
   document.addEventListener('click', function (e) {
-    var openBtn = e.target.closest && e.target.closest('[data-gallery-open]');
-    if (openBtn) {
-      e.preventDefault();
-      var gAll = openBtn.closest('.gallery') || document.querySelector('.gallery');
-      if (!gAll) return;
-      openAt(itemsIn(gAll), 0);
-      return;
-    }
-
     var a = e.target.closest && e.target.closest('.g-item');
     if (!a || !a.getAttribute('href')) return;
     e.preventDefault();

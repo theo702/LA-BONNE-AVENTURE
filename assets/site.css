@@ -532,24 +532,6 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .gallery-mosaic .g-item:nth-child(3){grid-column:3;grid-row:1}
 .gallery-mosaic .g-item:nth-child(4){grid-column:2;grid-row:2}
 .gallery-mosaic .g-item:nth-child(5){grid-column:3;grid-row:2}
-.gallery-mosaic .g-all{
-  position:absolute;right:14px;bottom:14px;z-index:3;
-  display:inline-flex;align-items:center;gap:8px;
-  margin:0;padding:10px 14px;border:1px solid rgba(26,20,8,.14);
-  border-radius:999px;cursor:pointer;
-  background:rgba(251,247,241,.94);color:var(--ink,#1a1408);
-  font-family:'Jost',sans-serif;font-weight:500;font-size:13px;letter-spacing:.01em;
-  box-shadow:0 8px 24px rgba(26,20,8,.18);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  transition:transform .2s ease,background .2s ease,box-shadow .2s ease;
-}
-.gallery-mosaic .g-all:hover{
-  transform:translateY(-1px);
-  background:#fff;
-  box-shadow:0 12px 28px rgba(26,20,8,.22);
-}
-.gallery-mosaic .g-all:focus-visible{outline:2px solid var(--gold,#c4a574);outline-offset:3px}
-.gallery-mosaic .g-all svg{width:15px;height:15px;flex:0 0 auto}
 @media (max-width:759px){
   .gallery-mosaic{
     grid-template-columns:repeat(2,1fr);
@@ -563,7 +545,6 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
     grid-column:1 / -1;grid-row:auto;aspect-ratio:16/10;
   }
   .gallery-mosaic .g-item:nth-child(n+2){grid-column:auto;grid-row:auto}
-  .gallery-mosaic .g-all{right:10px;bottom:10px;padding:9px 12px;font-size:12px}
 }
 
 /* Aix (3 photos) : grande à gauche + 2 empilées à droite — plein cadre, sans trou */
