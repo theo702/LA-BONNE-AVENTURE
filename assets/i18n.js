@@ -135,13 +135,6 @@
       es: 'La Bonne Aventure · Aix-les-Bains ·',
       de: 'La Bonne Aventure · Aix-les-Bains ·'
     },
-    'footer.site': {
-      fr: 'Site créé par',
-      en: 'Website by',
-      es: 'Sitio creado por',
-      de: 'Website von'
-    },
-
     /* —— Extras —— */
     'extras.kicker': { fr: 'Petits plus', en: 'Little extras', es: 'Pequeños extras', de: 'Kleine Extras' },
     'extras.h2': { fr: 'Vos <span class="it">extras</span>', en: 'Your <span class="it">extras</span>', es: 'Tus <span class="it">extras</span>', de: 'Deine <span class="it">Extras</span>' },

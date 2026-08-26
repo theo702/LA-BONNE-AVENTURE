@@ -859,12 +859,6 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--green);
 }
 .footer-credit svg{width:16px;height:16px;color:var(--clay)}
-.footer-credit .site-credit{
-  font-family:'Jost',sans-serif;font-style:normal;font-weight:400;
-  font-size:12px;letter-spacing:.02em;color:var(--ink-soft,#5f6675);
-}
-.footer-credit .site-credit a{color:inherit;text-decoration:underline;text-underline-offset:3px}
-.footer-credit .site-credit a:hover{color:var(--green)}
 
 /* ---------- Apparition au défilement (via reveal.js) ---------- */
 .reveal{opacity:0;transform:translateY(24px);
