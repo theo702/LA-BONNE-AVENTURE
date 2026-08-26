@@ -25,6 +25,7 @@
 
   // 2) Lightbox (visionneuse plein écran) construite à la volée sur les vignettes valides.
   var lb, lbImg, lbCap, list = [], idx = 0;
+
   function build() {
     lb = document.createElement('div');
     lb.className = 'lb';
@@ -46,26 +47,53 @@
       else if (e.key === 'ArrowRight') step(1);
     });
   }
+
   function show() {
     var a = list[idx];
+    if (!a) return;
     lbImg.src = a.getAttribute('href');
     lbCap.textContent = a.getAttribute('data-lb') || '';
     lb.querySelector('.lb-prev').style.visibility = list.length > 1 ? 'visible' : 'hidden';
     lb.querySelector('.lb-next').style.visibility = list.length > 1 ? 'visible' : 'hidden';
   }
-  function step(d) { idx = (idx + d + list.length) % list.length; show(); }
-  function close() { lb.classList.remove('open'); document.documentElement.style.overflow = ''; }
 
-  document.addEventListener('click', function (e) {
-    var a = e.target.closest && e.target.closest('.g-item');
-    if (!a || !a.getAttribute('href')) return;
-    e.preventDefault();
+  function step(d) { idx = (idx + d + list.length) % list.length; show(); }
+
+  function close() {
+    lb.classList.remove('open');
+    document.documentElement.style.overflow = '';
+  }
+
+  function openAt(items, start) {
+    if (!items || !items.length) return;
     if (!lb) build();
-    list = Array.prototype.slice.call(document.querySelectorAll('.g-item'));
-    idx = list.indexOf(a);
-    if (idx < 0) idx = 0;
+    list = items;
+    idx = Math.max(0, Math.min(start || 0, list.length - 1));
     show();
     lb.classList.add('open');
     document.documentElement.style.overflow = 'hidden';
+  }
+
+  function itemsIn(gallery) {
+    return Array.prototype.slice.call(gallery.querySelectorAll('.g-item'));
+  }
+
+  document.addEventListener('click', function (e) {
+    var openBtn = e.target.closest && e.target.closest('[data-gallery-open]');
+    if (openBtn) {
+      e.preventDefault();
+      var gAll = openBtn.closest('.gallery') || document.querySelector('.gallery');
+      if (!gAll) return;
+      openAt(itemsIn(gAll), 0);
+      return;
+    }
+
+    var a = e.target.closest && e.target.closest('.g-item');
+    if (!a || !a.getAttribute('href')) return;
+    e.preventDefault();
+    var g = a.closest('.gallery') || document;
+    var items = itemsIn(g);
+    var i = items.indexOf(a);
+    openAt(items, i < 0 ? 0 : i);
   });
 })();
