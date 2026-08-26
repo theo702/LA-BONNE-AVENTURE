@@ -86,7 +86,7 @@
     },
     'cap.lake': { fr: 'Le lac du Bourget', en: 'Lake Bourget', es: 'El lago del Bourget', de: 'Der Lac du Bourget' },
     'cap.hautecombe': { fr: 'Abbaye d’Hautecombe', en: 'Hautecombe Abbey', es: 'Abadía de Hautecombe', de: 'Abtei Hautecombe' },
-    'cap.centre': { fr: 'Le centre-ville', en: 'The town centre', es: 'El centro', de: 'Die Innenstadt' },
+    'cap.casino': { fr: 'Casino Grand Cercle', en: 'Grand Cercle Casino', es: 'Casino Grand Cercle', de: 'Casino Grand Cercle' },
     'cap.mountains': { fr: 'Les montagnes en hiver', en: 'The mountains in winter', es: 'Las montañas en invierno', de: 'Die Berge im Winter' },
 
     'sec.avis.kicker': { fr: 'Avis des voyageurs', en: 'Guest reviews', es: 'Opiniones de viajeros', de: 'Gästebewertungen' },
