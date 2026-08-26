@@ -187,7 +187,9 @@
         box += '<div class="bw-caution">'+icon('lock')+'<span>'+T('bw.caution',{amount:euros(q.cautionCents,q.currency)})+'</span></div>';
       }
     } else {
-      var hint = 'Sélectionnez vos dates (min. '+(state.cfg?state.cfg.minNights:2)+' nuits).';
+      var hint = 'Sélectionnez vos dates.';
+      var minN = state.cfg && state.cfg.minNights;
+      if(minN && minN > 1) hint = 'Sélectionnez vos dates (min. '+minN+' nuits).';
       if(q && !q.ok) hint = q.message || hint;
       box += '<div class="bw-line" style="justify-content:center;color:var(--ink-soft)">'+hint+'</div>';
     }
@@ -276,7 +278,7 @@
 
     // estimation locale immédiate (tarif par durée, sans remises ni taxe — corrigée par le serveur)
     var n = nights(state.checkin, state.checkout);
-    if(n < cfg.minNights){
+    if(cfg.minNights > 1 && n < cfg.minNights){
       state.quote = { ok:false, message:'Séjour minimum de '+cfg.minNights+' nuits.' };
     } else {
       var rate = cfg.nightlyCents, tag = null;
