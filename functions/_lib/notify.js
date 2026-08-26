@@ -102,7 +102,7 @@ async function sendEmails(env, booking) {
       <p>Merci ! Votre séjour à <b>La Bonne Aventure</b> est bien réservé.</p>
       <table style="border-collapse:collapse;margin:14px 0">
         ${row('Arrivée', booking.checkin + ' (à partir de 16h)')}
-        ${row('Départ', booking.checkout + ' (avant 12h)')}
+        ${row('Départ', booking.checkout + ' (avant 10h)')}
         ${row('Nuits', booking.nights)}
         ${row('Total réglé', total)}
       </table>
@@ -138,7 +138,7 @@ async function sendEmails(env, booking) {
         <p>Nouvelle réservation à <b>La Bonne Aventure</b> :</p>
         <table style="border-collapse:collapse;margin:14px 0">
           ${row('Arrivée', booking.checkin + ' (dès 16h)')}
-          ${row('Départ — ménage', booking.checkout + ' (après 12h)')}
+          ${row('Départ — ménage', booking.checkout + ' (après 10h)')}
           ${row('Nuits', booking.nights)}
           ${row('Voyageurs', booking.guests)}
         </table>
@@ -163,7 +163,10 @@ async function sendExtraEmails(env, order) {
   await Promise.all([
     order.email ? send(order.email, `Votre extra « ${order.title} » est confirmé`, shell(
       `<h2 style="color:#0f2a4a;margin:0 0 6px">Extra confirmé ✅</h2><p>Bonjour ${order.guest_name || ''},</p>
-       <p>Votre option <b>${order.title}</b> (${total}) est bien réglée. Théo revient vers vous pour les détails. Merci !</p>`)) : null,
+       <p>Votre option <b>${order.title}</b> (${total}) est bien réglée.${
+         order.kind === 'early_checkin' ? ' Votre <b>arrivée</b> est dès <b>12h</b>.' :
+         order.kind === 'late_checkout' ? ' Votre <b>départ</b> est jusqu’à <b>14h</b>.' : ''
+       } Ces horaires s’affichent aussi dans votre livret d’accueil. Théo revient vers vous si besoin. Merci !</p>`)) : null,
     env.HOST_EMAIL ? send(env.HOST_EMAIL, `Extra payé : ${order.title} (${total})`, shell(
       `<h2 style="color:#a9760f;margin:0 0 6px">Extra payé ✅</h2>
        <p><b>${order.title}</b> — ${total}<br>${order.guest_name || '—'} · ${order.email || '—'}</p>`)) : null,

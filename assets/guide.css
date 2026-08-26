@@ -151,6 +151,12 @@
   font-family:'Fraunces',serif;font-size:32px;color:var(--ink,#1f2838);line-height:1.1;
 }
 .page-guide .hours .sx{font-size:12px;color:var(--ink-soft,#5f6675);font-weight:300;margin-top:2px}
+.page-guide .hours.hours-early .sv#guide-arrive-time,
+.page-guide .hours.hours-late .sv#guide-depart-time{color:var(--gold-deep,#a9760f)}
+.page-guide .hours-flex-note{
+  margin:10px 2px 0;font-family:'Jost',sans-serif;font-size:13px;font-weight:400;
+  color:var(--gold-deep,#a9760f);line-height:1.4;
+}
 
 /* Steps timeline — plus aéré */
 .page-guide .steps.timeline{margin:8px 0 4px;padding:0;list-style:none}
