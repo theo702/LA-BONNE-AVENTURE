@@ -131,7 +131,7 @@ Ainsi une résa reçue **n'importe où** bloque partout ailleurs, automatiquemen
 
 Seules les pages HTML ont été fournies au départ. Déposez vos vraies images dans `assets/`
 en **gardant exactement ces noms** (elles s'afficheront automatiquement) :
-`aix-aerial.jpg`, `casino.jpg`, `t-emotions.jpg`, `aqualis.jpg`, `chevalley.jpg`,
+`aix-jardins.jpg`, `casino.jpg`, `t-emotions.jpg`, `aqualis.jpg`, `chevalley.jpg`,
 `parenthese.jpg`, `revard.jpg`. Le logo est déjà recréé en vectoriel
 (`logo-light.svg` / `logo-dark.svg`).
 
