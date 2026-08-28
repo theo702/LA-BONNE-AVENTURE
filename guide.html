@@ -21,7 +21,7 @@
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/site.css?v=19">
-<link rel="stylesheet" href="assets/guide.css?v=24">
+<link rel="stylesheet" href="assets/guide.css?v=25">
 <style>
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
@@ -528,21 +528,35 @@
   function askBot(q){botSay(q,true);setTimeout(function(){botSay(botAnswer(q));},280);}
   function sendBot(){var i=document.getElementById('botInput');var q=i.value.trim();if(!q)return;i.value='';askBot(q);}
 
+  var _chromeOver=true;
+  var _chromeRaf=0;
   function syncChrome(){
     var chrome=document.getElementById('guideChrome');
     if(!chrome) return;
-    var chromeH=chrome.offsetHeight||64;
-    document.documentElement.style.setProperty('--guide-chrome-h',chromeH+'px');
+    var chromeH=chrome.offsetHeight||108;
     var active=document.querySelector('.page.active');
     var over=false;
     if(active){
       var hero=active.querySelector('.hero, .up-hero');
       if(hero){
         var rect=hero.getBoundingClientRect();
-        over=rect.top<chromeH&&rect.bottom>0;
+        if(_chromeOver){
+          over=rect.top<chromeH&&rect.bottom>12;
+        }else{
+          over=rect.top<chromeH&&rect.bottom>28;
+        }
       }
     }
+    if(over===_chromeOver) return;
+    _chromeOver=over;
     chrome.classList.toggle('is-over-hero',over);
+  }
+  function scheduleChrome(){
+    if(_chromeRaf) return;
+    _chromeRaf=requestAnimationFrame(function(){
+      _chromeRaf=0;
+      syncChrome();
+    });
   }
   function resetScroll(){
     var sc=document.getElementById('scroll');
@@ -644,11 +658,11 @@
 
   (function initChrome(){
     var sc=document.getElementById('scroll');
-    if(sc) sc.addEventListener('scroll', syncChrome, {passive:true});
-    window.addEventListener('scroll', syncChrome, {passive:true});
-    window.addEventListener('resize', syncChrome, {passive:true});
+    if(sc) sc.addEventListener('scroll', scheduleChrome, {passive:true});
+    window.addEventListener('resize', function(){
+      syncChrome();
+    }, {passive:true});
     syncChrome();
-    requestAnimationFrame(syncChrome);
   })();
 
   /* ---- Demande ciblée par produit ---- */

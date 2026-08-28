@@ -30,6 +30,8 @@
   background:#FBF7EF;
   border:0;
   transition:background .25s ease, color .25s ease;
+  min-height:108px;
+  box-sizing:border-box;
 }
 .page-guide .guide-chrome .tb-lang{
   flex:0 0 auto;
@@ -92,20 +94,22 @@
 }
 .page-guide .guide-chrome.is-over-hero .nav button.ext-link{color:var(--clay-soft,#e6a92c)}
 
-/* Réserve toujours la place du header fixe — hauteur via --guide-chrome-h (JS) */
+/* Réserve toujours la place du header fixe — valeurs fixes (jamais modifiées au scroll) */
 .page-guide .scroll{
   flex:1 1 auto;
   min-height:0;
   overflow-y:auto;
+  overflow-anchor:none;
+  overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
   padding-bottom:24px;
-  padding-top:var(--guide-chrome-h,108px);
+  padding-top:108px;
 }
 .page-guide .bot-fab{bottom:18px}
 
 /* ---- Hero livret ---- */
 .page-guide .hero,
-.page-guide .up-hero{margin-top:calc(-1 * var(--guide-chrome-h,108px))}
+.page-guide .up-hero{margin-top:-108px}
 .page-guide .hero{min-height:78svh;min-height:78vh}
 .page-guide .hero .inner{padding:148px 22px 52px}
 .page-guide .hero h1{
@@ -522,6 +526,10 @@
 .page-guide .pop a svg{width:14px;height:14px}
 
 @media(min-width:640px){
+  .page-guide .guide-chrome{min-height:72px}
+  .page-guide .scroll{padding-top:72px}
+  .page-guide .hero,
+  .page-guide .up-hero{margin-top:-72px}
   .page-guide .guide-chrome .nav{
     grid-template-columns:repeat(6,minmax(0,1fr));
     max-width:720px;
