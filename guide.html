@@ -21,7 +21,7 @@
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/site.css?v=18">
-<link rel="stylesheet" href="assets/guide.css?v=19">
+<link rel="stylesheet" href="assets/guide.css?v=20">
 <style>
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
@@ -420,7 +420,8 @@
         <div class="defib-map reveal" style="--i:7">
           <p class="defib-lede">En cas d'arrêt cardiaque, chaque minute compte. La carte officielle recense les défibrillateurs automatiques à proximité — appareils simples d'utilisation, même sans formation.</p>
           <div class="map-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="16" height="16" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>Touchez un point pour l'itinéraire · géolocalisation possible</div>
-          <iframe class="defib-frame" title="Carte des défibrillateurs à proximité" allow="fullscreen; geolocation; clipboard-read; clipboard-write" sandbox="allow-scripts allow-same-origin" scrolling="no" loading="lazy" src="https://www.defibrillateurs.info/index.php?citycode=73008"></iframe>
+          <iframe class="defib-frame" title="Carte des défibrillateurs à proximité" allow="fullscreen; geolocation; clipboard-read; clipboard-write" sandbox="allow-scripts allow-same-origin" scrolling="no" data-src="https://www.defibrillateurs.info/index.php?citycode=73008"></iframe>
+          <p class="defib-open"><a class="defib-open-link" href="https://www.defibrillateurs.info/index.php?citycode=73008" target="_blank" rel="noopener">Ouvrir la carte en plein écran</a></p>
           <p class="defib-note">Source : <a href="https://www.aixlesbains.fr/mon-quotidien/solidarite-et-sante/defribrillateurs-automatiques" target="_blank" rel="noopener">Ville d'Aix-les-Bains</a> · base nationale Géo'DAE</p>
         </div>
 
@@ -562,7 +563,15 @@
     document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});
     try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
     if(btn.dataset.p==='p-spots'){setTimeout(initMap,90);}
+    if(btn.dataset.p==='p-sos'){setTimeout(initDefibFrame,90);}
     syncChrome();
+  }
+
+  function initDefibFrame(){
+    var f=document.querySelector('.defib-frame');
+    if(!f||f.dataset.loaded)return;
+    var src=f.getAttribute('data-src');
+    if(src){f.src=src;f.dataset.loaded='1';}
   }
 
   var _map=null;

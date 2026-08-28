@@ -289,6 +289,12 @@
 }
 .page-guide .defib-map .defib-note a{color:var(--gold-deep,#a9760f);text-decoration:none}
 .page-guide .defib-map .defib-note a:hover{text-decoration:underline}
+.page-guide .defib-map .defib-open{margin:10px 0 0;text-align:center}
+.page-guide .defib-map .defib-open-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:500;color:var(--gold-deep,#a9760f);text-decoration:none;
+}
+.page-guide .defib-map .defib-open-link:hover{text-decoration:underline}
 
 /* Groupes par catégorie */
 .page-guide .spot-group{margin:0 0 36px}
