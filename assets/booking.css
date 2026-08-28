@@ -115,12 +115,17 @@
   color:var(--ink-soft);line-height:1.45;max-width:36em;
 }
 .shop-section + .shop-section{padding-top:6px;border-top:1px solid var(--line-soft,#e8e2d6)}
+.shop-badges{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin:0 0 10px;position:relative;z-index:2;
+}
 .shop-badge{
-  position:absolute;top:14px;right:14px;z-index:2;
+  position:static;display:inline-block;
   font-family:'Jost',sans-serif;font-size:11px;font-weight:600;letter-spacing:.04em;
   padding:5px 10px;border-radius:999px;background:var(--gold,#d9971a);color:#1a1408;
+  white-space:nowrap;max-width:100%;
 }
-.shop-item{position:relative}
+.shop-item{position:relative;display:flex;flex-direction:column}
 .shop-item-pack{
   grid-column:1 / -1;
   padding:26px 22px 22px;
@@ -151,10 +156,12 @@
 }
 .shop-badge-cure{background:rgba(95,138,106,.92);color:#fff}
 .shop-pack-kicker{
-  margin:0 0 10px;padding-right:120px;
+  margin:0 0 10px;
   font-family:'Jost',sans-serif;font-size:11px;font-weight:600;
   letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep,#a9760f);
 }
+.shop-top > div{min-width:0;flex:1}
+.shop-item h3,.shop-item .desc,.shop-item .cond{overflow-wrap:anywhere}
 .shop-save{
   display:block;margin-top:4px;
   font-family:'Jost',sans-serif;font-size:12px;font-weight:600;color:var(--green,#6f8f6e);

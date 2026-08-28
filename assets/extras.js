@@ -112,15 +112,19 @@
   }
 
   function badgeHtml(x, compareCents) {
+    var inner = '';
     if (isFeatured(x)) {
       if (compareCents && compareCents > x.price_cents) {
-        return '<span class="shop-badge">Meilleure offre · −' + euros(compareCents - x.price_cents, CUR) + '</span>';
+        inner = '<span class="shop-badge">Meilleure offre · −' + euros(compareCents - x.price_cents, CUR) + '</span>';
+      } else {
+        inner = '<span class="shop-badge">Meilleure offre</span>';
       }
-      return '<span class="shop-badge">Meilleure offre</span>';
+    } else if (isCure(x)) {
+      inner = '<span class="shop-badge shop-badge-cure">Idéal cure</span>';
+    } else if (x.promo && x.promo.kind === 'percent') {
+      inner = '<span class="shop-badge">−' + Math.round(x.promo.percent) + ' %</span>';
     }
-    if (isCure(x)) return '<span class="shop-badge shop-badge-cure">Idéal cure</span>';
-    if (x.promo && x.promo.kind === 'percent') return '<span class="shop-badge">−' + Math.round(x.promo.percent) + ' %</span>';
-    return '';
+    return inner ? '<div class="shop-badges">' + inner + '</div>' : '';
   }
 
   function cardNode(x, items, i) {
