@@ -271,6 +271,25 @@
 .page-guide .spots-map .map-hint svg{flex:0 0 auto;color:var(--gold-deep,#a9760f)}
 .page-guide .spots-map .legend{margin-top:12px}
 
+/* Carte défibrillateurs (Urgences) */
+.page-guide .defib-map{margin:0 0 28px}
+.page-guide .defib-map .defib-lede{
+  font-size:14px;line-height:1.55;font-weight:300;
+  color:var(--ink-soft,#5f6675);margin:0 0 12px;
+}
+.page-guide .defib-map .map-hint{margin:0 0 10px}
+.page-guide .defib-map .defib-frame{
+  width:100%;height:380px;border:0;display:block;
+  border-radius:16px;border:1px solid var(--line,#E6E1D4);
+  background:#f7f5ef;
+}
+.page-guide .defib-map .defib-note{
+  font-size:12px;font-weight:300;color:var(--ink-soft,#5f6675);
+  margin:10px 0 0;
+}
+.page-guide .defib-map .defib-note a{color:var(--gold-deep,#a9760f);text-decoration:none}
+.page-guide .defib-map .defib-note a:hover{text-decoration:underline}
+
 /* Groupes par catégorie */
 .page-guide .spot-group{margin:0 0 36px}
 .page-guide .spot-group-head{
@@ -503,6 +522,7 @@
     padding-left:clamp(24px,4vw,70px);padding-right:clamp(24px,4vw,70px);
   }
   .page-guide #map{height:340px}
+  .page-guide .defib-map .defib-frame{height:520px}
   .page-guide .up-hero{padding-left:clamp(24px,4vw,80px);padding-right:clamp(24px,4vw,80px)}
 }
 
