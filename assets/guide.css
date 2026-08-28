@@ -412,6 +412,7 @@
 }
 .page-guide .up-hero .inner{max-width:920px;margin:0 auto;position:relative;z-index:1}
 .page-guide .emg.red .big{background:rgba(179,38,30,.14);color:#B3261E}
+.page-guide .svc .sh{display:block}
 .page-guide .emg.host{
   background:linear-gradient(150deg,rgba(15,42,74,.05),rgba(217,151,26,.08));
   border-color:rgba(217,151,26,.25);
