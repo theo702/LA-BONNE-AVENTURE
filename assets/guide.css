@@ -16,26 +16,29 @@
   min-height:100vh;
 }
 
-/* ---- Header : transparent sur héro, crème opaque ensuite ---- */
+/* ---- Header : fond clair par défaut, transparent + texte clair sur héro ---- */
 .page-guide .guide-chrome{
   position:fixed;top:0;left:0;right:0;z-index:40;
   display:flex;align-items:center;justify-content:space-between;gap:12px;
   padding:12px clamp(12px,3vw,40px);
-  background:transparent;
+  padding-bottom:12px;
+  background:#FBF7EF;
   border:0;
   transition:background .25s ease, color .25s ease;
 }
 .page-guide .guide-chrome .tb-lang{
   flex:0 0 auto;
   background:transparent;
-  border:1px solid rgba(251,247,238,.35);
-  color:#FBF7EE;
+  border:1px solid var(--line,#E6E1D4);
+  color:var(--green,#0f2a4a);
   cursor:pointer;
   font-family:'Jost',sans-serif;font-weight:600;font-size:11px;letter-spacing:.1em;
   padding:7px 12px;border-radius:999px;line-height:1;
   transition:border-color .2s,color .2s,background .2s;
 }
-.page-guide .guide-chrome .tb-lang:hover{border-color:rgba(251,247,238,.7);background:rgba(251,247,238,.1)}
+.page-guide .guide-chrome .tb-lang:hover{
+  border-color:var(--gold,#d9971a);background:rgba(217,151,26,.08);
+}
 
 .page-guide .guide-chrome .nav{
   position:static;
@@ -52,36 +55,37 @@
   display:inline-flex;align-items:center;justify-content:center;flex-direction:row;
   font-family:'Jost',sans-serif;font-weight:500;font-size:12px;
   padding:8px 6px;border:0;border-radius:999px;
-  background:transparent;color:rgba(251,247,238,.78);cursor:pointer;
+  background:transparent;color:var(--ink-soft,#5f6675);cursor:pointer;
   transition:background .15s,color .15s;
   letter-spacing:.01em;white-space:nowrap;
 }
-.page-guide .guide-chrome .nav button:hover{color:#FBF7EE;background:rgba(251,247,238,.12)}
-.page-guide .guide-chrome .nav button.on{
-  color:#FBF7EE;background:rgba(251,247,238,.16);font-weight:600;
+.page-guide .guide-chrome .nav button:hover{
+  color:var(--green,#0f2a4a);background:rgba(15,42,74,.05);
 }
-.page-guide .guide-chrome .nav button.ext-link{color:var(--clay-soft,#e6a92c)}
+.page-guide .guide-chrome .nav button.on{
+  color:var(--green,#0f2a4a);background:rgba(217,151,26,.14);font-weight:600;
+}
+.page-guide .guide-chrome .nav button.ext-link{color:var(--gold-deep,#a9760f)}
 
-/* Pages crème : même couleur que le fond, opaque — le contenu commence EN DESSOUS */
-.page-guide .guide-chrome:not(.is-over-hero){
-  background:#FBF7EF;
+.page-guide .guide-chrome.is-over-hero{
+  background:transparent;
   backdrop-filter:none;
   padding-bottom:12px;
 }
-.page-guide .guide-chrome:not(.is-over-hero) .nav button{color:var(--ink-soft,#5f6675)}
-.page-guide .guide-chrome:not(.is-over-hero) .nav button:hover{
-  color:var(--green,#0f2a4a);background:rgba(15,42,74,.05);
+.page-guide .guide-chrome.is-over-hero .tb-lang{
+  border-color:rgba(251,247,238,.35);color:#FBF7EE;
 }
-.page-guide .guide-chrome:not(.is-over-hero) .nav button.on{
-  color:var(--green,#0f2a4a);background:rgba(217,151,26,.14);font-weight:600;
+.page-guide .guide-chrome.is-over-hero .tb-lang:hover{
+  border-color:rgba(251,247,238,.7);background:rgba(251,247,238,.1);
 }
-.page-guide .guide-chrome:not(.is-over-hero) .nav button.ext-link{color:var(--gold-deep,#a9760f)}
-.page-guide .guide-chrome:not(.is-over-hero) .tb-lang{
-  color:var(--green,#0f2a4a);border-color:var(--line,#E6E1D4);
+.page-guide .guide-chrome.is-over-hero .nav button{color:rgba(251,247,238,.88)}
+.page-guide .guide-chrome.is-over-hero .nav button:hover{
+  color:#FBF7EE;background:rgba(251,247,238,.12);
 }
-.page-guide .guide-chrome:not(.is-over-hero) .tb-lang:hover{
-  border-color:var(--gold,#d9971a);background:rgba(217,151,26,.08);
+.page-guide .guide-chrome.is-over-hero .nav button.on{
+  color:#FBF7EE;background:rgba(251,247,238,.16);font-weight:600;
 }
+.page-guide .guide-chrome.is-over-hero .nav button.ext-link{color:var(--clay-soft,#e6a92c)}
 
 /* Réserve la place du header fixe hors héro (nav 2×3 sur mobile) */
 .page-guide .scroll{padding-bottom:24px;padding-top:0;transition:padding-top .2s ease}

@@ -20,8 +20,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/site.css?v=18">
-<link rel="stylesheet" href="assets/guide.css?v=20">
+<link rel="stylesheet" href="assets/site.css?v=19">
+<link rel="stylesheet" href="assets/guide.css?v=21">
 <style>
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
@@ -531,22 +531,17 @@
   function syncChrome(){
     var chrome=document.getElementById('guideChrome');
     if(!chrome) return;
-    var sc=document.getElementById('scroll');
-    var y=sc ? sc.scrollTop : (window.scrollY||0);
-    var home=document.getElementById('p-home');
-    var sos=document.getElementById('p-sos');
+    var active=document.querySelector('.page.active');
     var over=false;
-    if(home && home.classList.contains('active')){
-      var hero=home.querySelector('.hero');
-      var h=hero ? hero.offsetHeight : 420;
-      over = y < Math.max(80, h * 0.55);
-    } else if(sos && sos.classList.contains('active')){
-      var uh=sos.querySelector('.up-hero');
-      var hh=uh ? uh.offsetHeight : 220;
-      over = y < Math.max(60, hh * 0.7);
+    if(active){
+      var hero=active.querySelector('.hero, .up-hero');
+      if(hero){
+        var chromeH=chrome.offsetHeight||64;
+        over=hero.getBoundingClientRect().bottom>chromeH+6;
+      }
     }
-    chrome.classList.toggle('is-over-hero', !!over);
-    document.body.classList.toggle('over-hero', !!over);
+    chrome.classList.toggle('is-over-hero',over);
+    document.body.classList.toggle('over-hero',over);
   }
   function goPage(id){
     document.querySelectorAll('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===id)});
@@ -565,6 +560,7 @@
     if(btn.dataset.p==='p-spots'){setTimeout(initMap,90);}
     if(btn.dataset.p==='p-sos'){setTimeout(initDefibFrame,90);}
     syncChrome();
+    setTimeout(syncChrome,120);
   }
 
   function initDefibFrame(){
@@ -646,7 +642,9 @@
     var sc=document.getElementById('scroll');
     if(sc) sc.addEventListener('scroll', syncChrome, {passive:true});
     window.addEventListener('scroll', syncChrome, {passive:true});
+    window.addEventListener('resize', syncChrome, {passive:true});
     syncChrome();
+    requestAnimationFrame(syncChrome);
   })();
 
   /* ---- Demande ciblée par produit ---- */
