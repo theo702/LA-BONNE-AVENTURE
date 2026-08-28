@@ -21,13 +21,13 @@
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/site.css?v=19">
-<link rel="stylesheet" href="assets/guide.css?v=22">
+<link rel="stylesheet" href="assets/guide.css?v=24">
 <style>
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
 </style>
 </head>
-<body class="page-guide over-hero">
+<body class="page-guide">
 <div class="app">
 
   <header class="guide-chrome is-over-hero" id="guideChrome">
@@ -531,23 +531,29 @@
   function syncChrome(){
     var chrome=document.getElementById('guideChrome');
     if(!chrome) return;
+    var chromeH=chrome.offsetHeight||64;
+    document.documentElement.style.setProperty('--guide-chrome-h',chromeH+'px');
     var active=document.querySelector('.page.active');
     var over=false;
     if(active){
       var hero=active.querySelector('.hero, .up-hero');
       if(hero){
-        var chromeH=chrome.offsetHeight||64;
-        over=hero.getBoundingClientRect().bottom>chromeH+6;
+        var rect=hero.getBoundingClientRect();
+        over=rect.top<chromeH&&rect.bottom>0;
       }
     }
     chrome.classList.toggle('is-over-hero',over);
-    document.body.classList.toggle('over-hero',over);
+  }
+  function resetScroll(){
+    var sc=document.getElementById('scroll');
+    if(sc) sc.scrollTop=0;
+    try{window.scrollTo(0,0);}catch(e){}
   }
   function goPage(id){
     document.querySelectorAll('.nav button').forEach(function(b){b.classList.toggle('on',b.dataset.p===id)});
     document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
     document.getElementById(id).classList.add('active');
-    try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}
+    resetScroll();
     syncChrome();
   }
   function go(btn){
@@ -555,12 +561,10 @@
     btn.classList.add('on');
     document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
     document.getElementById(btn.dataset.p).classList.add('active');
-    document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'});
-    try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){window.scrollTo(0,0);}
+    resetScroll();
     if(btn.dataset.p==='p-spots'){setTimeout(initMap,90);}
     if(btn.dataset.p==='p-sos'){setTimeout(initDefibFrame,90);}
     syncChrome();
-    setTimeout(syncChrome,120);
   }
 
   function initDefibFrame(){

@@ -4,6 +4,9 @@
    ========================================================================== */
 
 .page-guide{
+  height:100vh;
+  height:100dvh;
+  overflow:hidden;
   background:
     radial-gradient(1200px 600px at 10% -8%,rgba(217,151,26,.08),transparent 55%),
     radial-gradient(900px 500px at 100% 0%,rgba(15,42,74,.06),transparent 50%),
@@ -13,7 +16,9 @@
   max-width:none;
   box-shadow:none;
   background:transparent;
-  min-height:100vh;
+  height:100%;
+  min-height:0;
+  overflow:hidden;
 }
 
 /* ---- Header : fond clair par défaut, transparent + texte clair sur héro ---- */
@@ -87,12 +92,20 @@
 }
 .page-guide .guide-chrome.is-over-hero .nav button.ext-link{color:var(--clay-soft,#e6a92c)}
 
-/* Réserve la place du header fixe hors héro (nav 2×3 sur mobile) */
-.page-guide .scroll{padding-bottom:24px;padding-top:0;transition:padding-top .2s ease}
-.page-guide:not(.over-hero) .scroll{padding-top:108px}
+/* Réserve toujours la place du header fixe — hauteur via --guide-chrome-h (JS) */
+.page-guide .scroll{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:24px;
+  padding-top:var(--guide-chrome-h,108px);
+}
 .page-guide .bot-fab{bottom:18px}
 
 /* ---- Hero livret ---- */
+.page-guide .hero,
+.page-guide .up-hero{margin-top:calc(-1 * var(--guide-chrome-h,108px))}
 .page-guide .hero{min-height:78svh;min-height:78vh}
 .page-guide .hero .inner{padding:148px 22px 52px}
 .page-guide .hero h1{
@@ -514,7 +527,6 @@
     max-width:720px;
   }
   .page-guide .guide-chrome .nav button{padding:8px 10px;font-size:13px}
-  .page-guide:not(.over-hero) .scroll{padding-top:72px}
 }
 
 @media(min-width:760px){
