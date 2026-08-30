@@ -160,7 +160,8 @@
   font-family:'Jost',sans-serif;font-size:11px;font-weight:600;
   letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep,#a9760f);
 }
-.shop-top > div{min-width:0;flex:1}
+.shop-top > div:not(.shop-ic){min-width:0;flex:1}
+.shop-ic{flex:0 0 42px}
 .shop-item h3,.shop-item .desc,.shop-item .cond{overflow-wrap:anywhere}
 .shop-save{
   display:block;margin-top:4px;
@@ -173,6 +174,19 @@
 }
 @media (prefers-reduced-motion:reduce){
   .shop-item-pack::before{animation:none}
+}
+@media (max-width:560px){
+  .shop-item{padding:18px 16px}
+  .shop-item-pack{padding:20px 16px 18px}
+  .shop-top{gap:10px}
+  .shop-ic{width:38px;height:38px;flex:0 0 38px;border-radius:10px}
+  .shop-ic svg{width:20px;height:20px}
+  .shop-item h3{font-size:17px;line-height:1.25}
+  .shop-item-pack h3{font-size:19px}
+  .shop-foot{flex-direction:column;align-items:stretch;gap:12px}
+  .shop-buy{width:100%;justify-content:center;padding:13px 16px}
+  .shop-badge{white-space:normal;text-align:center}
+  .shop-section-title{font-size:20px}
 }
 .lba-promo-card{text-align:center}
 .lba-promo-kicker{
