@@ -345,7 +345,6 @@
     f.taxe_cap_cents.value = (s.taxe_cap_cents / 100).toFixed(2);
     f.taxe_additional_pct.value = s.taxe_additional_pct;
     if (f.cleaning_emails) f.cleaning_emails.value = s.cleaning_emails || '';
-    if (f.extra_approval_emails) f.extra_approval_emails.value = s.extra_approval_emails || '';
     if (f.loyalty_enabled) {
       f.loyalty_enabled.checked = s.loyalty_enabled == null ? true : !!s.loyalty_enabled;
       f.loyalty_points_per_night.value = s.loyalty_points_per_night || 1;

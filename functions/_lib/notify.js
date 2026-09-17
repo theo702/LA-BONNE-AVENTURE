@@ -157,13 +157,8 @@ async function cleaningRecipients(env) {
   }
 }
 
-/** Destinataires du mail « à valider » (réglable en admin). Défaut : hôte + ménage. */
+/** Destinataires validation extras = hôte + même liste « équipe ménage ». */
 async function extraApprovalRecipients(env) {
-  try {
-    const s = await getSettings(env);
-    const custom = ((s && s.extra_approval_emails) || '').split(/[\n,; ]+/).map((x) => x.trim()).filter(Boolean);
-    if (custom.length) return custom;
-  } catch (e) { /* ignore */ }
   const list = [];
   if (env.HOST_EMAIL) list.push(env.HOST_EMAIL);
   for (const e of await cleaningRecipients(env)) {
