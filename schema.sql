@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS settings (
   taxe_cap_cents      INTEGER NOT NULL DEFAULT 427, -- plafond 4,27 € / personne / nuit
   taxe_additional_pct REAL    NOT NULL DEFAULT 10.0,-- taxes additionnelles (départementale…)
   cleaning_emails     TEXT    NOT NULL DEFAULT '',  -- emails équipe ménage (séparés par virgule)
+  extra_approval_emails TEXT  NOT NULL DEFAULT '',  -- destinataires validation extras horaires (vide = hôte + ménage)
   dynamic_pricing_enabled INTEGER NOT NULL DEFAULT 1, -- (déprécié, conservé pour compat)
   week_total_cents    INTEGER NOT NULL DEFAULT 30000, -- prix TOTAL d'une semaine (≥ weekly_min_nights) = 300 €
   cure_total_cents    INTEGER NOT NULL DEFAULT 75000, -- prix TOTAL d'une cure (≥ monthly_min_nights) = 750 €

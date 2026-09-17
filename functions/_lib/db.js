@@ -197,9 +197,11 @@ export async function setExtraOrdersStatus(env, ids, status, fromStatuses) {
   return n;
 }
 export async function confirmExtraOrder(env, id) {
-  // Ne confirme que les pending — évite de « ressusciter » un extra déjà annulé.
+  // Confirme depuis pending/approved/requested — et « ressuscite » un cancelled
+  // si le voyageur a malgré tout payé (ex. préchargement email qui avait refusé).
   await env.DB.prepare(
-    `UPDATE extra_orders SET status = 'confirmed' WHERE id = ?1 AND status = 'pending'`
+    `UPDATE extra_orders SET status = 'confirmed'
+      WHERE id = ?1 AND status IN ('pending','approved','requested','cancelled')`
   ).bind(id).run();
 }
 export async function cancelExtraOrder(env, id) {
@@ -232,22 +234,33 @@ export async function listExtraOrders(env, limit = 100) {
 }
 
 /**
- * Annule les extras non payés :
- *  - dès que le jour concerné (service_date) est dépassé
- *  - ou, sans date, après 30 jours (filet de sécurité)
- * Couvre requested / approved / pending.
+ * Annule les extras non payés dont le jour concerné est dépassé.
+ * - requested / approved : dès le lendemain du jour concerné
+ * - pending (session Stripe) : seulement si le jour est passé ET la demande a > 2 jours
+ *   (laisse le temps de payer ; le webhook Stripe expire gère l’abandon de session)
  */
 export async function expireStalePendingExtras(env) {
   try {
     const res = await env.DB.prepare(
       `UPDATE extra_orders
           SET status = 'cancelled'
-        WHERE status IN ('pending', 'requested', 'approved')
-          AND (
-            (service_date IS NOT NULL AND service_date != ''
-              AND date(service_date) < date('now'))
-            OR ((service_date IS NULL OR service_date = '')
-              AND datetime(created_at) <= datetime('now', '-30 days'))
+        WHERE (
+            status IN ('requested', 'approved')
+            AND (
+              (service_date IS NOT NULL AND service_date != ''
+                AND date(service_date) < date('now'))
+              OR ((service_date IS NULL OR service_date = '')
+                AND datetime(created_at) <= datetime('now', '-30 days'))
+            )
+          )
+          OR (
+            status = 'pending'
+            AND datetime(created_at) <= datetime('now', '-2 days')
+            AND (
+              (service_date IS NOT NULL AND service_date != ''
+                AND date(service_date) < date('now'))
+              OR (service_date IS NULL OR service_date = '')
+            )
           )`
     ).run();
     return (res && res.meta && res.meta.changes) || 0;
@@ -268,13 +281,21 @@ export async function createExtraActionToken(env, orderId, groupId, ttlHours = 7
   return token;
 }
 
-export async function consumeExtraActionToken(env, token) {
+/** Lit un token sans le consommer (page de confirmation). */
+export async function getExtraActionToken(env, token) {
   await ensurePricingSchema(env);
   const row = await env.DB.prepare(
     `SELECT * FROM extra_action_tokens WHERE token = ?1`
   ).bind(token).first();
   if (!row || row.used) return null;
   if (new Date(row.expires_at).getTime() < Date.now()) return null;
+  return row;
+}
+
+export async function consumeExtraActionToken(env, token) {
+  await ensurePricingSchema(env);
+  const row = await getExtraActionToken(env, token);
+  if (!row) return null;
   await env.DB.prepare(`UPDATE extra_action_tokens SET used = 1 WHERE token = ?1`).bind(token).run();
   return row;
 }
@@ -498,6 +519,9 @@ export async function updateSettings(env, s) {
     await env.DB.prepare(`UPDATE settings SET cleaning_emails=?1 WHERE id=1`).bind(s.cleaning_emails || '').run();
   } catch (e) { /* colonne absente : ignorer */ }
   try {
+    await env.DB.prepare(`UPDATE settings SET extra_approval_emails=?1 WHERE id=1`).bind(s.extra_approval_emails || '').run();
+  } catch (e) { /* colonne absente : ignorer */ }
+  try {
     await env.DB.prepare(`UPDATE settings SET dynamic_pricing_enabled=?1 WHERE id=1`).bind(s.dynamic_pricing_enabled ? 1 : 0).run();
   } catch (e) { /* colonne absente : ignorer */ }
   // Caution (colonne récente → UPDATE tolérant).
@@ -561,6 +585,7 @@ export async function ensurePricingSchema(env) {
   const run = async (sql) => { try { await env.DB.prepare(sql).run(); } catch (e) { /* déjà présent : ignorer */ } };
   await run(`ALTER TABLE settings ADD COLUMN dynamic_pricing_enabled INTEGER NOT NULL DEFAULT 1`);
   await run(`ALTER TABLE settings ADD COLUMN cleaning_emails TEXT NOT NULL DEFAULT ''`);
+  await run(`ALTER TABLE settings ADD COLUMN extra_approval_emails TEXT NOT NULL DEFAULT ''`);
   // Caution (Phase 5).
   await run(`ALTER TABLE settings ADD COLUMN caution_cents INTEGER NOT NULL DEFAULT 0`);
   // Tarifs par durée en TOTAL (Phase 6) : 300 € la semaine, 750 € la cure.
@@ -712,11 +737,16 @@ export async function deleteExtraPromotion(env, id) {
 export async function confirmExtraOrdersBySession(env, sessionId) {
   if (!sessionId) return [];
   const { results } = await env.DB.prepare(
-    `SELECT id FROM extra_orders WHERE stripe_session_id = ?1 AND status = 'pending'`
+    `SELECT id FROM extra_orders
+      WHERE stripe_session_id = ?1
+        AND status IN ('pending','approved','requested','cancelled')`
   ).bind(sessionId).all();
   const ids = (results || []).map((r) => r.id);
   for (const id of ids) {
-    await env.DB.prepare(`UPDATE extra_orders SET status = 'confirmed' WHERE id = ?1`).bind(id).run();
+    await env.DB.prepare(
+      `UPDATE extra_orders SET status = 'confirmed'
+        WHERE id = ?1 AND status IN ('pending','approved','requested','cancelled')`
+    ).bind(id).run();
   }
   return ids;
 }
