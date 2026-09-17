@@ -562,7 +562,7 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${(o.created_at || '').slice(0, 10)}</td><td>${esc(o.title || '')}</td>` +
         `<td>${o.service_date || '—'}</td><td>${esc(o.guest_name || '')}<br>${esc(o.email || '')}</td>` +
-        `<td>${euro(o.amount_cents)}</td><td><span class="adm-badge ${o.status === 'confirmed' ? 'confirmed' : (o.status === 'cancelled' ? 'cancelled' : 'pending')}">${o.status === 'confirmed' ? 'Payé' : (o.status === 'cancelled' ? 'Annulé' : 'En attente')}</span></td>`;
+        `<td>${euro(o.amount_cents)}</td><td><span class="adm-badge ${orderBadgeCls(o.status)}">${orderStatusFr(o.status)}</span></td>`;
       ob.appendChild(tr);
     });
   }
@@ -915,7 +915,22 @@
 
   // ---------- utils ----------
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
-  function statusFr(s) { return { confirmed: 'Confirmée', pending: 'En attente', cancelled: 'Annulée' }[s] || s; }
+  function statusFr(s) { return { confirmed: 'Confirmée', pending: 'En attente', cancelled: 'Annulée', requested: 'À valider', approved: 'Validé' }[s] || s; }
+  function orderStatusFr(s) {
+    return {
+      confirmed: 'Payé',
+      pending: 'En attente paiement',
+      cancelled: 'Annulé',
+      requested: 'À valider',
+      approved: 'Validé — paiement',
+    }[s] || s;
+  }
+  function orderBadgeCls(s) {
+    if (s === 'confirmed') return 'confirmed';
+    if (s === 'cancelled') return 'cancelled';
+    if (s === 'requested') return 'pending';
+    return 'pending';
+  }
   function msg(sel, text, isErr) { const el = $(sel); el.textContent = text; el.classList.toggle('err', !!isErr); setTimeout(() => { el.textContent = ''; }, 3500); }
 
   tryAuto();

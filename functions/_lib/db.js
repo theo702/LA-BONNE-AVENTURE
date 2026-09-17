@@ -130,11 +130,31 @@ export async function seedFlexHoursCopyOnce(env) {
 
 // ---------- Commandes d'extras ----------
 export async function createExtraOrder(env, o) {
+  await ensurePricingSchema(env);
   const id = crypto.randomUUID();
-  await env.DB.prepare(
-    `INSERT INTO extra_orders (id, extra_id, title, amount_cents, currency, guest_name, email, kind, service_date, status, created_at)
-     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,'pending',?10)`
-  ).bind(id, o.extra_id, o.title, o.amount_cents, o.currency, o.guest_name || '', o.email || '', o.kind || 'none', o.service_date || null, new Date().toISOString()).run();
+  const status = o.status || 'pending';
+  const groupId = o.group_id || null;
+  const nowIso = new Date().toISOString();
+  try {
+    await env.DB.prepare(
+      `INSERT INTO extra_orders (id, extra_id, title, amount_cents, currency, guest_name, email, kind, service_date, status, group_id, created_at)
+       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12)`
+    ).bind(
+      id, o.extra_id, o.title, o.amount_cents, o.currency || 'eur',
+      o.guest_name || '', o.email || '', o.kind || 'none', o.service_date || null,
+      status, groupId, nowIso
+    ).run();
+  } catch (e) {
+    // Base non migrée (pas de group_id) : fallback.
+    await env.DB.prepare(
+      `INSERT INTO extra_orders (id, extra_id, title, amount_cents, currency, guest_name, email, kind, service_date, status, created_at)
+       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)`
+    ).bind(
+      id, o.extra_id, o.title, o.amount_cents, o.currency || 'eur',
+      o.guest_name || '', o.email || '', o.kind || 'none', o.service_date || null,
+      status, nowIso
+    ).run();
+  }
   return { id };
 }
 export async function attachExtraSession(env, id, sessionId) {
@@ -142,6 +162,39 @@ export async function attachExtraSession(env, id, sessionId) {
 }
 export async function getExtraOrder(env, id) {
   return env.DB.prepare(`SELECT * FROM extra_orders WHERE id = ?1`).bind(id).first();
+}
+export async function listExtraOrdersByGroup(env, groupId) {
+  if (!groupId) return [];
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT * FROM extra_orders WHERE group_id = ?1 ORDER BY amount_cents DESC`
+    ).bind(groupId).all();
+    return results || [];
+  } catch (e) {
+    return [];
+  }
+}
+export async function setExtraOrdersStatus(env, ids, status, fromStatuses) {
+  const list = (ids || []).filter(Boolean);
+  if (!list.length) return 0;
+  let n = 0;
+  const allowed = fromStatuses && fromStatuses.length ? fromStatuses : null;
+  for (const id of list) {
+    if (allowed) {
+      for (const from of allowed) {
+        const res = await env.DB.prepare(
+          `UPDATE extra_orders SET status = ?1 WHERE id = ?2 AND status = ?3`
+        ).bind(status, id, from).run();
+        n += (res && res.meta && res.meta.changes) || 0;
+      }
+    } else {
+      const res = await env.DB.prepare(
+        `UPDATE extra_orders SET status = ?1 WHERE id = ?2`
+      ).bind(status, id).run();
+      n += (res && res.meta && res.meta.changes) || 0;
+    }
+  }
+  return n;
 }
 export async function confirmExtraOrder(env, id) {
   // Ne confirme que les pending — évite de « ressusciter » un extra déjà annulé.
@@ -151,19 +204,26 @@ export async function confirmExtraOrder(env, id) {
 }
 export async function cancelExtraOrder(env, id) {
   const row = await getExtraOrder(env, id);
+  const cancelable = `status IN ('pending','requested','approved')`;
   await env.DB.prepare(
-    `UPDATE extra_orders SET status = 'cancelled' WHERE id = ?1 AND status = 'pending'`
+    `UPDATE extra_orders SET status = 'cancelled' WHERE id = ?1 AND ${cancelable}`
   ).bind(id).run();
-  // Pack / « both » : annule aussi la ligne sœur liée à la même session Stripe.
   if (row && row.stripe_session_id) {
     await env.DB.prepare(
       `UPDATE extra_orders SET status = 'cancelled'
-        WHERE stripe_session_id = ?1 AND status = 'pending'`
+        WHERE stripe_session_id = ?1 AND ${cancelable}`
     ).bind(row.stripe_session_id).run();
+  }
+  if (row && row.group_id) {
+    try {
+      await env.DB.prepare(
+        `UPDATE extra_orders SET status = 'cancelled'
+          WHERE group_id = ?1 AND ${cancelable}`
+      ).bind(row.group_id).run();
+    } catch (e) { /* ignore */ }
   }
 }
 export async function listExtraOrders(env, limit = 100) {
-  // Purge immédiate des pending dont le jour concerné est passé.
   await expireStalePendingExtras(env);
   const { results } = await env.DB.prepare(
     `SELECT * FROM extra_orders ORDER BY created_at DESC LIMIT ?1`
@@ -172,16 +232,17 @@ export async function listExtraOrders(env, limit = 100) {
 }
 
 /**
- * Annule les extras pending non payés :
+ * Annule les extras non payés :
  *  - dès que le jour concerné (service_date) est dépassé
  *  - ou, sans date, après 30 jours (filet de sécurité)
+ * Couvre requested / approved / pending.
  */
 export async function expireStalePendingExtras(env) {
   try {
     const res = await env.DB.prepare(
       `UPDATE extra_orders
           SET status = 'cancelled'
-        WHERE status = 'pending'
+        WHERE status IN ('pending', 'requested', 'approved')
           AND (
             (service_date IS NOT NULL AND service_date != ''
               AND date(service_date) < date('now'))
@@ -193,6 +254,29 @@ export async function expireStalePendingExtras(env) {
   } catch (e) {
     return 0;
   }
+}
+
+/** Token one-shot pour accepter / refuser une demande d'extra. */
+export async function createExtraActionToken(env, orderId, groupId, ttlHours = 72) {
+  await ensurePricingSchema(env);
+  const token = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+  const expiresAt = new Date(Date.now() + ttlHours * 60 * 60 * 1000).toISOString();
+  await env.DB.prepare(
+    `INSERT INTO extra_action_tokens (token, order_id, group_id, expires_at, used, created_at)
+     VALUES (?1,?2,?3,?4,0,?5)`
+  ).bind(token, orderId, groupId || null, expiresAt, new Date().toISOString()).run();
+  return token;
+}
+
+export async function consumeExtraActionToken(env, token) {
+  await ensurePricingSchema(env);
+  const row = await env.DB.prepare(
+    `SELECT * FROM extra_action_tokens WHERE token = ?1`
+  ).bind(token).first();
+  if (!row || row.used) return null;
+  if (new Date(row.expires_at).getTime() < Date.now()) return null;
+  await env.DB.prepare(`UPDATE extra_action_tokens SET used = 1 WHERE token = ?1`).bind(token).run();
+  return row;
 }
 
 // Réservations confirmées (pour l'export /calendar.ics).
@@ -526,6 +610,16 @@ export async function ensurePricingSchema(env) {
   // Paiement hors Stripe (virement) + notes libres pour l'historique comptable.
   await run(`ALTER TABLE bookings ADD COLUMN payment_source TEXT NOT NULL DEFAULT 'stripe'`);
   await run(`ALTER TABLE bookings ADD COLUMN notes TEXT`);
+  // Extras : validation hôte avant paiement (arrivée anticipée / départ tardif).
+  await run(`ALTER TABLE extra_orders ADD COLUMN group_id TEXT`);
+  await run(`CREATE TABLE IF NOT EXISTS extra_action_tokens (
+    token TEXT PRIMARY KEY,
+    order_id TEXT NOT NULL,
+    group_id TEXT,
+    expires_at TEXT NOT NULL,
+    used INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  )`);
   // Seed idempotent : virement 17→18 sept. 2026 · 50 € (saisie manuelle hôte).
   try {
     await env.DB.prepare(

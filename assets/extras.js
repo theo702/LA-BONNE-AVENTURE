@@ -205,6 +205,8 @@
     var isBoth = x.kind === 'both';
     var isWeekly = x.kind === 'weekly';
     var dated = (x.kind === 'late_checkout' || x.kind === 'early_checkin');
+    // Arrivée anticipée / départ tardif : validation hôte + ménage avant paiement.
+    var needsApproval = isPack || isBoth || dated;
     var dateLabel = x.kind === 'late_checkout' ? 'Date de votre départ' : (x.kind === 'early_checkin' ? 'Date de votre arrivée' : '');
     var priceLine = euros(x.price_cents, CUR);
     if (x.price_cents_original && x.price_cents_original > x.price_cents) {
@@ -231,17 +233,24 @@
     } else if (dated) {
       datesHtml = '<div class="bw-field"><label>' + dateLabel + '</label><input id="exDate" type="date"></div><div class="bw-promo-err" id="exAvail"></div>';
     }
+    var ctaLabel = needsApproval
+      ? ('Demander · ' + euros(x.price_cents, CUR))
+      : (card() + 'Payer ' + euros(x.price_cents, CUR));
+    var secureLine = needsApproval
+      ? 'Sous réserve de validation (ménage). Vous paierez après acceptation.'
+      : (lock() + 'Paiement sécurisé par Stripe');
     var node = el('<div class="bw-modal"><div class="bw-modal-card" style="text-align:left">' +
       '<button class="bw-modal-x" aria-label="Fermer">&times;</button>' +
       '<h3 style="text-align:center">' + esc(x.title) + '</h3>' +
       '<p class="bw-modal-sub" style="text-align:center" id="exPriceLine">' + priceLine + '</p>' +
+      (needsApproval ? '<p class="bw-modal-msg" style="margin:0 0 12px;font-size:13px;text-align:center">Nous validons d’abord avec le ménage, puis vous recevez un lien de paiement par email.</p>' : '') +
       '<div class="bw-form">' +
       datesHtml +
       '<div class="bw-field"><label>Nom complet</label><input id="exName" type="text" placeholder="Camille Dupont"></div>' +
       '<div class="bw-field"><label>Email</label><input id="exEmail" type="email" placeholder="vous@email.com"></div>' +
-      '<button class="bw-pay" id="exPay">' + card() + 'Payer ' + euros(x.price_cents, CUR) + '</button>' +
+      '<button class="bw-pay" id="exPay">' + ctaLabel + '</button>' +
       '<div class="bw-err" id="exErr"></div>' +
-      '<div class="bw-secure">' + lock() + 'Paiement sécurisé par Stripe</div>' +
+      '<div class="bw-secure">' + secureLine + '</div>' +
       '</div></div></div>');
     document.body.appendChild(node);
     function close() { try { node.remove(); } catch (e) {} }
@@ -254,7 +263,8 @@
     var weeklyQuote = null;
 
     function setPayLabel(cents) {
-      payBtn.innerHTML = card() + 'Payer ' + euros(cents, CUR);
+      if (needsApproval) payBtn.textContent = 'Demander · ' + euros(cents, CUR);
+      else payBtn.innerHTML = card() + 'Payer ' + euros(cents, CUR);
     }
 
     function checkOne(kind, date, done) {
@@ -413,17 +423,41 @@
       }
 
       var payCents = (isWeekly && weeklyQuote && weeklyQuote.amount_cents) ? weeklyQuote.amount_cents : x.price_cents;
-      payBtn.disabled = true; payBtn.innerHTML = card() + 'Redirection…';
-      fetch('/api/extras-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      payBtn.disabled = true;
+      payBtn.textContent = needsApproval ? 'Envoi…' : '';
+      if (!needsApproval) payBtn.innerHTML = card() + 'Redirection…';
+      else payBtn.textContent = 'Envoi de la demande…';
+      var endpoint = needsApproval ? '/api/extras-request' : '/api/extras-checkout';
+      fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload) })
         .then(function (r) { return r.json(); })
         .then(function (j) {
           if (j && j.ok && j.url) { window.location.href = j.url; return; }
+          if (j && j.ok && j.requested) {
+            close();
+            requestThanks();
+            return;
+          }
           payBtn.disabled = false; setPayLabel(payCents);
           err.textContent = (j && j.message) || 'Une erreur est survenue. Réessayez.';
         })
         .catch(function () { payBtn.disabled = false; setPayLabel(payCents); err.textContent = 'Connexion impossible.'; });
     });
+  }
+
+  function requestThanks() {
+    var node = el('<div class="bw-modal"><div class="bw-modal-card">' +
+      '<button class="bw-modal-x" aria-label="Fermer">&times;</button>' +
+      '<div class="bw-modal-check">' + check() + '</div>' +
+      '<h3>Demande envoyée</h3>' +
+      '<p class="bw-modal-msg">Nous validons avec le ménage. Vous recevrez un <b>email avec le lien de paiement</b> dès acceptation.</p>' +
+      '<button class="bw-modal-close">Compris</button>' +
+      '</div></div>');
+    document.body.appendChild(node);
+    function close() { try { node.remove(); } catch (e) {} }
+    node.querySelector('.bw-modal-x').addEventListener('click', close);
+    node.querySelector('.bw-modal-close').addEventListener('click', close);
+    node.addEventListener('click', function (e) { if (e.target === node) close(); });
   }
 
   function thankYou(j) {
