@@ -98,19 +98,33 @@
   function renderRevenue(rev) {
     const box = $('#bookRevenue');
     const months = $('#revMonths');
-    if (!rev || !rev.year_stats) { if (box) box.hidden = true; if (months) months.hidden = true; return; }
+    const split = $('#revSplit');
+    if (!rev || !rev.year_stats) {
+      if (box) box.hidden = true;
+      if (months) months.hidden = true;
+      if (split) split.hidden = true;
+      return;
+    }
     const y = rev.year_stats;
     const a = rev.all;
     box.hidden = false;
+    if (split) split.hidden = false;
     $('#revYearLabel').textContent = rev.year;
     $('#revYearTotal').textContent = euro(y.total_cents);
-    $('#revYearCount').textContent = y.count + ' séjour' + (y.count > 1 ? 's' : '') + ' · ' + y.nights + ' nuit' + (y.nights > 1 ? 's' : '');
-    $('#revStripe').textContent = euro(y.stripe_cents);
-    $('#revStripeCount').textContent = y.stripe_count + ' paiement' + (y.stripe_count > 1 ? 's' : '');
-    $('#revVirement').textContent = euro(y.virement_cents);
-    $('#revVirementCount').textContent = y.virement_count + ' paiement' + (y.virement_count > 1 ? 's' : '');
+    $('#revYearCount').textContent =
+      (y.bookings_count || 0) + ' séjour' + ((y.bookings_count || 0) > 1 ? 's' : '') +
+      ' · ' + (y.extras_count || 0) + ' extra' + ((y.extras_count || 0) > 1 ? 's' : '');
+    $('#revBookings').textContent = euro(y.bookings_cents || 0);
+    $('#revBookingsCount').textContent =
+      (y.bookings_count || 0) + ' · ' + (y.nights || 0) + ' nuit' + ((y.nights || 0) > 1 ? 's' : '');
+    $('#revExtras').textContent = euro(y.extras_cents || 0);
+    $('#revExtrasCount').textContent = (y.extras_count || 0) + ' commande' + ((y.extras_count || 0) > 1 ? 's' : '');
     $('#revAllTotal').textContent = euro(a.total_cents);
-    $('#revAllCount').textContent = a.count + ' séjour' + (a.count > 1 ? 's' : '') + ' · ' + a.nights + ' nuit' + (a.nights > 1 ? 's' : '');
+    $('#revAllCount').textContent =
+      (a.bookings_count || 0) + ' séjour' + ((a.bookings_count || 0) > 1 ? 's' : '') +
+      ' · ' + (a.extras_count || 0) + ' extra' + ((a.extras_count || 0) > 1 ? 's' : '');
+    $('#revStripe').textContent = euro(y.stripe_cents);
+    $('#revVirement').textContent = euro(y.virement_cents);
 
     const MONTHS_FR = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
     const parts = [];
@@ -122,7 +136,7 @@
     });
     if (parts.length) {
       months.hidden = false;
-      months.innerHTML = '<div class="adm-rev-months-lab">Détail ' + rev.year + ' (par mois d’arrivée)</div>' + parts.join('');
+      months.innerHTML = '<div class="adm-rev-months-lab">Détail ' + rev.year + ' (séjours + extras)</div>' + parts.join('');
     } else {
       months.hidden = true;
       months.innerHTML = '';
@@ -139,11 +153,16 @@
       .slice()
       .sort((x, z) => String(x.checkin).localeCompare(String(z.checkin)));
     const yearRows = confirmed.filter((r) => String(r.checkin || '').startsWith(String(rev.year)));
+    const extrasAll = (rev.extras || []).slice();
+    const extrasYear = extrasAll.filter((e) => {
+      const d = (e.service_date && String(e.service_date).slice(0, 10)) || String(e.created_at || '').slice(0, 10);
+      return d.startsWith(String(rev.year));
+    });
     const monthRows = Object.keys(rev.by_month || {}).sort().map((key) => {
       const m = rev.by_month[key];
       if (!m.count) return '';
       const mi = parseInt(key.slice(5), 10) - 1;
-      return '<tr><td>' + MONTHS_FR[mi] + '</td><td>' + m.count + '</td><td class="num">' + euro(m.total_cents) + '</td></tr>';
+      return '<tr><td>' + MONTHS_FR[mi] + '</td><td class="num">' + euro(m.bookings_cents || 0) + '</td><td class="num">' + euro(m.extras_cents || 0) + '</td><td class="num">' + euro(m.total_cents) + '</td></tr>';
     }).join('');
 
     function bookRows(list) {
@@ -156,6 +175,18 @@
           '<td>' + esc(r.guest_name) + (r.notes ? '<div class="note">' + esc(r.notes) + '</div>' : '') + '</td>' +
           '<td>' + pay + '</td>' +
           '<td class="num">' + euro(r.amount_total_cents) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+    function extraRows(list) {
+      return list.map((e) => {
+        const d = (e.service_date && String(e.service_date).slice(0, 10)) || String(e.created_at || '').slice(0, 10);
+        return '<tr>' +
+          '<td>' + esc(d) + '</td>' +
+          '<td>' + esc(e.title || 'Extra') + '</td>' +
+          '<td>' + esc(e.guest_name || '—') + '</td>' +
+          '<td>Stripe</td>' +
+          '<td class="num">' + euro(e.amount_cents) + '</td>' +
           '</tr>';
       }).join('');
     }
@@ -189,19 +220,21 @@
   <div class="noprint"><button type="button" onclick="window.print()">Enregistrer en PDF / Imprimer</button></div>
   <p class="kicker">La Bonne Aventure · Aix-les-Bains</p>
   <h1>Chiffre d’affaires direct ${esc(String(rev.year))}</h1>
-  <p class="sub">Réservations hors Airbnb (site Stripe + virements) · Généré le ${esc(generated)}</p>
+  <p class="sub">Séjours (Stripe + virement) + extras · hors Airbnb · Généré le ${esc(generated)}</p>
 
   <div class="cards">
-    <div class="card"><div class="lab">CA ${esc(String(rev.year))}</div><div class="val">${euro(y.total_cents)}</div><div class="hint">${y.count} séjour${y.count>1?'s':''} · ${y.nights} nuit${y.nights>1?'s':''}</div></div>
-    <div class="card"><div class="lab">Dont Stripe</div><div class="val">${euro(y.stripe_cents)}</div><div class="hint">${y.stripe_count} paiement${y.stripe_count>1?'s':''}</div></div>
-    <div class="card"><div class="lab">Dont virement</div><div class="val">${euro(y.virement_cents)}</div><div class="hint">${y.virement_count} paiement${y.virement_count>1?'s':''}</div></div>
-    <div class="card"><div class="lab">Total depuis le début</div><div class="val">${euro(a.total_cents)}</div><div class="hint">${a.count} séjour${a.count>1?'s':''} · ${a.nights} nuit${a.nights>1?'s':''}</div></div>
+    <div class="card"><div class="lab">CA ${esc(String(rev.year))}</div><div class="val">${euro(y.total_cents)}</div><div class="hint">${y.bookings_count||0} séjour${(y.bookings_count||0)>1?'s':''} · ${y.extras_count||0} extra${(y.extras_count||0)>1?'s':''}</div></div>
+    <div class="card"><div class="lab">Séjours</div><div class="val">${euro(y.bookings_cents||0)}</div><div class="hint">${y.nights||0} nuit${(y.nights||0)>1?'s':''}</div></div>
+    <div class="card"><div class="lab">Extras</div><div class="val">${euro(y.extras_cents||0)}</div><div class="hint">${y.extras_count||0} commande${(y.extras_count||0)>1?'s':''}</div></div>
+    <div class="card"><div class="lab">Total depuis le début</div><div class="val">${euro(a.total_cents)}</div><div class="hint">${a.bookings_count||0} séjour${(a.bookings_count||0)>1?'s':''} · ${a.extras_count||0} extra${(a.extras_count||0)>1?'s':''}</div></div>
+    <div class="card"><div class="lab">Dont Stripe</div><div class="val">${euro(y.stripe_cents)}</div></div>
+    <div class="card"><div class="lab">Dont virement</div><div class="val">${euro(y.virement_cents)}</div></div>
   </div>
 
   <h2>Détail mensuel ${esc(String(rev.year))}</h2>
   <table>
-    <thead><tr><th>Mois</th><th>Séjours</th><th class="num">CA</th></tr></thead>
-    <tbody>${monthRows || '<tr><td colspan="3">Aucun séjour confirmé cette année.</td></tr>'}</tbody>
+    <thead><tr><th>Mois</th><th class="num">Séjours</th><th class="num">Extras</th><th class="num">Total</th></tr></thead>
+    <tbody>${monthRows || '<tr><td colspan="4">Aucun revenu cette année.</td></tr>'}</tbody>
   </table>
 
   <h2>Séjours confirmés ${esc(String(rev.year))}</h2>
@@ -210,15 +243,27 @@
     <tbody>${bookRows(yearRows) || '<tr><td colspan="6">Aucun séjour.</td></tr>'}</tbody>
   </table>
 
-  ${confirmed.length !== yearRows.length ? `
+  <h2>Extras confirmés ${esc(String(rev.year))}</h2>
+  <table>
+    <thead><tr><th>Date</th><th>Extra</th><th>Client</th><th>Paiement</th><th class="num">Montant</th></tr></thead>
+    <tbody>${extraRows(extrasYear) || '<tr><td colspan="5">Aucun extra.</td></tr>'}</tbody>
+  </table>
+
+  ${confirmed.length !== yearRows.length || extrasAll.length !== extrasYear.length ? `
   <h2>Historique complet (toutes années)</h2>
+  <h2 style="font-size:13px;margin-top:12px">Séjours</h2>
   <table>
     <thead><tr><th>Arrivée</th><th>Départ</th><th class="num">Nuits</th><th>Voyageur</th><th>Paiement</th><th class="num">Montant</th></tr></thead>
     <tbody>${bookRows(confirmed)}</tbody>
+  </table>
+  <h2 style="font-size:13px;margin-top:12px">Extras</h2>
+  <table>
+    <thead><tr><th>Date</th><th>Extra</th><th>Client</th><th>Paiement</th><th class="num">Montant</th></tr></thead>
+    <tbody>${extraRows(extrasAll) || '<tr><td colspan="5">Aucun extra.</td></tr>'}</tbody>
   </table>` : ''}
 
   <p class="foot">Document généré depuis l’espace hôte La Bonne Aventure.<br>
-  Canal « direct » = réservations via le site (Stripe) et paiements saisis manuellement (virement). Les séjours Airbnb ne sont pas inclus.</p>
+  Canal « direct » = séjours (site Stripe + virements) + extras payés en ligne. Les séjours Airbnb ne sont pas inclus.</p>
   <script>window.addEventListener('load',function(){setTimeout(function(){window.print()},250)});<\/script>
 </body></html>`;
 

@@ -237,52 +237,109 @@ export async function listBookings(env, limit = 200) {
   }
 }
 
-/** Totaux CA des réservations confirmées (canal direct : site + virement). */
+/** Totaux CA direct : réservations confirmées + extras confirmés. */
 export async function bookingRevenueStats(env) {
   await ensurePricingSchema(env);
   const year = String(new Date().getFullYear());
-  const { results: rows } = await env.DB.prepare(
-    `SELECT checkin, checkout, nights, amount_total_cents, payment_source, status, stripe_session_id
+
+  const { results: bookRows } = await env.DB.prepare(
+    `SELECT checkin, checkout, nights, amount_total_cents, payment_source, status, stripe_session_id,
+            guest_name, notes, created_at
        FROM bookings WHERE status = 'confirmed'`
   ).all();
-  const list = rows || [];
+  const bookings = bookRows || [];
+
+  let extras = [];
+  try {
+    const { results: extraRows } = await env.DB.prepare(
+      `SELECT id, title, amount_cents, guest_name, email, kind, service_date, status, created_at
+         FROM extra_orders WHERE status = 'confirmed'`
+    ).all();
+    extras = extraRows || [];
+  } catch (e) { extras = []; }
+
   function sourceOf(r) {
     if (r.payment_source === 'virement') return 'virement';
     if (r.payment_source === 'stripe') return 'stripe';
     return r.stripe_session_id ? 'stripe' : 'virement';
   }
-  function aggregate(items) {
-    const out = { total_cents: 0, count: 0, nights: 0, stripe_cents: 0, virement_cents: 0, stripe_count: 0, virement_count: 0 };
-    items.forEach((r) => {
+  function extraDate(e) {
+    if (e.service_date && /^\d{4}-\d{2}-\d{2}/.test(e.service_date)) return e.service_date.slice(0, 10);
+    if (e.created_at) return String(e.created_at).slice(0, 10);
+    return '';
+  }
+  function aggregate(bookItems, extraItems) {
+    const out = {
+      total_cents: 0,
+      bookings_cents: 0,
+      extras_cents: 0,
+      count: 0,
+      bookings_count: 0,
+      extras_count: 0,
+      nights: 0,
+      stripe_cents: 0,
+      virement_cents: 0,
+      stripe_count: 0,
+      virement_count: 0,
+    };
+    bookItems.forEach((r) => {
       const cents = r.amount_total_cents || 0;
       const src = sourceOf(r);
       out.total_cents += cents;
+      out.bookings_cents += cents;
       out.count += 1;
+      out.bookings_count += 1;
       out.nights += r.nights || 0;
       if (src === 'virement') { out.virement_cents += cents; out.virement_count += 1; }
       else { out.stripe_cents += cents; out.stripe_count += 1; }
     });
+    extraItems.forEach((e) => {
+      const cents = e.amount_cents || 0;
+      out.total_cents += cents;
+      out.extras_cents += cents;
+      out.count += 1;
+      out.extras_count += 1;
+      // Les extras passent par Stripe
+      out.stripe_cents += cents;
+      out.stripe_count += 1;
+    });
     return out;
   }
-  const yearRows = list.filter((r) => String(r.checkin || '').startsWith(year));
-  // Ventilation mensuelle de l'année en cours (par mois d'arrivée).
+
+  const yearBooks = bookings.filter((r) => String(r.checkin || '').startsWith(year));
+  const yearExtras = extras.filter((e) => extraDate(e).startsWith(year));
+
   const byMonth = {};
   for (let m = 1; m <= 12; m++) {
     const key = year + '-' + String(m).padStart(2, '0');
-    byMonth[key] = { total_cents: 0, count: 0 };
+    byMonth[key] = { total_cents: 0, count: 0, bookings_cents: 0, extras_cents: 0 };
   }
-  yearRows.forEach((r) => {
+  yearBooks.forEach((r) => {
     const key = String(r.checkin || '').slice(0, 7);
     if (byMonth[key]) {
       byMonth[key].total_cents += r.amount_total_cents || 0;
+      byMonth[key].bookings_cents += r.amount_total_cents || 0;
       byMonth[key].count += 1;
     }
   });
+  yearExtras.forEach((e) => {
+    const key = extraDate(e).slice(0, 7);
+    if (byMonth[key]) {
+      byMonth[key].total_cents += e.amount_cents || 0;
+      byMonth[key].extras_cents += e.amount_cents || 0;
+      byMonth[key].count += 1;
+    }
+  });
+
+  // Liste légère pour le PDF (triée)
+  const extrasList = extras.slice().sort((a, b) => extraDate(a).localeCompare(extraDate(b)));
+
   return {
     year,
-    all: aggregate(list),
-    year_stats: aggregate(yearRows),
+    all: aggregate(bookings, extras),
+    year_stats: aggregate(yearBooks, yearExtras),
     by_month: byMonth,
+    extras: extrasList,
   };
 }
 
