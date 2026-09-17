@@ -148,29 +148,145 @@ async function sendEmails(env, booking) {
   } catch (e) { /* pas bloquant */ }
 }
 
+async function cleaningRecipients(env) {
+  try {
+    const s = await getSettings(env);
+    return ((s && s.cleaning_emails) || '').split(/[\n,; ]+/).map((x) => x.trim()).filter(Boolean);
+  } catch (e) {
+    return [];
+  }
+}
+
+function fmtEuro(cents, currency = 'eur') {
+  return euros(cents, currency);
+}
+
+function extraKindLabel(kind) {
+  if (kind === 'early_checkin') return 'Arrivée anticipée (dès 12h)';
+  if (kind === 'late_checkout') return 'Départ tardif (jusqu’à 14h)';
+  return kind || 'Extra';
+}
+
+/** Demande de validation → hôte + femme de ménage. */
+export async function sendExtraApprovalRequest(env, info, urls) {
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return;
+  const total = fmtEuro(info.amount_cents, info.currency);
+  const row = (k, v) => `<tr><td style="padding:6px 14px 6px 0;color:#5f6675">${k}</td><td style="color:#1f2838"><b>${v}</b></td></tr>`;
+  const btn = (href, label, bg) =>
+    `<a href="${href}" style="display:inline-block;background:${bg};color:#fff;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:30px;margin:4px">${label}</a>`;
+  const html = wrap(`
+    <h2 style="color:#a9760f;margin:0 0 6px">Validation d’extra demandée 🧹</h2>
+    <p>Un voyageur demande un horaire flexible. Merci de valider (ou refuser) pour que le ménage puisse s’organiser.</p>
+    <table style="border-collapse:collapse;margin:14px 0">
+      ${row('Extra', info.title || '—')}
+      ${row('Dates', info.dates_label || '—')}
+      ${row('Voyageur', info.guest_name || '—')}
+      ${row('Email', info.email || '—')}
+      ${row('Montant', total)}
+    </table>
+    <p style="text-align:center;margin:22px 0">
+      ${btn(urls.acceptUrl, 'Accepter', '#3f6b4a')}
+      ${btn(urls.rejectUrl, 'Refuser', '#8a3a32')}
+    </p>
+    <p style="color:#5f6675;font-size:13px">Si vous acceptez, le voyageur recevra un lien de paiement. Vous serez prévenus dès qu’il aura payé.</p>`);
+
+  const subject = `À valider : ${info.title || 'extra'} — ${info.guest_name || ''}`;
+  const jobs = [];
+  if (env.HOST_EMAIL) jobs.push(sendResend(env, env.HOST_EMAIL, subject, html));
+  const cleaners = await cleaningRecipients(env);
+  for (const to of cleaners) jobs.push(sendResend(env, to, subject, html));
+  await Promise.all(jobs);
+}
+
+/** Accusé de réception voyageur (demande envoyée, pas encore de paiement). */
+export async function sendExtraRequestAck(env, info) {
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL || !info.email) return;
+  const total = fmtEuro(info.amount_cents, info.currency);
+  const html = wrap(`
+    <h2 style="color:#0f2a4a;margin:0 0 6px">Demande bien reçue 🌴</h2>
+    <p>Bonjour ${info.guest_name || ''},</p>
+    <p>Votre demande pour <b>${info.title || 'un extra'}</b>${info.dates_label ? ` (${info.dates_label})` : ''} a bien été envoyée.</p>
+    <p>Dès validation (selon disponibilité du ménage), vous recevrez un <b>email avec le lien de paiement</b> (${total}).</p>
+    <p style="color:#5f6675;font-size:13px;margin-top:18px">Théo · La Bonne Aventure</p>`);
+  await sendResend(env, info.email, `Demande reçue — ${info.title || 'extra'}`, html);
+}
+
+/** Après acceptation : lien de paiement au voyageur. */
+export async function sendExtraPayLink(env, order, payUrl) {
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL || !order || !order.email || !payUrl) return;
+  const total = fmtEuro(order.amount_cents, order.currency);
+  const html = wrap(`
+    <h2 style="color:#0f2a4a;margin:0 0 6px">Votre extra est validé — à régler 🌴</h2>
+    <p>Bonjour ${order.guest_name || ''},</p>
+    <p>Bonne nouvelle : votre demande <b>${order.title || 'extra'}</b>${order.dates_label ? ` (${order.dates_label})` : ''} est <b>acceptée</b>.</p>
+    <p>Montant : <b>${total}</b>. Cliquez ci-dessous pour finaliser le paiement sécurisé.</p>
+    <p style="text-align:center;margin:24px 0">
+      <a href="${payUrl}" style="display:inline-block;background:#0f2a4a;color:#fff;text-decoration:none;font-weight:bold;padding:12px 26px;border-radius:30px">Payer maintenant</a>
+    </p>
+    <p style="color:#5f6675;font-size:13px">Ce lien est personnel. Après paiement, vos horaires seront confirmés dans le livret.</p>
+    <p style="color:#5f6675;font-size:13px;margin-top:18px">Théo · La Bonne Aventure</p>`);
+  await sendResend(env, order.email, `À régler : ${order.title || 'extra'} — La Bonne Aventure`, html);
+}
+
+/** Refus : informer le voyageur. */
+export async function sendExtraRejected(env, order) {
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL || !order || !order.email) return;
+  const html = wrap(`
+    <h2 style="color:#0f2a4a;margin:0 0 6px">Demande non disponible</h2>
+    <p>Bonjour ${order.guest_name || ''},</p>
+    <p>Malheureusement, votre demande pour <b>${order.title || 'un extra'}</b> n’a pas pu être acceptée (contrainte de ménage / planning).</p>
+    <p>Les horaires standards restent : arrivée 16h · départ 10h. N’hésitez pas à nous écrire pour une autre date.</p>
+    <p style="color:#5f6675;font-size:13px;margin-top:18px">Théo · La Bonne Aventure</p>`);
+  await sendResend(env, order.email, `Demande non disponible — ${order.title || 'extra'}`, html);
+}
+
 async function sendExtraEmails(env, order) {
   if (!env.RESEND_API_KEY || !env.FROM_EMAIL) return;
-  const from = `La Bonne Aventure <${env.FROM_EMAIL}>`;
   const total = euros(order.amount_cents, order.currency);
-  const send = (to, subject, html) =>
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from, to, subject, html }),
-    }).catch(() => {});
-  const header = `<div style="background:#0f2a4a;padding:20px 24px;text-align:center"><div style="color:#d9971a;font-size:18px;letter-spacing:4px;font-weight:600">LA BONNE AVENTURE</div></div>`;
-  const shell = (inner) => `<div style="background:#f1ece0;padding:24px 0;font-family:Arial,sans-serif"><div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e6e1d4">${header}<div style="padding:24px;color:#1f2838">${inner}</div></div></div>`;
-  await Promise.all([
-    order.email ? send(order.email, `Votre extra « ${order.title} » est confirmé`, shell(
-      `<h2 style="color:#0f2a4a;margin:0 0 6px">Extra confirmé ✅</h2><p>Bonjour ${order.guest_name || ''},</p>
-       <p>Votre option <b>${order.title}</b> (${total}) est bien réglée.${
-         order.kind === 'early_checkin' ? ' Votre <b>arrivée</b> est dès <b>12h</b>.' :
-         order.kind === 'late_checkout' ? ' Votre <b>départ</b> est jusqu’à <b>14h</b>.' : ''
-       } Ces horaires s’affichent aussi dans votre livret d’accueil. Théo revient vers vous si besoin. Merci !</p>`)) : null,
-    env.HOST_EMAIL ? send(env.HOST_EMAIL, `Extra payé : ${order.title} (${total})`, shell(
-      `<h2 style="color:#a9760f;margin:0 0 6px">Extra payé ✅</h2>
-       <p><b>${order.title}</b> — ${total}<br>${order.guest_name || '—'} · ${order.email || '—'}</p>`)) : null,
-  ]);
+  const row = (k, v) => `<tr><td style="padding:6px 14px 6px 0;color:#5f6675">${k}</td><td style="color:#1f2838"><b>${v}</b></td></tr>`;
+  const hoursNote = order.kind === 'early_checkin'
+    ? ' Votre <b>arrivée</b> est dès <b>12h</b>.'
+    : order.kind === 'late_checkout'
+      ? ' Votre <b>départ</b> est jusqu’à <b>14h</b>.'
+      : '';
+
+  const guestHtml = wrap(`
+    <h2 style="color:#0f2a4a;margin:0 0 6px">Extra confirmé ✅</h2>
+    <p>Bonjour ${order.guest_name || ''},</p>
+    <p>Votre option <b>${order.title}</b> (${total}) est bien réglée.${hoursNote}
+    Ces horaires s’affichent aussi dans votre livret d’accueil. Merci !</p>
+    <p style="color:#5f6675;font-size:13px;margin-top:18px">Théo · La Bonne Aventure</p>`);
+
+  const hostHtml = wrap(`
+    <h2 style="color:#a9760f;margin:0 0 6px">Extra payé ✅</h2>
+    <table style="border-collapse:collapse;margin:14px 0">
+      ${row('Extra', order.title || '—')}
+      ${row('Type', extraKindLabel(order.kind))}
+      ${row('Jour concerné', order.service_date || '—')}
+      ${row('Voyageur', order.guest_name || '—')}
+      ${row('Email', order.email || '—')}
+      ${row('Montant', total)}
+    </table>`);
+
+  const cleanHtml = wrap(`
+    <h2 style="color:#0f2a4a;margin:0 0 6px">Horaire flexible confirmé (payé) 🧹</h2>
+    <p>Le voyageur a <b>payé</b> — le créneau est confirmé :</p>
+    <table style="border-collapse:collapse;margin:14px 0">
+      ${row('Extra', order.title || '—')}
+      ${row('Type', extraKindLabel(order.kind))}
+      ${row('Jour concerné', order.service_date || '—')}
+      ${row('Voyageur', order.guest_name || '—')}
+    </table>
+    <p style="color:#5f6675;font-size:13px">Merci d’adapter le passage ménage en conséquence.</p>`);
+
+  const jobs = [];
+  if (order.email) jobs.push(sendResend(env, order.email, `Votre extra « ${order.title} » est confirmé`, guestHtml));
+  if (env.HOST_EMAIL) jobs.push(sendResend(env, env.HOST_EMAIL, `Extra payé : ${order.title} (${total})`, hostHtml));
+  const cleaners = await cleaningRecipients(env);
+  for (const to of cleaners) {
+    jobs.push(sendResend(env, to, `Extra payé — ${order.title || 'horaire flexible'} (${order.service_date || ''})`, cleanHtml));
+  }
+  await Promise.all(jobs);
 }
 
 // Confirme une commande d'extra (idempotent) + emails. Renvoie l'order ou null.

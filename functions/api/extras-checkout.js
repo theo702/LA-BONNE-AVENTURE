@@ -45,6 +45,15 @@ export async function onRequestPost({ env, request }) {
   const isBoth = !isPack && body.kind === 'both';
   const isWeekly = !isPack && !isBoth && body.kind === 'weekly';
 
+  // Arrivée anticipée / départ tardif / packs flex : validation d'abord (voir /api/extras-request).
+  if (isPack || isBoth) {
+    return Response.json({
+      ok: false,
+      error: 'approval_required',
+      message: 'Cet extra nécessite une validation. Utilisez la demande (pas le paiement direct).',
+    }, { status: 400 });
+  }
+
   // ---------- Pack curiste : arrivée + départ → N samedis (1–4) × prix / sem. ----------
   if (isWeekly) {
     const extra = await getExtra(env, parseInt(body.extra_id, 10));
@@ -227,8 +236,11 @@ export async function onRequestPost({ env, request }) {
 
   const serviceDate = (body.date || '').toString().trim();
   if (extra.kind === 'late_checkout' || extra.kind === 'early_checkin') {
-    const av = await extraAvailable(env, extra.kind, serviceDate);
-    if (!av.available) return Response.json({ ok: false, error: 'unavailable', message: av.message }, { status: 409 });
+    return Response.json({
+      ok: false,
+      error: 'approval_required',
+      message: 'Arrivée anticipée et départ tardif passent d’abord par une validation. Utilisez « Demander ».',
+    }, { status: 400 });
   }
 
   let amount = extra.price_cents;

@@ -168,11 +168,21 @@ CREATE TABLE IF NOT EXISTS extra_orders (
   email             TEXT,
   kind              TEXT,                      -- none | late_checkout | early_checkin
   service_date      TEXT,                      -- date concernée (départ/arrivée) si applicable
-  status            TEXT NOT NULL DEFAULT 'pending',  -- pending | confirmed | cancelled
+  status            TEXT NOT NULL DEFAULT 'pending',  -- requested | approved | pending | confirmed | cancelled
   stripe_session_id TEXT,
+  group_id          TEXT,                      -- lie les lignes d'un pack / both
   created_at        TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_extra_orders_status ON extra_orders(status);
+
+CREATE TABLE IF NOT EXISTS extra_action_tokens (
+  token       TEXT PRIMARY KEY,
+  order_id    TEXT NOT NULL,
+  group_id    TEXT,
+  expires_at  TEXT NOT NULL,
+  used        INTEGER NOT NULL DEFAULT 0,
+  created_at  TEXT NOT NULL
+);
 
 -- ---------- Offres / popups sur les extras (réductions & packs) ----------
 CREATE TABLE IF NOT EXISTS extra_promotions (
