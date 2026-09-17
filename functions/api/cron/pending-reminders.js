@@ -1,5 +1,5 @@
 // GET|POST /api/cron/pending-reminders
-// Job hebdo : 1) expire les pending (séjours J-1/>30j + extras >30j)  2) rappel des autres.
+// Job hebdo : 1) expire les pending (séjours J-1/>30j + extras jour passé)  2) rappel des autres.
 // Sécurisé par l’en-tête Authorization: Bearer <CRON_SECRET>
 // (secret Cloudflare : wrangler pages secret put CRON_SECRET)
 import { ensurePricingSchema, expireStalePending, listPendingForReminder, markReminderSent } from '../../_lib/db.js';
