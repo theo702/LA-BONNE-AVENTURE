@@ -144,12 +144,23 @@ export async function getExtraOrder(env, id) {
   return env.DB.prepare(`SELECT * FROM extra_orders WHERE id = ?1`).bind(id).first();
 }
 export async function confirmExtraOrder(env, id) {
-  await env.DB.prepare(`UPDATE extra_orders SET status = 'confirmed' WHERE id = ?1`).bind(id).run();
+  // Ne confirme que les pending — évite de « ressusciter » un extra déjà annulé.
+  await env.DB.prepare(
+    `UPDATE extra_orders SET status = 'confirmed' WHERE id = ?1 AND status = 'pending'`
+  ).bind(id).run();
 }
 export async function cancelExtraOrder(env, id) {
+  const row = await getExtraOrder(env, id);
   await env.DB.prepare(
     `UPDATE extra_orders SET status = 'cancelled' WHERE id = ?1 AND status = 'pending'`
   ).bind(id).run();
+  // Pack / « both » : annule aussi la ligne sœur liée à la même session Stripe.
+  if (row && row.stripe_session_id) {
+    await env.DB.prepare(
+      `UPDATE extra_orders SET status = 'cancelled'
+        WHERE stripe_session_id = ?1 AND status = 'pending'`
+    ).bind(row.stripe_session_id).run();
+  }
 }
 export async function listExtraOrders(env, limit = 100) {
   // Purge immédiate des pending dont le jour concerné est passé.
@@ -268,9 +279,11 @@ export async function listBookings(env, limit = 200) {
   }
 }
 
-/** Totaux CA direct : réservations confirmées + extras confirmés. */
+/** Totaux CA direct : réservations confirmées + extras confirmés payés (hors annulés / pending / offerts). */
 export async function bookingRevenueStats(env) {
   await ensurePricingSchema(env);
+  // Purge les pending périmés avant d’agréger le CA.
+  await expireStalePendingExtras(env);
   const year = String(new Date().getFullYear());
 
   const { results: bookRows } = await env.DB.prepare(
@@ -284,9 +297,11 @@ export async function bookingRevenueStats(env) {
   try {
     const { results: extraRows } = await env.DB.prepare(
       `SELECT id, title, amount_cents, guest_name, email, kind, service_date, status, created_at
-         FROM extra_orders WHERE status = 'confirmed'`
+         FROM extra_orders
+        WHERE status = 'confirmed'
+          AND COALESCE(amount_cents, 0) > 0`
     ).all();
-    extras = extraRows || [];
+    extras = (extraRows || []).filter((e) => e && e.status === 'confirmed' && (e.amount_cents || 0) > 0);
   } catch (e) { extras = []; }
 
   function sourceOf(r) {
