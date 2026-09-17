@@ -50,12 +50,19 @@
   const addDay = (s, n) => { const d = new Date(Date.parse(s)); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
   const nightsOf = (from, to) => Math.round((Date.parse(to) - Date.parse(from)) / 86400000);
 
+  var _lastBookings = [];
+  var _lastRevenue = null;
+
   async function loadBookings() {
     const { j } = await api('bookings');
     const tb = $('#bookTable tbody'); tb.innerHTML = '';
     const rows = (j && j.bookings) || [];
+    _lastBookings = rows;
+    _lastRevenue = j && j.revenue;
     $('#bookEmpty').hidden = rows.length > 0;
-    renderRevenue(j && j.revenue);
+    renderRevenue(_lastRevenue);
+    const pdfBtn = $('#revPdfBtn');
+    if (pdfBtn) pdfBtn.hidden = !(_lastRevenue && _lastRevenue.year_stats);
     rows.forEach((r) => {
       const pay = paymentLabel(r);
       const tr = document.createElement('tr');
@@ -82,6 +89,10 @@
     const src = r.payment_source || (r.stripe_session_id || r.stripe_payment_method ? 'stripe' : 'virement');
     if (src === 'virement') return { label: 'Virement', cls: 'pending' };
     return { label: 'Stripe', cls: 'confirmed' };
+  }
+
+  function paymentSourceOf(r) {
+    return r.payment_source || (r.stripe_session_id || r.stripe_payment_method ? 'stripe' : 'virement');
   }
 
   function renderRevenue(rev) {
@@ -117,6 +128,109 @@
       months.innerHTML = '';
     }
   }
+
+  function exportRevenuePdf() {
+    const rev = _lastRevenue;
+    if (!rev || !rev.year_stats) { alert('Aucune donnée à exporter.'); return; }
+    const y = rev.year_stats;
+    const a = rev.all;
+    const MONTHS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    const confirmed = (_lastBookings || []).filter((r) => r.status === 'confirmed')
+      .slice()
+      .sort((x, z) => String(x.checkin).localeCompare(String(z.checkin)));
+    const yearRows = confirmed.filter((r) => String(r.checkin || '').startsWith(String(rev.year)));
+    const monthRows = Object.keys(rev.by_month || {}).sort().map((key) => {
+      const m = rev.by_month[key];
+      if (!m.count) return '';
+      const mi = parseInt(key.slice(5), 10) - 1;
+      return '<tr><td>' + MONTHS_FR[mi] + '</td><td>' + m.count + '</td><td class="num">' + euro(m.total_cents) + '</td></tr>';
+    }).join('');
+
+    function bookRows(list) {
+      return list.map((r) => {
+        const pay = paymentSourceOf(r) === 'virement' ? 'Virement' : 'Stripe';
+        return '<tr>' +
+          '<td>' + esc(r.checkin) + '</td>' +
+          '<td>' + esc(r.checkout) + '</td>' +
+          '<td class="num">' + (r.nights || 0) + '</td>' +
+          '<td>' + esc(r.guest_name) + (r.notes ? '<div class="note">' + esc(r.notes) + '</div>' : '') + '</td>' +
+          '<td>' + pay + '</td>' +
+          '<td class="num">' + euro(r.amount_total_cents) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    const generated = new Date().toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>CA direct ${esc(String(rev.year))} — La Bonne Aventure</title>
+<style>
+  @page{margin:16mm}
+  *{box-sizing:border-box}
+  body{font-family:Georgia,'Times New Roman',serif;color:#1f2838;margin:0;padding:24px;background:#fff}
+  h1{font-size:22px;margin:0 0 4px;color:#0f2a4a}
+  h2{font-size:15px;margin:22px 0 10px;color:#0f2a4a;border-bottom:1px solid #E6E1D4;padding-bottom:6px}
+  .sub{font-family:system-ui,sans-serif;font-size:12px;color:#5f6675;margin:0 0 18px}
+  .kicker{font-family:system-ui,sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#a9760f;margin:0 0 6px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 8px}
+  .card{border:1px solid #E6E1D4;border-radius:10px;padding:12px 14px}
+  .card .lab{font-family:system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5f6675}
+  .card .val{font-size:20px;margin-top:4px;color:#0f2a4a}
+  .card .hint{font-family:system-ui,sans-serif;font-size:11px;color:#5f6675;margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-family:system-ui,sans-serif;font-size:12px}
+  th,td{padding:7px 8px;border-bottom:1px solid #EDE6D6;text-align:left;vertical-align:top}
+  th{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#5f6675;font-weight:600}
+  td.num,th.num{text-align:right;white-space:nowrap}
+  .note{font-size:10.5px;color:#5f6675;margin-top:2px}
+  .foot{margin-top:24px;font-family:system-ui,sans-serif;font-size:11px;color:#5f6675;line-height:1.45}
+  .noprint{margin:0 0 16px}
+  .noprint button{font-family:system-ui,sans-serif;font-size:13px;font-weight:600;padding:10px 16px;border-radius:999px;border:0;background:#0f2a4a;color:#fff;cursor:pointer}
+  @media print{.noprint{display:none!important} body{padding:0}}
+</style></head><body>
+  <div class="noprint"><button type="button" onclick="window.print()">Enregistrer en PDF / Imprimer</button></div>
+  <p class="kicker">La Bonne Aventure · Aix-les-Bains</p>
+  <h1>Chiffre d’affaires direct ${esc(String(rev.year))}</h1>
+  <p class="sub">Réservations hors Airbnb (site Stripe + virements) · Généré le ${esc(generated)}</p>
+
+  <div class="cards">
+    <div class="card"><div class="lab">CA ${esc(String(rev.year))}</div><div class="val">${euro(y.total_cents)}</div><div class="hint">${y.count} séjour${y.count>1?'s':''} · ${y.nights} nuit${y.nights>1?'s':''}</div></div>
+    <div class="card"><div class="lab">Dont Stripe</div><div class="val">${euro(y.stripe_cents)}</div><div class="hint">${y.stripe_count} paiement${y.stripe_count>1?'s':''}</div></div>
+    <div class="card"><div class="lab">Dont virement</div><div class="val">${euro(y.virement_cents)}</div><div class="hint">${y.virement_count} paiement${y.virement_count>1?'s':''}</div></div>
+    <div class="card"><div class="lab">Total depuis le début</div><div class="val">${euro(a.total_cents)}</div><div class="hint">${a.count} séjour${a.count>1?'s':''} · ${a.nights} nuit${a.nights>1?'s':''}</div></div>
+  </div>
+
+  <h2>Détail mensuel ${esc(String(rev.year))}</h2>
+  <table>
+    <thead><tr><th>Mois</th><th>Séjours</th><th class="num">CA</th></tr></thead>
+    <tbody>${monthRows || '<tr><td colspan="3">Aucun séjour confirmé cette année.</td></tr>'}</tbody>
+  </table>
+
+  <h2>Séjours confirmés ${esc(String(rev.year))}</h2>
+  <table>
+    <thead><tr><th>Arrivée</th><th>Départ</th><th class="num">Nuits</th><th>Voyageur</th><th>Paiement</th><th class="num">Montant</th></tr></thead>
+    <tbody>${bookRows(yearRows) || '<tr><td colspan="6">Aucun séjour.</td></tr>'}</tbody>
+  </table>
+
+  ${confirmed.length !== yearRows.length ? `
+  <h2>Historique complet (toutes années)</h2>
+  <table>
+    <thead><tr><th>Arrivée</th><th>Départ</th><th class="num">Nuits</th><th>Voyageur</th><th>Paiement</th><th class="num">Montant</th></tr></thead>
+    <tbody>${bookRows(confirmed)}</tbody>
+  </table>` : ''}
+
+  <p class="foot">Document généré depuis l’espace hôte La Bonne Aventure.<br>
+  Canal « direct » = réservations via le site (Stripe) et paiements saisis manuellement (virement). Les séjours Airbnb ne sont pas inclus.</p>
+  <script>window.addEventListener('load',function(){setTimeout(function(){window.print()},250)});<\/script>
+</body></html>`;
+
+    const w = window.open('', '_blank');
+    if (!w) { alert('Autorisez les pop-ups pour exporter le PDF.'); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  }
+
+  const revPdfBtn = $('#revPdfBtn');
+  if (revPdfBtn) revPdfBtn.addEventListener('click', exportRevenuePdf);
 
   const directForm = $('#directBookForm');
   if (directForm) {

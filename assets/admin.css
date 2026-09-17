@@ -192,6 +192,15 @@ a.adm-ghost{
 @keyframes admIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 .adm-panel-head{margin:0 0 20px}
+.adm-panel-head-row{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.adm-panel-head-row > div{min-width:0;flex:1}
+.adm-btn-ghost{
+  background:#fff!important;color:#0f2a4a!important;
+  border:1px solid #E6E1D4!important;box-shadow:none!important;
+}
+.adm-btn-ghost:hover{border-color:#d9971a!important;background:#FFF8EC!important}
 .adm-panel-head h2{
   margin:0 0 6px;
   font-family:'Fraunces',serif;font-weight:400;font-size:28px;
