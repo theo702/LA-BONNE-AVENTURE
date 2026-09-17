@@ -211,10 +211,11 @@
           </fieldset>
 
           <fieldset>
-            <legend>Équipe ménage</legend>
-            <label>Emails des prestataires (séparés par une virgule)<input name="cleaning_emails" type="text" placeholder="menage@email.com"></label>
-            <p class="adm-hint">Reçoivent les alertes ménage des séjours <b>et</b> les demandes d’arrivée anticipée / départ tardif (validation + confirmation de paiement).</p>
-            <p class="adm-hint">Email automatique à chaque nouvelle réservation.</p>
+            <legend>Équipe ménage & validation extras</legend>
+            <label>Emails ménage — séjours (séparés par une virgule)<input name="cleaning_emails" type="text" placeholder="menage@email.com"></label>
+            <p class="adm-hint">Alertes ménage des <b>séjours</b> + confirmation quand un extra horaire est <b>payé</b>.</p>
+            <label>Emails validation extras — arrivée anticipée / départ tardif<input name="extra_approval_emails" type="text" placeholder="toi@email.com, menage@email.com"></label>
+            <p class="adm-hint">Reçoivent le mail <b>Accepter / Refuser</b>. Si vide : votre email hôte + les emails ménage ci-dessus.</p>
           </fieldset>
 
           <div class="adm-actions">
@@ -330,6 +331,6 @@
     </main>
   </div>
 
-<script src="assets/admin.js?v=17" defer></script>
+<script src="assets/admin.js?v=18" defer></script>
 </body>
 </html>

@@ -157,6 +157,21 @@ async function cleaningRecipients(env) {
   }
 }
 
+/** Destinataires du mail « à valider » (réglable en admin). Défaut : hôte + ménage. */
+async function extraApprovalRecipients(env) {
+  try {
+    const s = await getSettings(env);
+    const custom = ((s && s.extra_approval_emails) || '').split(/[\n,; ]+/).map((x) => x.trim()).filter(Boolean);
+    if (custom.length) return custom;
+  } catch (e) { /* ignore */ }
+  const list = [];
+  if (env.HOST_EMAIL) list.push(env.HOST_EMAIL);
+  for (const e of await cleaningRecipients(env)) {
+    if (!list.includes(e)) list.push(e);
+  }
+  return list;
+}
+
 function fmtEuro(cents, currency = 'eur') {
   return euros(cents, currency);
 }
@@ -188,14 +203,11 @@ export async function sendExtraApprovalRequest(env, info, urls) {
       ${btn(urls.acceptUrl, 'Accepter', '#3f6b4a')}
       ${btn(urls.rejectUrl, 'Refuser', '#8a3a32')}
     </p>
-    <p style="color:#5f6675;font-size:13px">Si vous acceptez, le voyageur recevra un lien de paiement. Vous serez prévenus dès qu’il aura payé.</p>`);
+    <p style="color:#5f6675;font-size:13px">Une page de confirmation s’affiche ensuite (pour éviter qu’un aperçu automatique de l’email valide à votre place). Si vous acceptez, le voyageur reçoit le lien de paiement.</p>`);
 
   const subject = `À valider : ${info.title || 'extra'} — ${info.guest_name || ''}`;
-  const jobs = [];
-  if (env.HOST_EMAIL) jobs.push(sendResend(env, env.HOST_EMAIL, subject, html));
-  const cleaners = await cleaningRecipients(env);
-  for (const to of cleaners) jobs.push(sendResend(env, to, subject, html));
-  await Promise.all(jobs);
+  const recipients = await extraApprovalRecipients(env);
+  await Promise.all(recipients.map((to) => sendResend(env, to, subject, html)));
 }
 
 /** Accusé de réception voyageur (demande envoyée, pas encore de paiement). */
@@ -295,16 +307,17 @@ export async function confirmExtraAndNotify(env, orderId) {
   if (!orderId) return null;
   const order = await getExtraOrder(env, orderId);
   if (!order) return null;
-  // Ne jamais confirmer un extra déjà annulé (jour concerné passé, session expirée…).
-  if (order.status === 'cancelled') return order;
   if (order.status === 'confirmed') {
     if (order.stripe_session_id) await confirmExtraOrdersBySession(env, order.stripe_session_id);
     return order;
   }
+  // Paiement Stripe reçu : on confirme même si un préchargement email avait mis « cancelled ».
   await confirmExtraOrder(env, orderId);
   if (order.stripe_session_id) await confirmExtraOrdersBySession(env, order.stripe_session_id);
-  await sendExtraEmails(env, { ...order, status: 'confirmed' });
-  return { ...order, status: 'confirmed' };
+  const fresh = await getExtraOrder(env, orderId);
+  const confirmed = fresh && fresh.status === 'confirmed' ? fresh : { ...order, status: 'confirmed' };
+  await sendExtraEmails(env, confirmed);
+  return confirmed;
 }
 
 // Confirme une réservation (idempotent) et envoie les emails.
