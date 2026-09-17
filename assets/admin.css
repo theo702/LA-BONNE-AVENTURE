@@ -453,6 +453,21 @@ a.adm-ghost{
   color:#9a9a9a;
 }
 .adm-cell.sel{outline:3px solid #d9971a;outline-offset:1px;z-index:2}
+.adm-cell.in-range{
+  background:rgba(217,151,26,.16)!important;
+  border-color:rgba(217,151,26,.45)!important;
+  color:#0f2a4a!important;
+}
+.adm-cell.in-range.s-block{
+  background:repeating-linear-gradient(135deg,rgba(217,151,26,.18),rgba(217,151,26,.18) 4px,rgba(217,151,26,.28) 4px,rgba(217,151,26,.28) 8px)!important;
+}
+.adm-cell.sel-start,.adm-cell.sel-end{
+  outline:3px solid #d9971a;outline-offset:1px;z-index:2;
+  background:#d9971a!important;border-color:#a9760f!important;color:#1a1408!important;
+}
+.adm-cal-hint{
+  margin:10px 0 0;font-size:12.5px;font-weight:300;color:#5f6675;line-height:1.45;
+}
 
 .adm-cal-editor{
   margin-top:16px;padding:16px 18px;

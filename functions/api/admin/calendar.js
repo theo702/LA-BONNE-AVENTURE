@@ -1,7 +1,9 @@
 // GET  /api/admin/calendar → état temps réel (résas directes, blocages, Airbnb).
-// POST /api/admin/calendar → actions par date : block | unblock.
+// POST /api/admin/calendar → actions : block | unblock (1 date ou plage).
 import { loadSettings } from '../../_lib/pricing.js';
-import { listCalendarBookings, listBlocks, blockDate, unblockDate } from '../../_lib/db.js';
+import {
+  listCalendarBookings, listBlocks, blockDate, unblockDate, blockRange, unblockRange,
+} from '../../_lib/db.js';
 import { fetchExternalRanges } from '../../_lib/ical.js';
 
 const isDate = (d) => typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
@@ -30,9 +32,26 @@ export async function onRequestPost({ env, request }) {
   const b = await request.json().catch(() => ({}));
   const action = (b.action || '').toString();
   const date = (b.date || '').toString();
-  if (!isDate(date)) return Response.json({ ok: false, message: 'Date invalide.' }, { status: 400 });
+  const dateFrom = (b.date_from || date || '').toString();
+  const dateTo = (b.date_to || date || '').toString(); // dernier jour INCLUS
 
-  if (action === 'block') { await blockDate(env, date, b.label); return Response.json({ ok: true }); }
-  if (action === 'unblock') { await unblockDate(env, date); return Response.json({ ok: true }); }
+  if (!isDate(dateFrom) || !isDate(dateTo)) {
+    return Response.json({ ok: false, message: 'Date invalide.' }, { status: 400 });
+  }
+  if (dateTo < dateFrom) {
+    return Response.json({ ok: false, message: 'La fin doit être après le début.' }, { status: 400 });
+  }
+
+  const multi = dateFrom !== dateTo;
+  if (action === 'block') {
+    if (multi) await blockRange(env, dateFrom, dateTo, b.label);
+    else await blockDate(env, dateFrom, b.label);
+    return Response.json({ ok: true });
+  }
+  if (action === 'unblock') {
+    if (multi) await unblockRange(env, dateFrom, dateTo);
+    else await unblockDate(env, dateFrom);
+    return Response.json({ ok: true });
+  }
   return Response.json({ ok: false, message: 'Action inconnue.' }, { status: 400 });
 }

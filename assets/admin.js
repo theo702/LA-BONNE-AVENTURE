@@ -689,7 +689,7 @@
   // ---------- Calendrier interactif ----------
   var CAL_MONTHS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   var CAL_DOW = ['L','M','M','J','V','S','D'];
-  var cal = { data: null, view: null, selected: null, loading: false };
+  var cal = { data: null, view: null, rangeStart: null, rangeEnd: null, loading: false };
 
   const pad2 = (n) => (n < 10 ? '0' : '') + n;
   const ymd = (d) => d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate());
@@ -705,6 +705,22 @@
       while (d < end && g < 1200) { set.add(ymd(d)); d = new Date(d.getTime() + 86400000); g++; }
     });
     return set;
+  }
+
+  function rangeBounds() {
+    if (!cal.rangeStart) return null;
+    const a = cal.rangeStart;
+    const b = cal.rangeEnd || cal.rangeStart;
+    return a <= b ? { from: a, to: b } : { from: b, to: a };
+  }
+
+  function nightsInRange(from, to) {
+    return Math.round((Date.parse(to) - Date.parse(from)) / 86400000) + 1;
+  }
+
+  function eachNight(from, to, fn) {
+    let d = parseD(from); const end = parseD(to); let g = 0;
+    while (d <= end && g < 1200) { fn(ymd(d)); d = new Date(d.getTime() + 86400000); g++; }
   }
 
   async function loadCalendar() {
@@ -728,11 +744,17 @@
     return 'free';
   }
 
+  function clearCalSelection() {
+    cal.rangeStart = null;
+    cal.rangeEnd = null;
+  }
+
   function renderCal() {
     const host = $('#admCal'); if (!host || !cal.data) return;
     const y = cal.view.getUTCFullYear(), m = cal.view.getUTCMonth();
     const cur = today().slice(0, 7);
     const atMin = (y + '-' + pad2(m + 1)) <= cur;
+    const bounds = rangeBounds();
 
     let h = '<div class="adm-cal-top">' +
       '<button class="adm-cal-nav" data-cnav="-1"' + (atMin ? ' disabled' : '') + '>‹</button>' +
@@ -750,54 +772,132 @@
       const st = stateOf(ds);
       let cls = 'adm-cell s-' + st;
       if (past) cls += ' past';
-      if (ds === cal.selected) cls += ' sel';
+      if (bounds && ds >= bounds.from && ds <= bounds.to) {
+        cls += ' in-range';
+        if (ds === bounds.from) cls += ' sel-start';
+        if (ds === bounds.to) cls += ' sel-end';
+        if (bounds.from === bounds.to) cls += ' sel';
+      }
       h += '<button class="' + cls + '" data-cday="' + ds + '"' + (past ? ' disabled' : '') + '><span class="adm-cell-d">' + day + '</span></button>';
     }
     h += '</div>';
+    h += '<p class="adm-cal-hint">Astuce : 1<sup>re</sup> clic = début, 2<sup>e</sup> clic = fin de la plage.</p>';
     h += '<div id="admCalEditor" class="adm-cal-editor" hidden></div>';
     host.innerHTML = h;
 
     host.querySelectorAll('[data-cnav]').forEach((b) => b.addEventListener('click', () => {
-      cal.view = new Date(Date.UTC(y, m + (+b.dataset.cnav), 1)); cal.selected = null; renderCal();
+      cal.view = new Date(Date.UTC(y, m + (+b.dataset.cnav), 1));
+      renderCal();
     }));
     host.querySelectorAll('[data-cday]').forEach((b) => b.addEventListener('click', () => selectDay(b.dataset.cday)));
-    if (cal.selected) renderEditor();
+    if (cal.rangeStart) renderEditor();
   }
 
-  function selectDay(ds) { cal.selected = (cal.selected === ds ? null : ds); renderCal(); }
+  function selectDay(ds) {
+    if (!cal.rangeStart || cal.rangeEnd) {
+      // Nouveau début (ou reprise après une plage complète)
+      cal.rangeStart = ds;
+      cal.rangeEnd = null;
+    } else if (cal.rangeStart === ds) {
+      // Re-clic sur le début → annuler
+      clearCalSelection();
+    } else {
+      cal.rangeEnd = ds;
+    }
+    renderCal();
+  }
+
+  function fmtHuman(ds) {
+    const d = parseD(ds);
+    return d.getUTCDate() + ' ' + CAL_MONTHS[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+  }
 
   function renderEditor() {
     const ed = $('#admCalEditor'); if (!ed) return;
-    const ds = cal.selected; if (!ds) { ed.hidden = true; return; }
+    const bounds = rangeBounds();
+    if (!bounds) { ed.hidden = true; return; }
     ed.hidden = false;
-    const st = stateOf(ds);
-    const dObj = parseD(ds);
-    const human = dObj.getUTCDate() + ' ' + CAL_MONTHS[dObj.getUTCMonth()] + ' ' + dObj.getUTCFullYear();
+    const multi = bounds.from !== bounds.to;
+    const n = nightsInRange(bounds.from, bounds.to);
 
-    let h = '<div class="adm-ed-head"><b>' + human + '</b> <span class="adm-badge ' + (st === 'book' ? 'confirmed' : st === 'ext' ? 'pending' : st === 'block' ? 'cancelled' : '') + '">' + { book: 'Réservé (direct)', ext: 'Airbnb', block: 'Bloqué', free: 'Libre' }[st] + '</span>'
+    let free = 0, blocked = 0, busy = 0;
+    eachNight(bounds.from, bounds.to, (ds) => {
+      const st = stateOf(ds);
+      if (st === 'free') free++;
+      else if (st === 'block') blocked++;
+      else busy++;
+    });
+
+    const title = multi
+      ? (fmtHuman(bounds.from) + ' → ' + fmtHuman(bounds.to))
+      : fmtHuman(bounds.from);
+    const badge = multi
+      ? (n + ' nuit' + (n > 1 ? 's' : ''))
+      : ({ book: 'Réservé (direct)', ext: 'Airbnb', block: 'Bloqué', free: 'Libre' }[stateOf(bounds.from)]);
+
+    let h = '<div class="adm-ed-head"><b>' + title + '</b> <span class="adm-badge pending">' + badge + '</span>'
       + '<button class="adm-ed-x" title="Fermer">✕</button></div>';
 
-    if (st === 'book') {
-      const b = cal.bookByNight[ds];
-      h += '<p class="adm-hint">Réservation directe' + (b && b.guest ? ' — <b>' + esc(b.guest) + '</b>' : '') + (b && b.status === 'pending' ? ' (paiement en attente)' : '') + '. Gérez-la depuis l\'onglet Réservations.</p>';
-    } else if (st === 'ext') {
-      h += '<p class="adm-hint">Date importée depuis Airbnb (synchro iCal). Non modifiable ici — elle se libère automatiquement quand Airbnb la libère.</p>';
+    if (!multi) {
+      const st = stateOf(bounds.from);
+      if (st === 'book') {
+        const b = cal.bookByNight[bounds.from];
+        h += '<p class="adm-hint">Réservation directe' + (b && b.guest ? ' — <b>' + esc(b.guest) + '</b>' : '') + (b && b.status === 'pending' ? ' (paiement en attente)' : '') + '. Gérez-la depuis l\'onglet Réservations.</p>';
+      } else if (st === 'ext') {
+        h += '<p class="adm-hint">Date importée depuis Airbnb (synchro iCal). Non modifiable ici — elle se libère automatiquement quand Airbnb la libère.</p>';
+      } else {
+        h += '<div class="adm-ed-row">';
+        if (st === 'block') h += '<button class="adm-btn" data-act="unblock">Libérer cette date</button>';
+        else h += '<button class="adm-ghost" data-act="block">Bloquer cette date</button>';
+        h += '</div>';
+      }
     } else {
-      // Libre ou bloqué → actions
+      const bits = [];
+      if (free) bits.push(free + ' libre' + (free > 1 ? 's' : ''));
+      if (blocked) bits.push(blocked + ' déjà bloquée' + (blocked > 1 ? 's' : ''));
+      if (busy) bits.push(busy + ' réservée' + (busy > 1 ? 's' : '') + ' (inchangée' + (busy > 1 ? 's' : '') + ')');
+      h += '<p class="adm-hint">' + bits.join(' · ') + '.</p>';
       h += '<div class="adm-ed-row">';
-      if (st === 'block') h += '<button class="adm-btn" data-act="unblock">Libérer cette date</button>';
-      else h += '<button class="adm-ghost" data-act="block">Bloquer cette date</button>';
+      if (free) h += '<button class="adm-ghost" data-act="block">Bloquer ' + free + ' nuit' + (free > 1 ? 's' : '') + '</button>';
+      if (blocked) h += '<button class="adm-btn" data-act="unblock">Libérer ' + blocked + ' nuit' + (blocked > 1 ? 's' : '') + '</button>';
+      if (!free && !blocked) h += '<p class="adm-hint">Aucune nuit libre ou bloquée manuellement dans cette plage.</p>';
       h += '</div>';
     }
     ed.innerHTML = h;
 
-    ed.querySelector('.adm-ed-x').addEventListener('click', () => { cal.selected = null; renderCal(); });
-    ed.querySelectorAll('[data-act]').forEach((btn) => btn.addEventListener('click', () => calAction(btn.dataset.act, ds)));
+    ed.querySelector('.adm-ed-x').addEventListener('click', () => { clearCalSelection(); renderCal(); });
+    ed.querySelectorAll('[data-act]').forEach((btn) => btn.addEventListener('click', () => calAction(btn.dataset.act, bounds)));
   }
 
-  async function calAction(action, ds) {
-    await api('calendar', { method: 'POST', body: JSON.stringify({ action, date: ds }) });
-    await loadCalendar(); // recharge l'état (garde la date sélectionnée)
+  async function calAction(action, bounds) {
+    // Pour un blocage de plage : une seule plage DB (même si des nuits réservées sont
+    // incluses — stateOf priorise résa/Airbnb). Pour libérer : uniquement les nuits
+    // actuellement bloquées manuellement.
+    let from = bounds.from;
+    let to = bounds.to;
+    if (action === 'unblock' && from !== to) {
+      // Trouver min/max des nuits bloquées dans la sélection
+      let first = null, last = null;
+      eachNight(from, to, (ds) => {
+        if (stateOf(ds) === 'block') {
+          if (!first) first = ds;
+          last = ds;
+        }
+      });
+      if (!first) return;
+      from = first; to = last;
+    }
+    const { status, j } = await api('calendar', {
+      method: 'POST',
+      body: JSON.stringify({ action, date_from: from, date_to: to }),
+    });
+    if (status !== 200 || !(j && j.ok)) {
+      alert((j && j.message) || 'Action impossible.');
+      return;
+    }
+    clearCalSelection();
+    await loadCalendar();
+    loadBlocks();
   }
 
   // ---------- utils ----------

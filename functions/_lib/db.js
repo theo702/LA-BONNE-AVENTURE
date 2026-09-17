@@ -659,6 +659,16 @@ export async function blockDate(env, date, label) {
   ).bind(date, addDayStr(date, 1), label || null, new Date().toISOString()).run();
 }
 
+/** Bloque une plage [dateFrom, dateTo] où dateTo est le dernier jour INCLUS (nuit). */
+export async function blockRange(env, dateFrom, dateToInclusive, label) {
+  const dateTo = addDayStr(dateToInclusive, 1); // exclusif en base
+  if (dateTo <= dateFrom) {
+    await blockDate(env, dateFrom, label);
+    return;
+  }
+  await createBlock(env, { date_from: dateFrom, date_to: dateTo, label: label || null });
+}
+
 // Débloque une seule date : retire ce jour des blocages manuels, en scindant au besoin
 // toute plage qui l'englobe (date_to exclusif).
 export async function unblockDate(env, date) {
@@ -670,6 +680,18 @@ export async function unblockDate(env, date) {
     await env.DB.prepare(`DELETE FROM manual_blocks WHERE id = ?1`).bind(b.id).run();
     if (b.date_from < date) await createBlock(env, { date_from: b.date_from, date_to: date, label: b.label });
     if (next < b.date_to) await createBlock(env, { date_from: next, date_to: b.date_to, label: b.label });
+  }
+}
+
+/** Libère chaque nuit de [dateFrom, dateToInclusive]. */
+export async function unblockRange(env, dateFrom, dateToInclusive) {
+  let d = dateFrom;
+  let guard = 0;
+  const end = addDayStr(dateToInclusive, 1);
+  while (d < end && guard < 1200) {
+    await unblockDate(env, d);
+    d = addDayStr(d, 1);
+    guard++;
   }
 }
 
