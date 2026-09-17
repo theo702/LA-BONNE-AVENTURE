@@ -152,7 +152,7 @@ export async function cancelExtraOrder(env, id) {
   ).bind(id).run();
 }
 export async function listExtraOrders(env, limit = 100) {
-  // Purge immédiate des pending trop vieux (sans attendre le cron hebdo).
+  // Purge immédiate des pending dont le jour concerné est passé.
   await expireStalePendingExtras(env);
   const { results } = await env.DB.prepare(
     `SELECT * FROM extra_orders ORDER BY created_at DESC LIMIT ?1`
@@ -160,14 +160,23 @@ export async function listExtraOrders(env, limit = 100) {
   return results || [];
 }
 
-/** Annule les extras pending non payés depuis ≥ 30 jours. */
+/**
+ * Annule les extras pending non payés :
+ *  - dès que le jour concerné (service_date) est dépassé
+ *  - ou, sans date, après 30 jours (filet de sécurité)
+ */
 export async function expireStalePendingExtras(env) {
   try {
     const res = await env.DB.prepare(
       `UPDATE extra_orders
           SET status = 'cancelled'
         WHERE status = 'pending'
-          AND datetime(created_at) <= datetime('now', '-30 days')`
+          AND (
+            (service_date IS NOT NULL AND service_date != ''
+              AND date(service_date) < date('now'))
+            OR ((service_date IS NULL OR service_date = '')
+              AND datetime(created_at) <= datetime('now', '-30 days'))
+          )`
     ).run();
     return (res && res.meta && res.meta.changes) || 0;
   } catch (e) {
@@ -814,7 +823,7 @@ export async function listPendingForReminder(env) {
 
 // Expire (annule) les pending :
 //  - réservations : dès J-1 de l'arrivée, ou après 30 jours sans paiement
-//  - extras : après 30 jours sans paiement
+//  - extras : jour concerné dépassé (ou 30 jours si pas de date)
 export async function expireStalePending(env) {
   const bookRes = await env.DB.prepare(
     `UPDATE bookings

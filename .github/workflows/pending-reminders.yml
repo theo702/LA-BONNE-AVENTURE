@@ -1,4 +1,5 @@
-# Rappels hebdomadaires des réservations non finalisées + expiration J-1.
+# Expiration des pending (séjours J-1 / >30j, extras jour concerné dépassé)
+# + rappels hebdo des réservations non finalisées.
 # Requis dans les secrets GitHub du dépôt :
 #   CRON_SECRET  — même valeur que `wrangler pages secret put CRON_SECRET`
 #   SITE_URL     — optionnel, défaut https://labonneaventure-aixlesbains.fr
@@ -6,8 +7,9 @@ name: Rappels séjours en attente
 
 on:
   schedule:
-    # Lundi 08:00 UTC ≈ 09:00/10:00 Paris
-    - cron: '0 8 * * 1'
+    # Tous les jours 08:00 UTC ≈ 09:00/10:00 Paris
+    # (extras : annulation dès le lendemain du jour concerné)
+    - cron: '0 8 * * *'
   workflow_dispatch: {}
 
 jobs:
