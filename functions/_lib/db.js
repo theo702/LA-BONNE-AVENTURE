@@ -519,9 +519,6 @@ export async function updateSettings(env, s) {
     await env.DB.prepare(`UPDATE settings SET cleaning_emails=?1 WHERE id=1`).bind(s.cleaning_emails || '').run();
   } catch (e) { /* colonne absente : ignorer */ }
   try {
-    await env.DB.prepare(`UPDATE settings SET extra_approval_emails=?1 WHERE id=1`).bind(s.extra_approval_emails || '').run();
-  } catch (e) { /* colonne absente : ignorer */ }
-  try {
     await env.DB.prepare(`UPDATE settings SET dynamic_pricing_enabled=?1 WHERE id=1`).bind(s.dynamic_pricing_enabled ? 1 : 0).run();
   } catch (e) { /* colonne absente : ignorer */ }
   // Caution (colonne récente → UPDATE tolérant).

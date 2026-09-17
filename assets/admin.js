@@ -345,7 +345,6 @@
     f.taxe_cap_cents.value = (s.taxe_cap_cents / 100).toFixed(2);
     f.taxe_additional_pct.value = s.taxe_additional_pct;
     if (f.cleaning_emails) f.cleaning_emails.value = s.cleaning_emails || '';
-    if (f.extra_approval_emails) f.extra_approval_emails.value = s.extra_approval_emails || '';
     if (f.loyalty_enabled) {
       f.loyalty_enabled.checked = s.loyalty_enabled == null ? true : !!s.loyalty_enabled;
       f.loyalty_points_per_night.value = s.loyalty_points_per_night || 1;
@@ -369,7 +368,6 @@
       taxe_enabled: f.taxe_enabled.checked, taxe_rate_pct: +f.taxe_rate_pct.value,
       taxe_cap_cents: cents(f.taxe_cap_cents.value), taxe_additional_pct: +f.taxe_additional_pct.value,
       cleaning_emails: f.cleaning_emails ? f.cleaning_emails.value : '',
-      extra_approval_emails: f.extra_approval_emails ? f.extra_approval_emails.value : '',
       loyalty_enabled: f.loyalty_enabled ? f.loyalty_enabled.checked : true,
       loyalty_points_per_night: f.loyalty_points_per_night ? +f.loyalty_points_per_night.value : 1,
       loyalty_points_per_reward: f.loyalty_points_per_reward ? +f.loyalty_points_per_reward.value : 10,
