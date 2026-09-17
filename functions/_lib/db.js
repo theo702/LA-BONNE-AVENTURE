@@ -601,8 +601,8 @@ export async function consumeMagicLink(env, token) {
 }
 
 // ---------- Espace voyageur : réservations d'un email ----------
-// Les pending trop proches de l'arrivée (la veille ou après) sont masqués :
-// checkin <= demain → déjà expirés (ex. arrivée le 17 → disparaît dès le 16).
+// Les pending trop proches de l'arrivée (la veille ou après) ou trop vieux
+// (> 30 jours sans paiement) sont masqués — même logique que expireStalePending.
 export async function listBookingsByEmail(env, email) {
   const { results } = await env.DB.prepare(
     `SELECT id, checkin, checkout, nights, guests, amount_total_cents, currency, status,
@@ -610,7 +610,12 @@ export async function listBookingsByEmail(env, email) {
        FROM bookings
       WHERE email = ?1
         AND status != 'cancelled'
-        AND NOT (status = 'pending' AND checkin <= date('now', '+1 day'))
+        AND NOT (
+          status = 'pending' AND (
+            checkin <= date('now', '+1 day')
+            OR datetime(created_at) <= datetime('now', '-30 days')
+          )
+        )
       ORDER BY checkin DESC`
   ).bind((email || '').toLowerCase()).all();
   return results || [];
@@ -766,7 +771,7 @@ export async function renewPendingHold(env, id) {
   return holdExpires;
 }
 
-// Pending à rappeler : pas encore arrivés à J-1, créés depuis ≥ 1 jour,
+// Pending à rappeler : pas encore arrivés à J-1, créés depuis ≥ 1 jour et < 30 jours,
 // et jamais rappelés ou rappelés il y a ≥ 7 jours.
 export async function listPendingForReminder(env) {
   const { results } = await env.DB.prepare(
@@ -776,6 +781,7 @@ export async function listPendingForReminder(env) {
       WHERE status = 'pending'
         AND checkin > date('now', '+1 day')
         AND date(created_at) <= date('now', '-1 day')
+        AND datetime(created_at) > datetime('now', '-30 days')
         AND (reminder_sent_at IS NULL
              OR date(reminder_sent_at) <= date('now', '-7 days'))
       ORDER BY checkin ASC
@@ -784,13 +790,18 @@ export async function listPendingForReminder(env) {
   return results || [];
 }
 
-// Expire (annule) les pending dès J-1 de l'arrivée — plus de mail, plus d'affichage compte.
+// Expire (annule) les pending :
+//  - dès J-1 de l'arrivée
+//  - ou après 30 jours sans paiement (créés_at)
 export async function expireStalePending(env) {
   const res = await env.DB.prepare(
     `UPDATE bookings
         SET status = 'cancelled', hold_expires_at = NULL
       WHERE status = 'pending'
-        AND checkin <= date('now', '+1 day')`
+        AND (
+          checkin <= date('now', '+1 day')
+          OR datetime(created_at) <= datetime('now', '-30 days')
+        )`
   ).run();
   return (res && res.meta && res.meta.changes) || 0;
 }

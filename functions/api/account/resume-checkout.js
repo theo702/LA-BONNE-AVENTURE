@@ -27,11 +27,13 @@ export async function onRequestPost({ env, request }) {
     }, { status: 400 });
   }
 
-  // Expire dès J-1 (même règle que le cron / l’espace voyageur).
+  // Expire dès J-1 ou après 30 jours sans paiement (même règles que le cron).
   const tomorrow = new Date();
   tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
   const tomorrowIso = tomorrow.toISOString().slice(0, 10);
-  if (booking.checkin <= tomorrowIso) {
+  const createdMs = booking.created_at ? Date.parse(booking.created_at) : NaN;
+  const olderThanMonth = Number.isFinite(createdMs) && (Date.now() - createdMs) >= 30 * 24 * 60 * 60 * 1000;
+  if (booking.checkin <= tomorrowIso || olderThanMonth) {
     return Response.json({
       ok: false,
       error: 'expired',

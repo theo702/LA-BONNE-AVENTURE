@@ -1,5 +1,5 @@
 // GET|POST /api/cron/pending-reminders
-// Job hebdo : 1) expire les pending à J-1  2) envoie un rappel aux autres.
+// Job hebdo : 1) expire les pending (J-1 ou > 30 jours)  2) envoie un rappel aux autres.
 // Sécurisé par l’en-tête Authorization: Bearer <CRON_SECRET>
 // (secret Cloudflare : wrangler pages secret put CRON_SECRET)
 import { ensurePricingSchema, expireStalePending, listPendingForReminder, markReminderSent } from '../../_lib/db.js';
