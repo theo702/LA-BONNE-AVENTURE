@@ -517,17 +517,17 @@
       ur: "<span class=\"it\">براہِ راست</span> بک کیوں کریں؟"
     },
     'why.p': {
-      fr: "En réservant ici plutôt que sur une plateforme, vous profitez d'un tarif plus doux et d'un échange direct pour adapter votre séjour.",
-      en: "By booking here instead of on a platform, you get a softer rate and direct contact to tailor your stay.",
-      es: "Al reservar aquí en lugar de en una plataforma, disfrutas de una tarifa más suave y un contacto directo para adaptar tu estancia.",
-      de: "Wenn du hier statt über eine Plattform buchst, profitierst du von einem günstigeren Preis und direktem Kontakt für deinen Aufenthalt.",
-      zh: "在此预订而非通过平台，您可享受更优惠的价格，并与房东直接沟通，定制您的住宿。",
-      hi: "प्लेटफ़ॉर्म के बजाय यहाँ बुक करने पर आपको नरम दर और अपने प्रवास को अनुकूलित करने के लिए सीधा संपर्क मिलता है।",
-      ar: "بالحجز هنا بدلاً من منصة، تحصل على سعر ألطف وتواصل مباشر لتخصيص إقامتك.",
-      bn: "প্ল্যাটফর্মের পরিবর্তে এখানে বুক করলে আপনি নরম রেট এবং থাকার অভিজ্ঞতা সাজাতে সরাসরি যোগাযোগ পান।",
-      pt: "Ao reservar aqui em vez de numa plataforma, beneficia de uma tarifa mais suave e de contacto direto para adaptar a sua estadia.",
-      ru: "Бронируя здесь, а не на платформе, вы получаете более мягкий тариф и прямой контакт, чтобы подогнать пребывание под себя.",
-      ur: "پلیٹ فارم کے بجائے یہاں بک کرنے پر آپ کو نرم نرخ اور اپنے قیام کو ترتیب دینے کے لیے براہِ راست رابطہ ملتا ہے۔"
+      fr: "En réservant ici, vous payez moins qu’une plateforme — et chaque nuit compte pour votre fidélité : débloquez une réduction sur un prochain séjour.",
+      en: "Book here and pay less than on a platform — every night builds your loyalty: unlock a discount on a future stay.",
+      es: "Al reservar aquí pagas menos que en una plataforma — y cada noche cuenta para tu fidelidad: desbloquea un descuento en una próxima estancia.",
+      de: "Hier buchst du günstiger als über eine Plattform — jede Nacht zählt für deine Treue: hol dir einen Rabatt für den nächsten Aufenthalt.",
+      zh: "在此预订比平台更省，且每晚累计忠诚积分，解锁下次住宿折扣。",
+      hi: "यहाँ बुक करें और प्लेटफ़ॉर्म से सस्ता पाएँ — हर रात आपकी वफ़ादारी में जुड़ती है: अगले प्रवास पर छूट अनलॉक करें।",
+      ar: "احجز هنا وادفع أقل من المنصة — كل ليلة تُحسب لولائك: افتح خصمًا على إقامة قادمة.",
+      bn: "এখানে বুক করুন, প্ল্যাটফর্মের চেয়ে কম খরচ — প্রতি রাত আনুগতিকতায় যোগ হয়: পরের থাকায় ছাড় আনলক করুন।",
+      pt: "Reserve aqui e pague menos do que numa plataforma — cada noite conta para a fidelidade: desbloqueie um desconto na próxima estadia.",
+      ru: "Бронируйте здесь дешевле, чем на платформе — каждая ночь копит лояльность: откройте скидку на следующий визит.",
+      ur: "یہاں بک کریں اور پلیٹ فارم سے سستا پائیں — ہر رات وفاداری میں شمار ہوتی ہے: اگلے قیام پر رعایت کھولیں۔"
     },
     'why.fees': {
       fr: "frais de plateforme",
@@ -593,6 +593,45 @@
       pt: "Flexível",
       ru: "Гибко",
       ur: "لچکدار"
+    },
+    'why.loyalty.label': {
+      fr: "Fidélité",
+      en: "Loyalty",
+      es: "Fidelidad",
+      de: "Treue",
+      zh: "忠诚",
+      hi: "वफ़ादारी",
+      ar: "ولاء",
+      bn: "আনুগতিকতা",
+      pt: "Fidelidade",
+      ru: "Лояльность",
+      ur: "وفاداری"
+    },
+    'why.loyalty': {
+      fr: "−10 % offerts après vos nuits en direct",
+      en: "−10% unlocked after your direct nights",
+      es: "−10 % tras tus noches en directo",
+      de: "−10 % nach deinen Direktnächten",
+      zh: "直接入住晚数累计后享 −10%",
+      hi: "सीधी रातों के बाद −10% अनलॉक",
+      ar: "−10٪ بعد لياليك المباشرة",
+      bn: "সরাসরি রাতের পর −১০% আনলক",
+      pt: "−10 % após as suas noites diretas",
+      ru: "−10 % после ночей при прямом бронировании",
+      ur: "براہِ راست راتوں کے بعد −۱۰٪"
+    },
+    'why.loyalty.cta': {
+      fr: "Voir mon espace fidélité →",
+      en: "Open my loyalty space →",
+      es: "Ver mi espacio de fidelidad →",
+      de: "Zum Treuebereich →",
+      zh: "查看我的忠诚空间 →",
+      hi: "मेरा वफ़ादारी स्पेस देखें →",
+      ar: "مساحة الولاء →",
+      bn: "আমার আনুগতিকতা স্পেস →",
+      pt: "Ver o meu espaço de fidelidade →",
+      ru: "Моя программа лояльности →",
+      ur: "میرا وفاداری اسپیس →"
     },
     'sec.aix.kicker': {
       fr: "Aux alentours",
@@ -803,17 +842,17 @@
       ur: "اپنی <span class=\"it\">تاریخیں</span> منتخب کریں"
     },
     'sec.book.lede': {
-      fr: "Réservation en direct, sans frais de plateforme — confirmation immédiate.",
-      en: "Book direct, no platform fees — instant confirmation.",
-      es: "Reserva directa, sin comisiones de plataforma — confirmación inmediata.",
-      de: "Direktbuchung, ohne Plattformgebühren — sofortige Bestätigung.",
-      zh: "直接预订，无平台费用——即时确认。",
-      hi: "सीधी बुकिंग, कोई प्लेटफ़ॉर्म शुल्क नहीं — तत्काल पुष्टि।",
-      ar: "احجز مباشرة، بدون رسوم منصة — تأكيد فوري.",
-      bn: "সরাসরি বুক করুন, কোনো প্ল্যাটফর্ম ফি নেই — তাৎক্ষণিক নিশ্চিতকরণ।",
-      pt: "Reserve direto, sem taxas de plataforma — confirmação imediata.",
-      ru: "Бронируйте напрямую, без комиссий платформы — мгновенное подтверждение.",
-      ur: "براہِ راست بک کریں، کوئی پلیٹ فارم فیس نہیں — فوری تصدیق۔"
+      fr: "Réservation en direct, sans frais de plateforme — cumulez des points fidélité pour une réduction sur votre prochain séjour.",
+      en: "Book direct, no platform fees — earn loyalty points for a discount on your next stay.",
+      es: "Reserva directa, sin comisiones — acumula puntos de fidelidad para un descuento en tu próxima estancia.",
+      de: "Direktbuchung ohne Plattformgebühren — sammle Treuepunkte für einen Rabatt beim nächsten Aufenthalt.",
+      zh: "直接预订，无平台费——累积忠诚积分，下次住宿享折扣。",
+      hi: "सीधी बुकिंग, कोई प्लेटफ़ॉर्म शुल्क नहीं — अगले प्रवास पर छूट के लिए पॉइंट कमाएँ।",
+      ar: "احجز مباشرة بدون رسوم منصة — اجمع نقاط الولاء لخصم على إقامتك القادمة.",
+      bn: "সরাসরি বুকিং, প্ল্যাটফর্ম ফি নেই — পরের থাকায় ছাড়ের জন্য পয়েন্ট জমান।",
+      pt: "Reserve direto, sem taxas — acumule pontos de fidelidade para um desconto na próxima estadia.",
+      ru: "Бронируйте напрямую без комиссий — копите баллы лояльности для скидки на следующий визит.",
+      ur: "براہِ راست بک، کوئی پلیٹ فارم فیس نہیں — اگلے قیام کی رعایت کے لیے پوائنٹس کمائیں۔"
     },
     'sec.book.fallback': {
       fr: "Chargement du calendrier de réservation…<br><small>Si rien ne s'affiche, vérifiez votre connexion ou réessayez.</small>",
