@@ -294,6 +294,13 @@ a.adm-ghost{
   font-family:'Fraunces',serif;font-size:22px;color:#0f2a4a;line-height:1.1;
 }
 .adm-rev-sub{margin-top:4px;font-size:12px;color:#5f6675;font-weight:300}
+.adm-rev-split{
+  display:flex;flex-wrap:wrap;gap:14px 22px;
+  margin:0 0 16px;padding:10px 14px;
+  background:#fff;border:1px solid #E6E1D4;border-radius:12px;
+  font-size:13px;color:#5f6675;
+}
+.adm-rev-split b{color:#0f2a4a;font-weight:600}
 .adm-rev-months{
   display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;align-items:center;
 }

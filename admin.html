@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/admin.css?v=9">
+<link rel="stylesheet" href="assets/admin.css?v=10">
 <style>
   /* Filet de sécurité anti-cache : logo jamais en taille native 720px */
   img.adm-logo{width:96px!important;height:96px!important;max-width:96px!important;max-height:96px!important;object-fit:contain!important}
@@ -77,20 +77,24 @@
             <div class="adm-rev-sub" id="revYearCount"></div>
           </div>
           <div class="adm-rev-card">
-            <div class="adm-rev-lab">Dont Stripe</div>
-            <div class="adm-rev-val" id="revStripe">—</div>
-            <div class="adm-rev-sub" id="revStripeCount"></div>
+            <div class="adm-rev-lab">Séjours</div>
+            <div class="adm-rev-val" id="revBookings">—</div>
+            <div class="adm-rev-sub" id="revBookingsCount"></div>
           </div>
           <div class="adm-rev-card">
-            <div class="adm-rev-lab">Dont virement</div>
-            <div class="adm-rev-val" id="revVirement">—</div>
-            <div class="adm-rev-sub" id="revVirementCount"></div>
+            <div class="adm-rev-lab">Extras</div>
+            <div class="adm-rev-val" id="revExtras">—</div>
+            <div class="adm-rev-sub" id="revExtrasCount"></div>
           </div>
           <div class="adm-rev-card">
             <div class="adm-rev-lab">Total depuis le début</div>
             <div class="adm-rev-val" id="revAllTotal">—</div>
             <div class="adm-rev-sub" id="revAllCount"></div>
           </div>
+        </div>
+        <div class="adm-rev-split" id="revSplit" hidden>
+          <span>Stripe <b id="revStripe">—</b></span>
+          <span>Virement <b id="revVirement">—</b></span>
         </div>
         <div class="adm-rev-months" id="revMonths" hidden></div>
 
@@ -347,6 +351,6 @@
     </main>
   </div>
 
-<script src="assets/admin.js?v=13" defer></script>
+<script src="assets/admin.js?v=14" defer></script>
 </body>
 </html>
