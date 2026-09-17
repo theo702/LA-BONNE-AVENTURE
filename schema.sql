@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS extra_orders (
   email             TEXT,
   kind              TEXT,                      -- none | late_checkout | early_checkin
   service_date      TEXT,                      -- date concernée (départ/arrivée) si applicable
-  status            TEXT NOT NULL DEFAULT 'pending',  -- pending | confirmed
+  status            TEXT NOT NULL DEFAULT 'pending',  -- pending | confirmed | cancelled
   stripe_session_id TEXT,
   created_at        TEXT NOT NULL
 );

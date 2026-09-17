@@ -563,7 +563,7 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${(o.created_at || '').slice(0, 10)}</td><td>${esc(o.title || '')}</td>` +
         `<td>${o.service_date || '—'}</td><td>${esc(o.guest_name || '')}<br>${esc(o.email || '')}</td>` +
-        `<td>${euro(o.amount_cents)}</td><td><span class="adm-badge ${o.status === 'confirmed' ? 'confirmed' : 'pending'}">${o.status === 'confirmed' ? 'Payé' : 'En attente'}</span></td>`;
+        `<td>${euro(o.amount_cents)}</td><td><span class="adm-badge ${o.status === 'confirmed' ? 'confirmed' : (o.status === 'cancelled' ? 'cancelled' : 'pending')}">${o.status === 'confirmed' ? 'Payé' : (o.status === 'cancelled' ? 'Annulé' : 'En attente')}</span></td>`;
       ob.appendChild(tr);
     });
   }
