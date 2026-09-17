@@ -179,6 +179,8 @@ export async function confirmExtraAndNotify(env, orderId) {
   if (!orderId) return null;
   const order = await getExtraOrder(env, orderId);
   if (!order) return null;
+  // Ne jamais confirmer un extra déjà annulé (jour concerné passé, session expirée…).
+  if (order.status === 'cancelled') return order;
   if (order.status === 'confirmed') {
     if (order.stripe_session_id) await confirmExtraOrdersBySession(env, order.stripe_session_id);
     return order;
