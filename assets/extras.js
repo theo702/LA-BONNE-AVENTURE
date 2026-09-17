@@ -13,15 +13,9 @@
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function el(html) { var t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; }
 
-  /** Langue du site (i18n) — en français on force jj/mm/aaaa (le type=date suit sinon le téléphone). */
-  function siteLang() {
-    try {
-      if (window.LBA_I18N && LBA_I18N.lang) return String(LBA_I18N.lang).slice(0, 2);
-    } catch (e) {}
-    return (document.documentElement.lang || 'fr').slice(0, 2);
-  }
+  /** Toujours jj/mm/aaaa : le type=date suit la locale du téléphone (souvent mm/dd/yyyy). */
   function useDmyDates() {
-    return siteLang() !== 'en';
+    return true;
   }
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
   function isoToDmy(iso) {
