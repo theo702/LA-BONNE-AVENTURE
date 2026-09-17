@@ -54,7 +54,6 @@
       <button data-tab="t-cal">Calendrier</button>
       <button data-tab="t-rates">Tarifs</button>
       <button data-tab="t-promo">Codes promo</button>
-      <button data-tab="t-block">Blocages</button>
       <button data-tab="t-extra">Extras</button>
       <button data-tab="t-sync">Synchro</button>
     </nav>
@@ -130,7 +129,7 @@
       <section id="t-cal" class="adm-panel">
         <header class="adm-panel-head">
           <h2>Calendrier</h2>
-          <p class="adm-lede">Vue temps réel : direct, Airbnb et blocages. Cliquez une date, puis une autre pour sélectionner une plage à bloquer ou libérer.</p>
+          <p class="adm-lede">Vue temps réel : direct, Airbnb et blocages. Cliquez une date (ou une plage) pour bloquer ou libérer — les nuits déjà réservées restent visibles.</p>
         </header>
         <div class="adm-cal-legend">
           <span><i class="c-free"></i>Libre</span>
@@ -246,27 +245,6 @@
             <tbody></tbody>
           </table></div>
           <div id="promoEmpty" class="adm-empty" hidden>Aucun code promo.</div>
-        </div>
-      </section>
-
-      <section id="t-block" class="adm-panel">
-        <header class="adm-panel-head">
-          <h2>Blocages de dates</h2>
-          <p class="adm-lede">Travaux, séjour perso… Les dates sont retirées du calendrier public et exportées vers Airbnb.</p>
-        </header>
-        <form id="blockForm" class="adm-form adm-inline">
-          <label>Du (1re nuit)<input name="date_from" type="date" required></label>
-          <label>Au (dernière nuit)<input name="date_to" type="date" required></label>
-          <label>Motif (optionnel)<input name="label" type="text" placeholder="Séjour perso"></label>
-          <button type="submit" class="adm-btn">Bloquer</button>
-        </form>
-        <div id="blockMsg" class="adm-msg"></div>
-        <div class="adm-card">
-          <div class="adm-scroll"><table class="adm-table" id="blockTable">
-            <thead><tr><th>Du</th><th>Au</th><th>Nuits</th><th>Motif</th><th></th></tr></thead>
-            <tbody></tbody>
-          </table></div>
-          <div id="blockEmpty" class="adm-empty" hidden>Aucun blocage.</div>
         </div>
       </section>
 

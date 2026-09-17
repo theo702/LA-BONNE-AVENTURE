@@ -41,7 +41,7 @@
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadBlocks(); loadExtras(); loadCalendar(); loadSync(); }
+  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadExtras(); loadCalendar(); loadSync(); }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée', both: 'Départ tardif + Arrivée anticipée', weekly: 'Pack hebdo (cure)' };
   var EXTRA_PROMO_KIND_FR = { percent: 'Réduction %', pack_flex: 'Pack 2 pour 1' };
@@ -539,36 +539,6 @@
     else msg('#syncMsg', (j && j.message) || 'Erreur', true);
   });
 
-  async function loadBlocks() {
-    const { j } = await api('blocks');
-    const tb = $('#blockTable tbody'); tb.innerHTML = '';
-    const rows = (j && j.blocks) || [];
-    $('#blockEmpty').hidden = rows.length > 0;
-    rows.forEach((b) => {
-      const lastNight = addDay(b.date_to, -1);      // date_to est exclusif
-      const nights = nightsOf(b.date_from, b.date_to);
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${b.date_from}</td><td>${lastNight}</td><td>${nights}</td>` +
-        `<td>${b.label ? esc(b.label) : '—'}</td>` +
-        `<td><button class="adm-del" data-id="${b.id}" title="Débloquer">✕</button></td>`;
-      tb.appendChild(tr);
-    });
-    tb.querySelectorAll('.adm-del').forEach((btn) => btn.addEventListener('click', async () => {
-      await api('blocks?id=' + btn.dataset.id, { method: 'DELETE' }); loadBlocks();
-    }));
-  }
-
-  $('#blockForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const f = e.target;
-    if (!f.date_from.value || !f.date_to.value) return;
-    if (f.date_to.value < f.date_from.value) { msg('#blockMsg', 'La fin doit être après le début.', true); return; }
-    const body = { date_from: f.date_from.value, date_to: addDay(f.date_to.value, 1), label: f.label.value };
-    const { status, j } = await api('blocks', { method: 'POST', body: JSON.stringify(body) });
-    if (status === 200) { f.reset(); msg('#blockMsg', 'Dates bloquées ✓'); loadBlocks(); }
-    else msg('#blockMsg', (j && j.message) || 'Erreur', true);
-  });
-
   // ---------- Extras ----------
   async function loadExtras() {
     const { j } = await api('extras');
@@ -942,7 +912,6 @@
     }
     clearCalSelection();
     await loadCalendar();
-    loadBlocks();
   }
 
   // ---------- utils ----------
