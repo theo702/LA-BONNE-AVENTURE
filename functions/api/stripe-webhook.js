@@ -1,6 +1,6 @@
 // POST /api/stripe-webhook — confirme la réservation après paiement (voie serveur-à-serveur).
 // Sert de filet de sécurité si le client ne revient pas sur le site (voir aussi /api/confirm).
-import { cancelBooking } from '../_lib/db.js';
+import { cancelBooking, cancelExtraOrder } from '../_lib/db.js';
 import { confirmAndNotify, confirmExtraAndNotify } from '../_lib/notify.js';
 
 // Vérifie la signature Stripe (HMAC SHA-256) sur le corps brut.
@@ -65,7 +65,10 @@ export async function onRequestPost({ env, request }) {
       await confirmAndNotify(env, refId, { customerId, paymentMethod });
     }
   } else if (event.type === 'checkout.session.expired') {
-    if (!isExtra && refId) await cancelBooking(env, refId); // libère le blocage temporaire
+    if (refId) {
+      if (isExtra) await cancelExtraOrder(env, refId);
+      else await cancelBooking(env, refId); // libère le blocage temporaire
+    }
   }
 
   return new Response('ok', { status: 200 });

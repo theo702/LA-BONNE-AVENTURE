@@ -146,11 +146,33 @@ export async function getExtraOrder(env, id) {
 export async function confirmExtraOrder(env, id) {
   await env.DB.prepare(`UPDATE extra_orders SET status = 'confirmed' WHERE id = ?1`).bind(id).run();
 }
+export async function cancelExtraOrder(env, id) {
+  await env.DB.prepare(
+    `UPDATE extra_orders SET status = 'cancelled' WHERE id = ?1 AND status = 'pending'`
+  ).bind(id).run();
+}
 export async function listExtraOrders(env, limit = 100) {
+  // Purge immédiate des pending trop vieux (sans attendre le cron hebdo).
+  await expireStalePendingExtras(env);
   const { results } = await env.DB.prepare(
     `SELECT * FROM extra_orders ORDER BY created_at DESC LIMIT ?1`
   ).bind(limit).all();
   return results || [];
+}
+
+/** Annule les extras pending non payés depuis ≥ 30 jours. */
+export async function expireStalePendingExtras(env) {
+  try {
+    const res = await env.DB.prepare(
+      `UPDATE extra_orders
+          SET status = 'cancelled'
+        WHERE status = 'pending'
+          AND datetime(created_at) <= datetime('now', '-30 days')`
+    ).run();
+    return (res && res.meta && res.meta.changes) || 0;
+  } catch (e) {
+    return 0;
+  }
 }
 
 // Réservations confirmées (pour l'export /calendar.ics).
@@ -572,7 +594,7 @@ export async function deleteExtraPromotion(env, id) {
 export async function confirmExtraOrdersBySession(env, sessionId) {
   if (!sessionId) return [];
   const { results } = await env.DB.prepare(
-    `SELECT id FROM extra_orders WHERE stripe_session_id = ?1 AND status != 'confirmed'`
+    `SELECT id FROM extra_orders WHERE stripe_session_id = ?1 AND status = 'pending'`
   ).bind(sessionId).all();
   const ids = (results || []).map((r) => r.id);
   for (const id of ids) {
@@ -791,10 +813,10 @@ export async function listPendingForReminder(env) {
 }
 
 // Expire (annule) les pending :
-//  - dès J-1 de l'arrivée
-//  - ou après 30 jours sans paiement (créés_at)
+//  - réservations : dès J-1 de l'arrivée, ou après 30 jours sans paiement
+//  - extras : après 30 jours sans paiement
 export async function expireStalePending(env) {
-  const res = await env.DB.prepare(
+  const bookRes = await env.DB.prepare(
     `UPDATE bookings
         SET status = 'cancelled', hold_expires_at = NULL
       WHERE status = 'pending'
@@ -803,7 +825,9 @@ export async function expireStalePending(env) {
           OR datetime(created_at) <= datetime('now', '-30 days')
         )`
   ).run();
-  return (res && res.meta && res.meta.changes) || 0;
+  const bookings = (bookRes && bookRes.meta && bookRes.meta.changes) || 0;
+  const extras = await expireStalePendingExtras(env);
+  return { bookings, extras, total: bookings + extras };
 }
 
 export async function markReminderSent(env, id) {
