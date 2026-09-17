@@ -12,6 +12,73 @@
   function euros(c, cur) { try { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: cur || 'eur' }).format((c || 0) / 100); } catch (e) { return ((c || 0) / 100).toFixed(2) + ' €'; } }
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function el(html) { var t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; }
+
+  /** Langue du site (i18n) — en français on force jj/mm/aaaa (le type=date suit sinon le téléphone). */
+  function siteLang() {
+    try {
+      if (window.LBA_I18N && LBA_I18N.lang) return String(LBA_I18N.lang).slice(0, 2);
+    } catch (e) {}
+    return (document.documentElement.lang || 'fr').slice(0, 2);
+  }
+  function useDmyDates() {
+    return siteLang() !== 'en';
+  }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function isoToDmy(iso) {
+    if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return '';
+    var p = String(iso).slice(0, 10).split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  function dmyToIso(raw) {
+    var s = String(raw || '').trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; // déjà ISO
+    var m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);
+    if (!m) return '';
+    var d = parseInt(m[1], 10), mo = parseInt(m[2], 10), y = parseInt(m[3], 10);
+    if (mo < 1 || mo > 12 || d < 1 || d > 31) return '';
+    var dt = new Date(Date.UTC(y, mo - 1, d));
+    if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return '';
+    return y + '-' + pad2(mo) + '-' + pad2(d);
+  }
+  function dateFieldHtml(id, labelHtml) {
+    if (useDmyDates()) {
+      return '<div class="bw-field"><label>' + labelHtml + '</label>' +
+        '<input id="' + id + '" class="bw-date-dmy" type="text" inputmode="numeric" placeholder="jj/mm/aaaa" autocomplete="off" maxlength="10"></div>';
+    }
+    return '<div class="bw-field"><label>' + labelHtml + '</label><input id="' + id + '" type="date"></div>';
+  }
+  function bindDmyInput(inp, onChange) {
+    if (!inp || inp.type === 'date') {
+      if (inp && onChange) inp.addEventListener('change', onChange);
+      return;
+    }
+    inp.addEventListener('input', function () {
+      var digits = inp.value.replace(/\D/g, '').slice(0, 8);
+      var out = digits;
+      if (digits.length > 4) out = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
+      else if (digits.length > 2) out = digits.slice(0, 2) + '/' + digits.slice(2);
+      if (inp.value !== out) inp.value = out;
+      if (onChange && digits.length === 8) onChange();
+    });
+    inp.addEventListener('change', function () { if (onChange) onChange(); });
+    inp.addEventListener('blur', function () {
+      var iso = dmyToIso(inp.value);
+      if (iso) {
+        inp.value = isoToDmy(iso);
+        inp.classList.remove('bw-date-invalid');
+      } else if (inp.value.trim()) {
+        inp.classList.add('bw-date-invalid');
+      } else {
+        inp.classList.remove('bw-date-invalid');
+      }
+      if (onChange) onChange();
+    });
+  }
+  function readDateInput(inp) {
+    if (!inp) return '';
+    if (inp.type === 'date') return inp.value || '';
+    return dmyToIso(inp.value);
+  }
   var FROND = '<div class="frond"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/></svg></div>';
   function bag() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6h15l-1.5 8.5H7.7L6 3H3M8 20a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>'; }
   function card() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>'; }
@@ -216,22 +283,22 @@
     var datesHtml = '';
     if (isPack) {
       datesHtml =
-        '<div class="bw-field"><label>Date d’arrivée (arrivée anticipée offerte)</label><input id="exEarly" type="date"></div>' +
-        '<div class="bw-field"><label>Date de départ (départ tardif)</label><input id="exLate" type="date"></div>' +
+        dateFieldHtml('exEarly', 'Date d’arrivée (arrivée anticipée offerte)') +
+        dateFieldHtml('exLate', 'Date de départ (départ tardif)') +
         '<div class="bw-promo-err" id="exAvail"></div>';
     } else if (isBoth) {
       datesHtml =
-        '<div class="bw-field"><label>Date de votre départ (départ tardif)</label><input id="exLate" type="date"></div>' +
-        '<div class="bw-field"><label>Date de votre arrivée (arrivée anticipée)</label><input id="exEarly" type="date"></div>' +
+        dateFieldHtml('exLate', 'Date de votre départ (départ tardif)') +
+        dateFieldHtml('exEarly', 'Date de votre arrivée (arrivée anticipée)') +
         '<div class="bw-promo-err" id="exAvail"></div>';
     } else if (isWeekly) {
       datesHtml =
-        '<div class="bw-field"><label>Date d’arrivée</label><input id="exArrive" type="date"></div>' +
-        '<div class="bw-field"><label>Date de départ</label><input id="exDepart" type="date"></div>' +
+        dateFieldHtml('exArrive', 'Date d’arrivée') +
+        dateFieldHtml('exDepart', 'Date de départ') +
         '<p class="bw-modal-msg" style="margin:0 0 8px;font-size:12.5px">1 ménage + linge par <b>samedi</b> de votre séjour (1 à 4 semaines).</p>' +
         '<div class="bw-promo-err" id="exAvail"></div>';
     } else if (dated) {
-      datesHtml = '<div class="bw-field"><label>' + dateLabel + '</label><input id="exDate" type="date"></div><div class="bw-promo-err" id="exAvail"></div>';
+      datesHtml = dateFieldHtml('exDate', dateLabel) + '<div class="bw-promo-err" id="exAvail"></div>';
     }
     var ctaLabel = needsApproval
       ? ('Demander · ' + euros(x.price_cents, CUR))
@@ -279,9 +346,8 @@
       payBtn.disabled = true;
       var earlyInp = node.querySelector('#exEarly');
       var lateInp = node.querySelector('#exLate');
-      // Pour la vérif dispo, on réutilise les extras catalogue late/early (ids 1 et 2 seed).
       function refreshPack() {
-        var e = earlyInp.value, l = lateInp.value;
+        var e = readDateInput(earlyInp), l = readDateInput(lateInp);
         if (!e || !l) { if (availMsg) availMsg.textContent = ''; payBtn.disabled = true; return; }
         if (availMsg) { availMsg.style.color = 'var(--ink-soft)'; availMsg.textContent = 'Vérification…'; }
         var okE = false, okL = false, left = 2, msg = '';
@@ -294,14 +360,14 @@
         checkOne('early_checkin', e, function (ok, m) { okE = ok; if (!ok) msg = m; finish(); });
         checkOne('late_checkout', l, function (ok, m) { okL = ok; if (!ok) msg = m; finish(); });
       }
-      earlyInp.addEventListener('change', refreshPack);
-      lateInp.addEventListener('change', refreshPack);
+      bindDmyInput(earlyInp, refreshPack);
+      bindDmyInput(lateInp, refreshPack);
     } else if (isBoth) {
       payBtn.disabled = true;
       var earlyInp2 = node.querySelector('#exEarly');
       var lateInp2 = node.querySelector('#exLate');
       function refreshBoth() {
-        var e = earlyInp2.value, l = lateInp2.value;
+        var e = readDateInput(earlyInp2), l = readDateInput(lateInp2);
         if (!e || !l) { if (availMsg) availMsg.textContent = ''; payBtn.disabled = true; return; }
         if (availMsg) { availMsg.style.color = 'var(--ink-soft)'; availMsg.textContent = 'Vérification…'; }
         fetch('/api/extras-availability?kind=both&date_late=' + encodeURIComponent(l) + '&date_early=' + encodeURIComponent(e))
@@ -312,15 +378,15 @@
           })
           .catch(function () { if (availMsg) availMsg.textContent = ''; payBtn.disabled = false; });
       }
-      earlyInp2.addEventListener('change', refreshBoth);
-      lateInp2.addEventListener('change', refreshBoth);
+      bindDmyInput(earlyInp2, refreshBoth);
+      bindDmyInput(lateInp2, refreshBoth);
     } else if (isWeekly) {
       payBtn.disabled = true;
       var arriveInp = node.querySelector('#exArrive');
       var departInp = node.querySelector('#exDepart');
       function refreshWeekly() {
         weeklyQuote = null;
-        var a = arriveInp.value, d = departInp.value;
+        var a = readDateInput(arriveInp), d = readDateInput(departInp);
         if (!a || !d) {
           if (availMsg) availMsg.textContent = '';
           if (priceEl) priceEl.innerHTML = euros(x.price_cents, CUR) + ' <small>/ sem.</small>';
@@ -361,13 +427,13 @@
             payBtn.disabled = true;
           });
       }
-      arriveInp.addEventListener('change', refreshWeekly);
-      departInp.addEventListener('change', refreshWeekly);
+      bindDmyInput(arriveInp, refreshWeekly);
+      bindDmyInput(departInp, refreshWeekly);
     } else if (dated) {
       payBtn.disabled = true;
       var dateInp = node.querySelector('#exDate');
-      dateInp.addEventListener('change', function () {
-        var d = dateInp.value;
+      function refreshDated() {
+        var d = readDateInput(dateInp);
         if (!d) { availMsg.textContent = ''; payBtn.disabled = true; return; }
         availMsg.style.color = 'var(--ink-soft)'; availMsg.textContent = 'Vérification…';
         fetch('/api/extras-availability?extra_id=' + x.id + '&date=' + d)
@@ -377,7 +443,8 @@
             else { availMsg.style.color = '#B3261E'; availMsg.textContent = (j && j.message) || 'Indisponible ce jour-là.'; payBtn.disabled = true; }
           })
           .catch(function () { availMsg.textContent = ''; payBtn.disabled = false; });
-      });
+      }
+      bindDmyInput(dateInp, refreshDated);
     }
 
     payBtn.addEventListener('click', function () {
@@ -389,34 +456,34 @@
 
       var payload = { name: name.trim(), email: email.trim(), return_path: RETURN_PATH };
       if (isPack) {
-        var early = ((node.querySelector('#exEarly') || {}).value || '');
-        var late = ((node.querySelector('#exLate') || {}).value || '');
-        if (!early || !late) { err.textContent = 'Indiquez les deux dates.'; return; }
+        var early = readDateInput(node.querySelector('#exEarly'));
+        var late = readDateInput(node.querySelector('#exLate'));
+        if (!early || !late) { err.textContent = 'Indiquez les deux dates (jj/mm/aaaa).'; return; }
         payload.kind = 'flex_pack';
         payload.promo_id = x.promo_id || (x.promo && x.promo.id);
         payload.early_date = early;
         payload.late_date = late;
         payload.extra_id = x.id;
       } else if (isBoth) {
-        var late = ((node.querySelector('#exLate') || {}).value || '');
-        var early = ((node.querySelector('#exEarly') || {}).value || '');
-        if (!late || !early) { err.textContent = 'Indiquez les deux dates.'; return; }
+        var lateB = readDateInput(node.querySelector('#exLate'));
+        var earlyB = readDateInput(node.querySelector('#exEarly'));
+        if (!lateB || !earlyB) { err.textContent = 'Indiquez les deux dates (jj/mm/aaaa).'; return; }
         payload.kind = 'both';
         payload.extra_id = x.id;
-        payload.late_date = late;
-        payload.early_date = early;
+        payload.late_date = lateB;
+        payload.early_date = earlyB;
       } else if (isWeekly) {
-        var arrival = ((node.querySelector('#exArrive') || {}).value || '');
-        var departure = ((node.querySelector('#exDepart') || {}).value || '');
-        if (!arrival || !departure) { err.textContent = 'Indiquez vos dates d’arrivée et de départ.'; return; }
+        var arrival = readDateInput(node.querySelector('#exArrive'));
+        var departure = readDateInput(node.querySelector('#exDepart'));
+        if (!arrival || !departure) { err.textContent = 'Indiquez vos dates d’arrivée et de départ (jj/mm/aaaa).'; return; }
         if (!weeklyQuote || !weeklyQuote.weeks) { err.textContent = 'Vérifiez vos dates.'; return; }
         payload.kind = 'weekly';
         payload.extra_id = x.id;
         payload.arrival_date = arrival;
         payload.departure_date = departure;
       } else {
-        var date = dated ? ((node.querySelector('#exDate') || {}).value || '') : '';
-        if (dated && !date) { err.textContent = 'Indiquez la date.'; return; }
+        var date = dated ? readDateInput(node.querySelector('#exDate')) : '';
+        if (dated && !date) { err.textContent = 'Indiquez la date (jj/mm/aaaa).'; return; }
         payload.extra_id = x.id;
         payload.date = date;
         if (x.promo && x.promo.id) payload.promo_id = x.promo.id;

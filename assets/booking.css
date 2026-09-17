@@ -73,6 +73,7 @@
 .bw-field input,.bw-field select{width:100%;font-family:'Jost';font-size:14px;color:var(--ink);
   padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
 .bw-field input:focus,.bw-field select:focus{outline:none;border-color:var(--clay-soft)}
+.bw-field input.bw-date-invalid{border-color:#B3261E}
 .bw-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 .bw-pay{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:6px;

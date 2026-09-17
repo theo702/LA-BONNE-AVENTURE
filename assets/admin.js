@@ -5,6 +5,43 @@
   const $ = (s, r) => (r || document).querySelector(s);
   const euro = (c) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'eur' }).format((c || 0) / 100);
   const cents = (v) => Math.round((parseFloat(v) || 0) * 100);
+  const pad2 = (n) => (n < 10 ? '0' : '') + n;
+  function isoToDmy(iso) {
+    if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return '';
+    const p = String(iso).slice(0, 10).split('-');
+    return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  function dmyToIso(raw) {
+    const s = String(raw || '').trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    const m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);
+    if (!m) return '';
+    const d = parseInt(m[1], 10), mo = parseInt(m[2], 10), y = parseInt(m[3], 10);
+    if (mo < 1 || mo > 12 || d < 1 || d > 31) return '';
+    const dt = new Date(Date.UTC(y, mo - 1, d));
+    if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return '';
+    return y + '-' + pad2(mo) + '-' + pad2(d);
+  }
+  function bindDmyInput(inp) {
+    if (!inp || inp.dataset.dmyBound) return;
+    inp.dataset.dmyBound = '1';
+    inp.addEventListener('input', () => {
+      const digits = inp.value.replace(/\D/g, '').slice(0, 8);
+      let out = digits;
+      if (digits.length > 4) out = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
+      else if (digits.length > 2) out = digits.slice(0, 2) + '/' + digits.slice(2);
+      if (inp.value !== out) inp.value = out;
+    });
+    inp.addEventListener('blur', () => {
+      const iso = dmyToIso(inp.value);
+      if (iso) { inp.value = isoToDmy(iso); inp.setCustomValidity(''); }
+      else if (inp.value.trim()) inp.setCustomValidity('Date invalide (jj/mm/aaaa)');
+      else inp.setCustomValidity('');
+    });
+  }
+  function bindAllDmyInputs(root) {
+    (root || document).querySelectorAll('input[placeholder="jj/mm/aaaa"]').forEach(bindDmyInput);
+  }
 
   async function api(path, opts = {}) {
     const res = await fetch('/api/admin/' + path, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts));
@@ -41,7 +78,10 @@
   });
 
   // ---------- Init / chargement ----------
-  function initApp() { loadBookings(); loadSettings(); loadPromos(); loadExtras(); loadCalendar(); loadSync(); }
+  function initApp() {
+    bindAllDmyInputs();
+    loadBookings(); loadSettings(); loadPromos(); loadExtras(); loadCalendar(); loadSync();
+  }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée', both: 'Départ tardif + Arrivée anticipée', weekly: 'Pack hebdo (cure)' };
   var EXTRA_PROMO_KIND_FR = { percent: 'Réduction %', pack_flex: 'Pack 2 pour 1' };
@@ -283,9 +323,15 @@
       const f = e.target;
       const msg = $('#directBookMsg');
       msg.textContent = '';
+      const checkin = dmyToIso(f.checkin.value);
+      const checkout = dmyToIso(f.checkout.value);
+      if (!checkin || !checkout) {
+        msg.textContent = 'Dates invalides (jj/mm/aaaa).';
+        return;
+      }
       const payload = {
-        checkin: f.checkin.value,
-        checkout: f.checkout.value,
+        checkin,
+        checkout,
         guest_name: f.guest_name.value.trim(),
         email: f.email.value.trim(),
         amount_eur: Number(f.amount_eur.value),
@@ -388,7 +434,7 @@
     $('#promoEmpty').hidden = rows.length > 0;
     rows.forEach((p) => {
       const red = p.kind === 'percent' ? `−${p.value} %` : `−${euro(p.value)}`;
-      const val = [p.valid_from || '…', p.valid_to || '…'].join(' → ');
+      const val = [isoToDmy(p.valid_from) || p.valid_from || '…', isoToDmy(p.valid_to) || p.valid_to || '…'].join(' → ');
       const uses = p.max_uses > 0 ? `${p.used_count}/${p.max_uses}` : `${p.used_count}/∞`;
       const tr = document.createElement('tr');
       tr.innerHTML = `<td><b>${esc(p.code)}</b>${p.active ? '' : ' <span class="adm-badge cancelled">off</span>'}</td>` +
@@ -406,10 +452,16 @@
     const f = e.target;
     const kind = f.kind.value;
     const value = kind === 'fixed' ? cents(f.value.value) : Math.round(parseFloat(f.value.value) || 0);
+    const vf = f.valid_from.value.trim() ? dmyToIso(f.valid_from.value) : null;
+    const vt = f.valid_to.value.trim() ? dmyToIso(f.valid_to.value) : null;
+    if ((f.valid_from.value.trim() && !vf) || (f.valid_to.value.trim() && !vt)) {
+      msg('#promoMsg', 'Dates invalides (jj/mm/aaaa)', true);
+      return;
+    }
     const body = {
       code: f.code.value, kind, value,
       min_nights: +f.min_nights.value || 0,
-      valid_from: f.valid_from.value || null, valid_to: f.valid_to.value || null,
+      valid_from: vf, valid_to: vt,
       max_uses: +f.max_uses.value || 0,
     };
     const { status, j } = await api('promos', { method: 'POST', body: JSON.stringify(body) });
@@ -629,7 +681,7 @@
       tr.innerHTML = `<td><b>${esc(p.title)}</b></td>` +
         `<td>${EXTRA_PROMO_KIND_FR[p.kind] || p.kind}</td>` +
         `<td>${esc(detail)}</td>` +
-        `<td>${esc(p.valid_from)} → ${esc(p.valid_to)}</td>` +
+        `<td>${esc(isoToDmy(p.valid_from) || p.valid_from)} → ${esc(isoToDmy(p.valid_to) || p.valid_to)}</td>` +
         `<td>${p.show_popup ? '✓' : '—'}</td>` +
         `<td>${p.active ? '✓' : '—'}</td>` +
         `<td style="white-space:nowrap"><button class="adm-ghost adm-edit" data-id="${p.id}" style="padding:5px 10px">Modifier</button> <button class="adm-del" data-id="${p.id}">✕</button></td>`;
@@ -650,8 +702,8 @@
     f.percent.value = p.percent || 0;
     f.pack_price.value = ((p.pack_price_cents || 1500) / 100).toFixed(2);
     f.target.value = p.target || 'all';
-    f.valid_from.value = p.valid_from || '';
-    f.valid_to.value = p.valid_to || '';
+    f.valid_from.value = isoToDmy(p.valid_from) || p.valid_from || '';
+    f.valid_to.value = isoToDmy(p.valid_to) || p.valid_to || '';
     f.message.value = p.message || '';
     f.cta_label.value = p.cta_label || "Profiter de l'offre";
     f.show_popup.checked = !!p.show_popup;
@@ -687,11 +739,15 @@
       percent: +f.percent.value || 0,
       target: f.target.value,
       pack_price_cents: cents(f.pack_price.value),
-      valid_from: f.valid_from.value,
-      valid_to: f.valid_to.value,
+      valid_from: dmyToIso(f.valid_from.value) || f.valid_from.value,
+      valid_to: dmyToIso(f.valid_to.value) || f.valid_to.value,
       show_popup: f.show_popup.checked,
       active: f.active.checked,
     };
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(body.valid_from) || !/^\d{4}-\d{2}-\d{2}$/.test(body.valid_to)) {
+      msg('#extraPromoMsg', 'Dates invalides (jj/mm/aaaa)', true);
+      return;
+    }
     const id = f.id.value;
     const res = id
       ? await api('extra-promotions?id=' + id, { method: 'PUT', body: JSON.stringify(body) })
@@ -705,7 +761,6 @@
   var CAL_DOW = ['L','M','M','J','V','S','D'];
   var cal = { data: null, view: null, rangeStart: null, rangeEnd: null, loading: false };
 
-  const pad2 = (n) => (n < 10 ? '0' : '') + n;
   const ymd = (d) => d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1) + '-' + pad2(d.getUTCDate());
   const parseD = (s) => { const p = s.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); };
   const today = () => new Date().toISOString().slice(0, 10);
