@@ -162,6 +162,7 @@ export async function getConfirmed(env) {
 }
 
 export async function createPendingBooking(env, b) {
+  await ensurePricingSchema(env);
   const id = crypto.randomUUID();
   const nowIso = new Date().toISOString();
   // Blocage calendrier pour les autres voyageurs : 3 h (le séjour reste visible
@@ -171,8 +172,8 @@ export async function createPendingBooking(env, b) {
     `INSERT INTO bookings
        (id, checkin, checkout, nights, guest_name, email, phone, guests,
         amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
-        status, hold_expires_at, created_at)
-     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,'pending',?14,?15)`
+        status, payment_source, hold_expires_at, created_at)
+     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,'pending','stripe',?14,?15)`
   ).bind(
     id, b.checkin, b.checkout, b.nights, b.name, b.email, b.phone || '',
     b.guests, b.amountCents, b.taxeCents || 0, b.discountCents || 0, b.promoCode || null,
@@ -181,27 +182,108 @@ export async function createPendingBooking(env, b) {
   return { id, holdExpires };
 }
 
+/** Réservation saisie à la main (ex. virement bancaire) — confirmée tout de suite. */
+export async function createDirectBooking(env, b) {
+  await ensurePricingSchema(env);
+  const id = b.id || crypto.randomUUID();
+  const nowIso = new Date().toISOString();
+  const source = (b.paymentSource === 'stripe') ? 'stripe' : 'virement';
+  await env.DB.prepare(
+    `INSERT INTO bookings
+       (id, checkin, checkout, nights, guest_name, email, phone, guests,
+        amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
+        status, payment_source, notes, hold_expires_at, created_at)
+     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,'confirmed',?14,?15,NULL,?16)`
+  ).bind(
+    id, b.checkin, b.checkout, b.nights, b.name, b.email || '', b.phone || '',
+    b.guests || 1, b.amountCents, b.taxeCents || 0, b.discountCents || 0, b.promoCode || null,
+    b.currency || 'eur', source, b.notes || null, nowIso
+  ).run();
+  return { id };
+}
+
 // ---------- Admin : réservations / réglages / promos / saisons ----------
 
 export async function listBookings(env, limit = 200) {
-  // SELECT complet d'abord (colonnes caution incluses) ; repli si la base n'est pas migrée.
+  await ensurePricingSchema(env);
+  // SELECT complet d'abord (colonnes caution + paiement) ; repli si la base n'est pas migrée.
   try {
     const { results } = await env.DB.prepare(
       `SELECT id, checkin, checkout, nights, guest_name, email, phone, guests,
               amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
-              status, created_at, stripe_customer_id, stripe_payment_method
+              status, created_at, stripe_customer_id, stripe_payment_method,
+              payment_source, notes
          FROM bookings ORDER BY created_at DESC LIMIT ?1`
     ).bind(limit).all();
     return results || [];
   } catch (e) {
-    const { results } = await env.DB.prepare(
-      `SELECT id, checkin, checkout, nights, guest_name, email, phone, guests,
-              amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
-              status, created_at
-         FROM bookings ORDER BY created_at DESC LIMIT ?1`
-    ).bind(limit).all();
-    return results || [];
+    try {
+      const { results } = await env.DB.prepare(
+        `SELECT id, checkin, checkout, nights, guest_name, email, phone, guests,
+                amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
+                status, created_at, stripe_customer_id, stripe_payment_method
+           FROM bookings ORDER BY created_at DESC LIMIT ?1`
+      ).bind(limit).all();
+      return results || [];
+    } catch (e2) {
+      const { results } = await env.DB.prepare(
+        `SELECT id, checkin, checkout, nights, guest_name, email, phone, guests,
+                amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
+                status, created_at
+           FROM bookings ORDER BY created_at DESC LIMIT ?1`
+      ).bind(limit).all();
+      return results || [];
+    }
   }
+}
+
+/** Totaux CA des réservations confirmées (canal direct : site + virement). */
+export async function bookingRevenueStats(env) {
+  await ensurePricingSchema(env);
+  const year = String(new Date().getFullYear());
+  const { results: rows } = await env.DB.prepare(
+    `SELECT checkin, checkout, nights, amount_total_cents, payment_source, status, stripe_session_id
+       FROM bookings WHERE status = 'confirmed'`
+  ).all();
+  const list = rows || [];
+  function sourceOf(r) {
+    if (r.payment_source === 'virement') return 'virement';
+    if (r.payment_source === 'stripe') return 'stripe';
+    return r.stripe_session_id ? 'stripe' : 'virement';
+  }
+  function aggregate(items) {
+    const out = { total_cents: 0, count: 0, nights: 0, stripe_cents: 0, virement_cents: 0, stripe_count: 0, virement_count: 0 };
+    items.forEach((r) => {
+      const cents = r.amount_total_cents || 0;
+      const src = sourceOf(r);
+      out.total_cents += cents;
+      out.count += 1;
+      out.nights += r.nights || 0;
+      if (src === 'virement') { out.virement_cents += cents; out.virement_count += 1; }
+      else { out.stripe_cents += cents; out.stripe_count += 1; }
+    });
+    return out;
+  }
+  const yearRows = list.filter((r) => String(r.checkin || '').startsWith(year));
+  // Ventilation mensuelle de l'année en cours (par mois d'arrivée).
+  const byMonth = {};
+  for (let m = 1; m <= 12; m++) {
+    const key = year + '-' + String(m).padStart(2, '0');
+    byMonth[key] = { total_cents: 0, count: 0 };
+  }
+  yearRows.forEach((r) => {
+    const key = String(r.checkin || '').slice(0, 7);
+    if (byMonth[key]) {
+      byMonth[key].total_cents += r.amount_total_cents || 0;
+      byMonth[key].count += 1;
+    }
+  });
+  return {
+    year,
+    all: aggregate(list),
+    year_stats: aggregate(yearRows),
+    by_month: byMonth,
+  };
 }
 
 export async function getSettings(env) {
@@ -338,6 +420,26 @@ export async function ensurePricingSchema(env) {
     active INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL
   )`);
+  // Paiement hors Stripe (virement) + notes libres pour l'historique comptable.
+  await run(`ALTER TABLE bookings ADD COLUMN payment_source TEXT NOT NULL DEFAULT 'stripe'`);
+  await run(`ALTER TABLE bookings ADD COLUMN notes TEXT`);
+  // Seed idempotent : virement 17→18 sept. 2026 · 50 € (saisie manuelle hôte).
+  try {
+    await env.DB.prepare(
+      `INSERT OR IGNORE INTO bookings
+         (id, checkin, checkout, nights, guest_name, email, phone, guests,
+          amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
+          status, payment_source, notes, hold_expires_at, created_at)
+       VALUES (
+         'direct-virement-2026-09-17',
+         '2026-09-17', '2026-09-18', 1,
+         'Client (virement)', '', '', 1,
+         5000, 0, 0, NULL, 'eur',
+         'confirmed', 'virement',
+         'Virement bancaire 50 € reçu — saisie manuelle historique',
+         NULL, '2026-09-17T18:00:00.000Z')`
+    ).run();
+  } catch (e) { /* ignore */ }
 }
 
 // ---------- Offres extras (promotions / packs) ----------

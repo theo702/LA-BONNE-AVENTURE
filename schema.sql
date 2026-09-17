@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS bookings (
   stripe_session_id   TEXT,
   stripe_customer_id  TEXT,                      -- client Stripe (empreinte bancaire / caution)
   stripe_payment_method TEXT,                    -- moyen de paiement enregistré (débit caution off-session)
+  payment_source      TEXT NOT NULL DEFAULT 'stripe', -- 'stripe' | 'virement' (canal de paiement)
+  notes               TEXT,                      -- note libre (ex. virement reçu le…)
   cleaning_paid       INTEGER NOT NULL DEFAULT 0,-- ménage payé au prestataire (suivi prestations)
   cleaning_pay_cents  INTEGER,                   -- montant ménage pour CE séjour (NULL = tarif par défaut)
   hold_expires_at     TEXT,                      -- ISO 8601 : fin du blocage calendrier (3 h)

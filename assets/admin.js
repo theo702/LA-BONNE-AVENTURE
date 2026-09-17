@@ -55,14 +55,16 @@
     const tb = $('#bookTable tbody'); tb.innerHTML = '';
     const rows = (j && j.bookings) || [];
     $('#bookEmpty').hidden = rows.length > 0;
+    renderRevenue(j && j.revenue);
     rows.forEach((r) => {
+      const pay = paymentLabel(r);
       const tr = document.createElement('tr');
       tr.innerHTML =
         `<td>${r.checkin}</td><td>${r.checkout}</td><td>${r.nights}</td>` +
-        `<td>${esc(r.guest_name)}</td>` +
-        `<td>${esc(r.email)}${r.phone ? '<br>' + esc(r.phone) : ''}</td>` +
+        `<td>${esc(r.guest_name)}${r.notes ? '<div class="adm-note">' + esc(r.notes) + '</div>' : ''}</td>` +
+        `<td>${esc(r.email || '—')}${r.phone ? '<br>' + esc(r.phone) : ''}</td>` +
         `<td>${r.guests}</td><td>${euro(r.amount_total_cents)}</td>` +
-        `<td>${euro(r.taxe_cents)}</td><td>${r.promo_code ? esc(r.promo_code) : '—'}</td>` +
+        `<td><span class="adm-badge ${pay.cls}">${pay.label}</span></td>` +
         `<td><span class="adm-badge ${r.status}">${statusFr(r.status)}</span></td>` +
         `<td>${r.stripe_payment_method ? `<button class="adm-caution" data-id="${r.id}" title="Débiter la caution">Caution</button> ` : ''}<button class="adm-del" data-id="${r.id}" title="Supprimer">✕</button></td>`;
       tb.appendChild(tr);
@@ -73,6 +75,76 @@
       });
       const cautionBtn = tr.querySelector('.adm-caution');
       if (cautionBtn) cautionBtn.addEventListener('click', () => chargeCaution(r));
+    });
+  }
+
+  function paymentLabel(r) {
+    const src = r.payment_source || (r.stripe_session_id || r.stripe_payment_method ? 'stripe' : 'virement');
+    if (src === 'virement') return { label: 'Virement', cls: 'pending' };
+    return { label: 'Stripe', cls: 'confirmed' };
+  }
+
+  function renderRevenue(rev) {
+    const box = $('#bookRevenue');
+    const months = $('#revMonths');
+    if (!rev || !rev.year_stats) { if (box) box.hidden = true; if (months) months.hidden = true; return; }
+    const y = rev.year_stats;
+    const a = rev.all;
+    box.hidden = false;
+    $('#revYearLabel').textContent = rev.year;
+    $('#revYearTotal').textContent = euro(y.total_cents);
+    $('#revYearCount').textContent = y.count + ' séjour' + (y.count > 1 ? 's' : '') + ' · ' + y.nights + ' nuit' + (y.nights > 1 ? 's' : '');
+    $('#revStripe').textContent = euro(y.stripe_cents);
+    $('#revStripeCount').textContent = y.stripe_count + ' paiement' + (y.stripe_count > 1 ? 's' : '');
+    $('#revVirement').textContent = euro(y.virement_cents);
+    $('#revVirementCount').textContent = y.virement_count + ' paiement' + (y.virement_count > 1 ? 's' : '');
+    $('#revAllTotal').textContent = euro(a.total_cents);
+    $('#revAllCount').textContent = a.count + ' séjour' + (a.count > 1 ? 's' : '') + ' · ' + a.nights + ' nuit' + (a.nights > 1 ? 's' : '');
+
+    const MONTHS_FR = ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'];
+    const parts = [];
+    Object.keys(rev.by_month || {}).sort().forEach((key) => {
+      const m = rev.by_month[key];
+      if (!m.count) return;
+      const mi = parseInt(key.slice(5), 10) - 1;
+      parts.push('<div class="adm-rev-month"><b>' + MONTHS_FR[mi] + '</b><span>' + euro(m.total_cents) + '</span><em>' + m.count + '</em></div>');
+    });
+    if (parts.length) {
+      months.hidden = false;
+      months.innerHTML = '<div class="adm-rev-months-lab">Détail ' + rev.year + ' (par mois d’arrivée)</div>' + parts.join('');
+    } else {
+      months.hidden = true;
+      months.innerHTML = '';
+    }
+  }
+
+  const directForm = $('#directBookForm');
+  if (directForm) {
+    directForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const msg = $('#directBookMsg');
+      msg.textContent = '';
+      const payload = {
+        checkin: f.checkin.value,
+        checkout: f.checkout.value,
+        guest_name: f.guest_name.value.trim(),
+        email: f.email.value.trim(),
+        amount_eur: Number(f.amount_eur.value),
+        guests: Number(f.guests.value) || 1,
+        notes: f.notes.value.trim(),
+        payment_source: 'virement',
+      };
+      const { status, j } = await api('bookings', { method: 'POST', body: JSON.stringify(payload) });
+      if (status === 200 && j && j.ok) {
+        msg.textContent = '✓ Réservation enregistrée.';
+        f.reset();
+        f.guests.value = '1';
+        loadBookings();
+        loadCalendar();
+      } else {
+        msg.textContent = (j && j.message) || 'Erreur.';
+      }
     });
   }
 

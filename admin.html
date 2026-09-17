@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/admin.css?v=6">
+<link rel="stylesheet" href="assets/admin.css?v=7">
 <style>
   /* Filet de sécurité anti-cache : logo jamais en taille native 720px */
   img.adm-logo{width:96px!important;height:96px!important;max-width:96px!important;max-height:96px!important;object-fit:contain!important}
@@ -64,11 +64,56 @@
       <section id="t-book" class="adm-panel on">
         <header class="adm-panel-head">
           <h2>Réservations</h2>
-          <p class="adm-lede">Séjours réservés en direct, paiements et cautions.</p>
+          <p class="adm-lede">Séjours en direct (site + virement) — historique pour le calcul des revenus.</p>
         </header>
+
+        <div class="adm-rev" id="bookRevenue" hidden>
+          <div class="adm-rev-card">
+            <div class="adm-rev-lab">CA direct <span id="revYearLabel">2026</span></div>
+            <div class="adm-rev-val" id="revYearTotal">—</div>
+            <div class="adm-rev-sub" id="revYearCount"></div>
+          </div>
+          <div class="adm-rev-card">
+            <div class="adm-rev-lab">Dont Stripe</div>
+            <div class="adm-rev-val" id="revStripe">—</div>
+            <div class="adm-rev-sub" id="revStripeCount"></div>
+          </div>
+          <div class="adm-rev-card">
+            <div class="adm-rev-lab">Dont virement</div>
+            <div class="adm-rev-val" id="revVirement">—</div>
+            <div class="adm-rev-sub" id="revVirementCount"></div>
+          </div>
+          <div class="adm-rev-card">
+            <div class="adm-rev-lab">Total depuis le début</div>
+            <div class="adm-rev-val" id="revAllTotal">—</div>
+            <div class="adm-rev-sub" id="revAllCount"></div>
+          </div>
+        </div>
+        <div class="adm-rev-months" id="revMonths" hidden></div>
+
+        <form id="directBookForm" class="adm-form adm-form-card">
+          <fieldset>
+            <legend>Ajouter une réservation (virement / hors Stripe)</legend>
+            <div class="adm-grid">
+              <label>Arrivée<input name="checkin" type="date" required></label>
+              <label>Départ<input name="checkout" type="date" required></label>
+              <label>Voyageur<input name="guest_name" type="text" required placeholder="Prénom Nom"></label>
+              <label>Email <em>(optionnel)</em><input name="email" type="email" placeholder="voyageur@email.com"></label>
+              <label>Montant reçu (€)<input name="amount_eur" type="number" step="0.01" min="0" required placeholder="50"></label>
+              <label>Pers.<input name="guests" type="number" min="1" value="1"></label>
+            </div>
+            <label>Note <em>(optionnel)</em><input name="notes" type="text" placeholder="Ex. virement reçu le 17/09"></label>
+            <div class="adm-actions">
+              <button type="submit" class="adm-btn">Enregistrer</button>
+              <span class="adm-hint" id="directBookMsg"></span>
+            </div>
+            <p class="adm-hint">Sert à garder l’historique comptable des paiements hors Stripe (virement, espèces…). Le calendrier est bloqué automatiquement.</p>
+          </fieldset>
+        </form>
+
         <div class="adm-card">
           <div class="adm-scroll"><table class="adm-table" id="bookTable">
-            <thead><tr><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Voyageur</th><th>Contact</th><th>Pers.</th><th>Total</th><th>Taxe</th><th>Promo</th><th>Statut</th><th></th></tr></thead>
+            <thead><tr><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Voyageur</th><th>Contact</th><th>Pers.</th><th>Total</th><th>Paiement</th><th>Statut</th><th></th></tr></thead>
             <tbody></tbody>
           </table></div>
           <div id="bookEmpty" class="adm-empty" hidden>Aucune réservation pour le moment.</div>
@@ -299,6 +344,6 @@
     </main>
   </div>
 
-<script src="assets/admin.js?v=10" defer></script>
+<script src="assets/admin.js?v=11" defer></script>
 </body>
 </html>
