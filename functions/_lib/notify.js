@@ -21,12 +21,21 @@ function wrap(inner) {
 }
 
 function sendResend(env, to, subject, html) {
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) {
+    return Promise.resolve({ ok: false, message: 'Email non configuré (RESEND / FROM_EMAIL).' });
+  }
   const from = `La Bonne Aventure <${env.FROM_EMAIL}>`;
   return fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to, subject, html }),
-  }).catch(() => {});
+    body: JSON.stringify({ from, to: [to], subject, html }),
+  }).then(async (res) => {
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { ok: false, message: (data && (data.message || data.error)) || (`Resend HTTP ${res.status}`) };
+    }
+    return { ok: true, id: data && data.id };
+  }).catch((e) => ({ ok: false, message: e && e.message ? e.message : String(e) }));
 }
 
 // Envoie le lien de connexion à usage unique à l'espace voyageur.
@@ -218,9 +227,14 @@ export async function sendExtraRequestAck(env, info) {
   await sendResend(env, info.email, `Demande reçue — ${info.title || 'extra'}`, html);
 }
 
-/** Après acceptation : lien de paiement au voyageur. */
+/** Après acceptation : lien de paiement au voyageur. Renvoie le résultat Resend. */
 export async function sendExtraPayLink(env, order, payUrl) {
-  if (!env.RESEND_API_KEY || !env.FROM_EMAIL || !order || !order.email || !payUrl) return;
+  if (!order || !order.email || !payUrl) {
+    return { ok: false, message: 'Email ou lien de paiement manquant.' };
+  }
+  if (!env.RESEND_API_KEY || !env.FROM_EMAIL) {
+    return { ok: false, message: 'Email non configuré (RESEND / FROM_EMAIL).' };
+  }
   const total = fmtEuro(order.amount_cents, order.currency);
   const html = wrap(`
     <h2 style="color:#0f2a4a;margin:0 0 6px">Votre extra est validé — à régler 🌴</h2>
@@ -232,7 +246,7 @@ export async function sendExtraPayLink(env, order, payUrl) {
     </p>
     <p style="color:#5f6675;font-size:13px">Ce lien est personnel. Après paiement, vos horaires seront confirmés dans le livret.</p>
     <p style="color:#5f6675;font-size:13px;margin-top:18px">Théo · La Bonne Aventure</p>`);
-  await sendResend(env, order.email, `À régler : ${order.title || 'extra'} — La Bonne Aventure`, html);
+  return sendResend(env, order.email, `À régler : ${order.title || 'extra'} — La Bonne Aventure`, html);
 }
 
 /** Refus : informer le voyageur. */

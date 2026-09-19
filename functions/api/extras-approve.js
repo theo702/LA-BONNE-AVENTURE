@@ -171,10 +171,19 @@ export async function onRequestPost({ env, request }) {
   }
 
   await setExtraOrdersStatus(env, ids, 'pending', ['approved', 'requested']);
-  await sendExtraPayLink(env, { ...paidFresh, dates_label: datesBits }, stripe.url);
+  const mail = await sendExtraPayLink(env, { ...paidFresh, dates_label: datesBits }, stripe.url);
+
+  const mailOk = mail && mail.ok;
+  const mailNote = mailOk
+    ? `<p>Un email avec le lien de paiement a été envoyé à <b>${esc(paid.email || '—')}</b>.</p>`
+    : `<p style="color:#8a3a32"><b>L’email n’a pas pu être envoyé</b>${mail && mail.message ? ` (${esc(mail.message)})` : ''}. Transmettez le lien ci-dessous au voyageur.</p>`;
 
   return htmlPage('Demande acceptée',
     `<p>La demande de <b>${esc(paid.guest_name || 'voyageur')}</b> est acceptée.</p>
-     <p>Un email avec le lien de paiement lui a été envoyé (${esc(paid.email || '—')}).</p>
+     ${mailNote}
+     <p style="text-align:center;margin:20px 0">
+       <a class="btn ok" href="${esc(stripe.url)}">Ouvrir le lien de paiement</a>
+     </p>
+     <p style="font-size:13px;word-break:break-all"><b>Lien :</b> ${esc(stripe.url)}</p>
      <p style="font-size:13px">Vous recevrez un mail (ainsi que le ménage) dès que le paiement sera confirmé.</p>`);
 }

@@ -176,6 +176,6 @@ export async function onRequestPost({ env, request }) {
     ok: true,
     requested: true,
     id: primaryId,
-    message: 'Demande envoyée. Vous recevrez un email pour payer dès validation.',
+    message: 'Demande envoyée. Vous recevrez un email de confirmation. Le lien de paiement arrivera après validation (hôte / ménage).',
   });
 }
