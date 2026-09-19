@@ -1,5 +1,6 @@
 // Création de session Stripe Checkout pour une commande d'extra déjà validée.
 import { attachExtraSession } from './db.js';
+import { stripeSecret, stripeRequest } from './stripe.js';
 
 export function extrasReturnBase(body) {
   const raw = (body && body.return_path ? String(body.return_path) : '').trim().replace(/\.html$/i, '');
@@ -24,7 +25,7 @@ export async function createStripeCheckoutForOrders(env, {
   returnBase = '/extras',
   description = '',
 }) {
-  if (!env.STRIPE_SECRET_KEY) {
+  if (!stripeSecret(env)) {
     return { ok: false, message: 'Paiement non configuré.' };
   }
   if (!paidOrder || !(paidOrder.amount_cents > 0)) {
@@ -48,16 +49,9 @@ export async function createStripeCheckoutForOrders(env, {
     form.set('line_items[0][price_data][product_data][description]', description);
   }
 
-  const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: form,
-  });
-  if (!res.ok) return { ok: false, message: 'Paiement impossible.' };
-  const session = await res.json();
+  const stripe = await stripeRequest(env, '/v1/checkout/sessions', { method: 'POST', body: form });
+  if (!stripe.ok) return { ok: false, message: stripe.message || 'Paiement impossible.' };
+  const session = stripe.data;
   const allIds = [paidOrder.id, ...siblingIds].filter(Boolean);
   for (const id of allIds) {
     await attachExtraSession(env, id, session.id);

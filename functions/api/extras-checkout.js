@@ -4,6 +4,7 @@ import {
 } from '../_lib/db.js';
 import { extraAvailable, extraAvailableBoth } from '../_lib/extraAvail.js';
 import { weeklyPackQuote } from '../_lib/weeklyPack.js';
+import { stripeSecret, stripeRequest } from '../_lib/stripe.js';
 
 function isEmail(s) { return typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
 function todayYmd() { return new Date().toISOString().slice(0, 10); }
@@ -29,13 +30,25 @@ function setExtrasStripeUrls(form, origin, returnBase) {
   form.set('cancel_url', `${origin}${returnBase}?extra=annulee`);
 }
 
-export async function onRequestPost({ env, request }) {
+export async function onRequestPost(context) {
+  try {
+    return await handleExtrasCheckout(context);
+  } catch (e) {
+    return Response.json({
+      ok: false,
+      error: 'server',
+      message: 'Erreur serveur : ' + (e && e.message ? e.message : String(e)),
+    }, { status: 500 });
+  }
+}
+
+async function handleExtrasCheckout({ env, request }) {
   const body = await request.json().catch(() => ({}));
   const name = (body.name || '').toString().trim();
   const email = (body.email || '').toString().trim();
   if (!name) return Response.json({ ok: false, error: 'name', message: 'Nom requis.' }, { status: 400 });
   if (!isEmail(email)) return Response.json({ ok: false, error: 'email', message: 'Email invalide.' }, { status: 400 });
-  if (!env.STRIPE_SECRET_KEY) return Response.json({ ok: false, error: 'config', message: 'Paiement non configuré.' }, { status: 500 });
+  if (!stripeSecret(env)) return Response.json({ ok: false, error: 'config', message: 'Paiement non configuré.' }, { status: 500 });
 
   const currency = 'eur';
   const origin = env.SITE_URL || new URL(request.url).origin;
@@ -99,13 +112,9 @@ export async function onRequestPost({ env, request }) {
     form.set('line_items[0][price_data][product_data][description]',
       `${weeks} ménage${weeks > 1 ? 's' : ''} + linge · séjour ${arrival} → ${departure}`);
 
-    const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form,
-    });
-    if (!res.ok) return Response.json({ ok: false, message: 'Paiement impossible.' }, { status: 502 });
-    const session = await res.json();
+    const stripe = await stripeRequest(env, '/v1/checkout/sessions', { method: 'POST', body: form });
+    if (!stripe.ok) return Response.json({ ok: false, message: stripe.message || 'Paiement impossible.' }, { status: 502 });
+    const session = stripe.data;
     await attachExtraSession(env, id, session.id);
     return Response.json({ ok: true, url: session.url, weeks, amount_cents: amount });
   }
@@ -158,13 +167,9 @@ export async function onRequestPost({ env, request }) {
     form.set('line_items[0][price_data][product_data][description]',
       `Départ tardif (${lateDate}) + arrivée anticipée offerte (${earlyDate})`);
 
-    const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form,
-    });
-    if (!res.ok) return Response.json({ ok: false, message: 'Paiement impossible.' }, { status: 502 });
-    const session = await res.json();
+    const stripe = await stripeRequest(env, '/v1/checkout/sessions', { method: 'POST', body: form });
+    if (!stripe.ok) return Response.json({ ok: false, message: stripe.message || 'Paiement impossible.' }, { status: 502 });
+    const session = stripe.data;
     await attachExtraSession(env, paidId, session.id);
     await attachExtraSession(env, freeId, session.id);
     return Response.json({ ok: true, url: session.url });
@@ -212,13 +217,9 @@ export async function onRequestPost({ env, request }) {
     form.set('line_items[0][price_data][product_data][description]',
       `Départ tardif (${lateDate}) + arrivée anticipée (${earlyDate})`);
 
-    const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: form,
-    });
-    if (!res.ok) return Response.json({ ok: false, message: 'Paiement impossible.' }, { status: 502 });
-    const session = await res.json();
+    const stripe = await stripeRequest(env, '/v1/checkout/sessions', { method: 'POST', body: form });
+    if (!stripe.ok) return Response.json({ ok: false, message: stripe.message || 'Paiement impossible.' }, { status: 502 });
+    const session = stripe.data;
     await attachExtraSession(env, lateId, session.id);
     await attachExtraSession(env, earlyId, session.id);
     return Response.json({ ok: true, url: session.url });
@@ -282,14 +283,10 @@ export async function onRequestPost({ env, request }) {
   form.set('line_items[0][price_data][unit_amount]', String(amount));
   form.set('line_items[0][price_data][product_data][name]', `${title} · La Bonne Aventure`);
 
-  const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: form,
-  });
-  if (!res.ok) return Response.json({ ok: false, message: 'Paiement impossible.' }, { status: 502 });
+  const stripe = await stripeRequest(env, '/v1/checkout/sessions', { method: 'POST', body: form });
+  if (!stripe.ok) return Response.json({ ok: false, message: stripe.message || 'Paiement impossible.' }, { status: 502 });
 
-  const session = await res.json();
+  const session = stripe.data;
   await attachExtraSession(env, id, session.id);
   return Response.json({ ok: true, url: session.url });
 }

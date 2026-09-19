@@ -80,7 +80,7 @@
   // ---------- Init / chargement ----------
   function initApp() {
     bindAllDmyInputs();
-    loadBookings(); loadSettings(); loadPromos(); loadExtras(); loadCalendar(); loadSync();
+    loadBookings(); loadSettings(); loadStripeStatus(); loadPromos(); loadExtras(); loadCalendar(); loadSync();
   }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée', both: 'Départ tardif + Arrivée anticipée', weekly: 'Pack hebdo (cure)' };
@@ -368,6 +368,27 @@
       alert(`✓ Caution débitée : ${(j.amount_cents / 100).toFixed(2)} €.`);
     } else {
       alert('Échec : ' + ((j && j.message) || 'erreur inconnue.'));
+    }
+  }
+
+  async function loadStripeStatus() {
+    const el = $('#stripeStatusMsg');
+    if (!el) return;
+    try {
+      const { status, j } = await api('stripe-status');
+      if (!j) { el.textContent = 'Impossible de vérifier Stripe.'; return; }
+      const mode = j.key_mode === 'live' ? 'Production' : (j.key_mode === 'test' ? 'Test' : j.key_mode || '?');
+      const wh = j.webhook ? 'webhook OK' : 'webhook manquant';
+      if (j.ok) {
+        el.textContent = `✓ ${j.message} Compte : ${j.business_name || j.account_id || '—'} · mode ${mode} · ${wh}.`;
+        el.style.color = j.key_mode === 'live' ? '#1a7a3a' : '#9a6b00';
+      } else {
+        el.textContent = `✗ ${j.message || 'Stripe KO'} · mode ${mode} · ${wh}.`;
+        el.style.color = '#B3261E';
+      }
+    } catch (e) {
+      el.textContent = 'Impossible de vérifier Stripe.';
+      el.style.color = '#B3261E';
     }
   }
 

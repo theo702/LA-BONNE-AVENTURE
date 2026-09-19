@@ -2,10 +2,23 @@
 import { loadSettings, validatePromo, computeQuote } from '../_lib/pricing.js';
 import { fetchExternalRanges } from '../_lib/ical.js';
 import { getBusyRanges, overlaps, createPendingBooking, attachSession } from '../_lib/db.js';
+import { stripeSecret, stripeRequest } from '../_lib/stripe.js';
 
 function isEmail(s) { return typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
 
-export async function onRequestPost({ env, request }) {
+export async function onRequestPost(context) {
+  try {
+    return await handleCheckout(context);
+  } catch (e) {
+    return Response.json({
+      ok: false,
+      error: 'server',
+      message: 'Erreur serveur : ' + (e && e.message ? e.message : String(e)),
+    }, { status: 500 });
+  }
+}
+
+async function handleCheckout({ env, request }) {
   const body = await request.json().catch(() => ({}));
   const settings = await loadSettings(env);
 
@@ -24,7 +37,7 @@ export async function onRequestPost({ env, request }) {
   if (!name) return Response.json({ ok: false, error: 'name', message: 'Nom requis.' }, { status: 400 });
   if (!isEmail(email)) return Response.json({ ok: false, error: 'email', message: 'Email invalide.' }, { status: 400 });
 
-  if (!env.STRIPE_SECRET_KEY) {
+  if (!stripeSecret(env)) {
     return Response.json({ ok: false, error: 'config', message: 'Paiement non configuré.' }, { status: 500 });
   }
 
@@ -71,18 +84,16 @@ export async function onRequestPost({ env, request }) {
     `${quote.checkin} → ${quote.checkout} · ${quote.nights} nuits · ménage inclus`);
   form.set('expires_at', String(Math.floor(Date.now() / 1000) + 3 * 60 * 60));
 
-  const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: form,
-  });
-
-  if (!res.ok) {
-    const detail = await res.text();
-    return Response.json({ ok: false, error: 'stripe', message: 'Impossible de créer le paiement.', detail }, { status: 502 });
+  const stripe = await stripeRequest(env, '/v1/checkout/sessions', { method: 'POST', body: form });
+  if (!stripe.ok) {
+    return Response.json({
+      ok: false,
+      error: 'stripe',
+      message: stripe.message || 'Impossible de créer le paiement.',
+    }, { status: 502 });
   }
 
-  const session = await res.json();
+  const session = stripe.data;
   await attachSession(env, id, session.id);
   return Response.json({ ok: true, url: session.url });
 }
