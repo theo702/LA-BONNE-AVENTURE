@@ -1141,17 +1141,17 @@
       ur: "زیر التواء قیام"
     },
     'acct.pending.body': {
-      fr: "Les dates sont bloquées 3 h pour les autres. Après, elles se libèrent — finalisez le paiement pour confirmer.",
-      en: "Dates are held for 3 h for others. Then they free up — finish payment to confirm.",
-      es: "Las fechas se bloquean 3 h para los demás. Luego se liberan: finaliza el pago para confirmar.",
-      de: "Die Daten sind 3 Std. für andere blockiert. Danach werden sie frei — schließe die Zahlung ab, um zu bestätigen.",
-      zh: "日期已为他人保留 3 小时。之后将释放——完成付款以确认。",
-      hi: "तिथियाँ दूसरों के लिए 3 घंटे रोकी जाती हैं। फिर मुक्त हो जाती हैं — पुष्टि के लिए भुगतान पूरा करें।",
-      ar: "التواريخ محجوزة 3 ساعات عن الآخرين. ثم تُحرَّر — أكمل الدفع للتأكيد.",
-      bn: "তারিখ অন্যদের জন্য 3 ঘণ্টা ধরে রাখা হয়। তারপর মুক্ত হয় — নিশ্চিত করতে পেমেন্ট শেষ করুন।",
-      pt: "As datas ficam bloqueadas 3 h para outros. Depois libertam-se — conclua o pagamento para confirmar.",
-      ru: "Даты заблокированы на 3 ч для других. Затем освобождаются — завершите оплату для подтверждения.",
-      ur: "تاریخیں دوسروں کے لیے 3 گھنٹے روک دی جاتی ہیں۔ پھر خالی ہو جاتی ہیں — تصدیق کے لیے ادائیگی مکمل کریں۔"
+      fr: "Les dates sont bloquées 3 h pour les autres, puis elles se libèrent. Votre séjour reste en attente jusqu’à la veille de l’arrivée — finalisez le paiement pour confirmer.",
+      en: "Dates are held for 3 h for others, then they free up. Your stay stays pending until the eve of arrival — finish payment to confirm.",
+      es: "Las fechas se bloquean 3 h para los demás y luego se liberan. Tu estancia sigue pendiente hasta la víspera de la llegada: finaliza el pago para confirmar.",
+      de: "Die Daten sind 3 Std. für andere blockiert, danach frei. Dein Aufenthalt bleibt bis zum Vorabend der Ankunft ausstehend — schließe die Zahlung ab, um zu bestätigen.",
+      zh: "日期先为他人保留 3 小时，之后释放。住宿可保留至入住前一天——完成付款以确认。",
+      hi: "तिथियाँ दूसरों के लिए 3 घंटे रोकी जाती हैं, फिर मुक्त। आपका प्रवास आगमन की पूर्व संध्या तक लंबित रहता है — पुष्टि के लिए भुगतान पूरा करें।",
+      ar: "التواريخ محجوزة 3 ساعات عن الآخرين ثم تُحرَّر. تبقى إقامتك معلّقة حتى عشيّة الوصول — أكمل الدفع للتأكيد.",
+      bn: "তারিখ অন্যদের জন্য 3 ঘণ্টা ধরে রাখা হয়, তারপর মুক্ত। আগমনের আগের দিন পর্যন্ত মুলতুবি থাকে — নিশ্চিত করতে পেমেন্ট শেষ করুন।",
+      pt: "As datas ficam bloqueadas 3 h para outros e depois libertam-se. A estadia fica pendente até à véspera da chegada — conclua o pagamento para confirmar.",
+      ru: "Даты заблокированы на 3 ч для других, затем освобождаются. Бронирование ждёт до кануна заезда — завершите оплату для подтверждения.",
+      ur: "تاریخیں دوسروں کے لیے 3 گھنٹے روک دی جاتی ہیں، پھر خالی۔ آمد کی شبِ قبل تک زیر التواء رہتی ہے — تصدیق کے لیے ادائیگی مکمل کریں۔"
     },
     'acct.empty': {
       fr: "Aucune réservation trouvée pour cet email.",

@@ -124,7 +124,7 @@
       } else {
         el.classList.remove('hold-active');
         el.classList.add('hold-released');
-        label.innerHTML = 'Les dates sont <b>libérées</b> pour les autres — finalisez vite avant qu’elles ne partent.';
+        label.innerHTML = 'Les dates sont <b>libérées</b> pour les autres — vous pouvez encore finaliser le paiement jusqu’à la veille de l’arrivée.';
         if (bar) bar.style.width = '0%';
         return false;
       }
