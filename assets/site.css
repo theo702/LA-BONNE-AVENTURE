@@ -548,6 +548,10 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .gallery-mosaic .g-item:nth-child(3){grid-column:3;grid-row:1}
 .gallery-mosaic .g-item:nth-child(4){grid-column:2;grid-row:2}
 .gallery-mosaic .g-item:nth-child(5){grid-column:3;grid-row:2}
+/* 6e photo (portrait) : colonne pleine hauteur à droite */
+.gallery-mosaic:has(.g-item:nth-child(6)){grid-template-columns:1.15fr 1fr 1fr .8fr}
+.gallery-mosaic .g-item:nth-child(6){grid-column:4;grid-row:1 / -1}
+.gallery-mosaic .g-item.g-tall img{object-position:28% 40%}
 @media (max-width:759px){
   .gallery-mosaic{
     grid-template-columns:repeat(2,1fr);
@@ -561,6 +565,8 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
     grid-column:1 / -1;grid-row:auto;aspect-ratio:16/10;
   }
   .gallery-mosaic .g-item:nth-child(n+2){grid-column:auto;grid-row:auto}
+  .gallery-mosaic:has(.g-item:nth-child(6)){grid-template-columns:repeat(2,1fr)}
+  .gallery-mosaic .g-item:nth-child(6){grid-column:1 / -1;aspect-ratio:16/10}
 }
 
 /* Aix (3 photos) : grande à gauche + 2 empilées à droite — plein cadre, sans trou */
@@ -990,6 +996,8 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
   .page-doc .gallery.gallery-mosaic .g-item:nth-child(3){grid-column:3;grid-row:1}
   .page-doc .gallery.gallery-mosaic .g-item:nth-child(4){grid-column:2;grid-row:2}
   .page-doc .gallery.gallery-mosaic .g-item:nth-child(5){grid-column:3;grid-row:2}
+  .page-doc .gallery.gallery-mosaic:has(.g-item:nth-child(6)){grid-template-columns:1.15fr 1fr 1fr .8fr}
+  .page-doc .gallery.gallery-mosaic .g-item:nth-child(6){grid-column:4;grid-row:1 / -1}
   /* Aix 3 photos : grande + 2, plein cadre */
   .page-doc .gallery.gallery-trio{
     grid-template-columns:1.4fr 1fr;

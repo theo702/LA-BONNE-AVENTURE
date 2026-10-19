@@ -490,6 +490,19 @@
       ru: "Двор",
       ur: "صحن"
     },
+    'cap.cinema': {
+      fr: "Espace cinéma",
+      en: "Cinema corner",
+      es: "Rincón de cine",
+      de: "Kino-Ecke",
+      zh: "家庭影院",
+      hi: "सिनेमा कॉर्नर",
+      ar: "ركن السينما",
+      bn: "সিনেমা কর্নার",
+      pt: "Cantinho de cinema",
+      ru: "Кинозона",
+      ur: "سنیما کارنر"
+    },
     'cap.bath': {
       fr: "Salle d'eau",
       en: "Bathroom",
