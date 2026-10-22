@@ -460,12 +460,41 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `<td><b>${esc(p.code)}</b>${p.active ? '' : ' <span class="adm-badge cancelled">off</span>'}</td>` +
         `<td>${red}</td><td>${p.min_nights || '—'}</td><td>${val}</td><td>${uses}</td>` +
-        `<td><button class="adm-del" data-id="${p.id}" title="Supprimer">✕</button></td>`;
+        `<td style="white-space:nowrap"><button class="adm-ghost adm-edit" style="padding:5px 10px">Modifier</button> <button class="adm-del" data-id="${p.id}" title="Supprimer">✕</button></td>`;
+      tr.querySelector('.adm-edit').addEventListener('click', () => fillPromoForm(p));
       tb.appendChild(tr);
     });
     tb.querySelectorAll('.adm-del').forEach((b) => b.addEventListener('click', async () => {
       await api('promos?id=' + b.dataset.id, { method: 'DELETE' }); loadPromos();
     }));
+  }
+
+  // Modifier un code : remplit le formulaire, le bouton devient « Enregistrer ».
+  let promoEditId = null;
+  function fillPromoForm(p) {
+    const f = $('#promoForm');
+    promoEditId = p.id;
+    f.code.value = p.code;
+    f.kind.value = p.kind;
+    f.value.value = p.kind === 'fixed' ? (p.value / 100).toString() : p.value;
+    f.min_nights.value = p.min_nights || 0;
+    f.valid_from.value = isoToDmy(p.valid_from) || '';
+    f.valid_to.value = isoToDmy(p.valid_to) || '';
+    f.max_uses.value = p.max_uses || 0;
+    f.querySelector('button[type="submit"]').textContent = 'Enregistrer';
+    let c = $('#promoCancel');
+    if (!c) {
+      c = document.createElement('button'); c.type = 'button'; c.id = 'promoCancel'; c.className = 'adm-ghost'; c.textContent = 'Annuler';
+      c.addEventListener('click', resetPromoForm);
+      f.querySelector('button[type="submit"]').after(c);
+    }
+    msg('#promoMsg', 'Modification de ' + p.code);
+    f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function resetPromoForm() {
+    const f = $('#promoForm'); f.reset(); promoEditId = null;
+    f.querySelector('button[type="submit"]').textContent = 'Ajouter';
+    const c = $('#promoCancel'); if (c) c.remove();
   }
 
   $('#promoForm').addEventListener('submit', async (e) => {
@@ -485,8 +514,11 @@
       valid_from: vf, valid_to: vt,
       max_uses: +f.max_uses.value || 0,
     };
-    const { status, j } = await api('promos', { method: 'POST', body: JSON.stringify(body) });
-    if (status === 200) { f.reset(); msg('#promoMsg', 'Ajouté ✓'); loadPromos(); }
+    const editing = promoEditId;
+    const { status, j } = editing
+      ? await api('promos?id=' + editing, { method: 'PUT', body: JSON.stringify(body) })
+      : await api('promos', { method: 'POST', body: JSON.stringify(body) });
+    if (status === 200) { resetPromoForm(); msg('#promoMsg', editing ? 'Modifié ✓' : 'Ajouté ✓'); loadPromos(); }
     else msg('#promoMsg', (j && j.message) || 'Erreur', true);
   });
 

@@ -564,6 +564,15 @@ export async function createPromo(env, p) {
   ).run();
 }
 
+export async function updatePromo(env, id, p) {
+  await env.DB.prepare(
+    `UPDATE promo_codes SET code=?1, kind=?2, value=?3, min_nights=?4, valid_from=?5, valid_to=?6, max_uses=?7 WHERE id=?8`
+  ).bind(
+    p.code.toUpperCase(), p.kind, p.value, p.min_nights || 0,
+    p.valid_from || null, p.valid_to || null, p.max_uses || 0, id
+  ).run();
+}
+
 export async function deletePromo(env, id) {
   await env.DB.prepare(`DELETE FROM promo_codes WHERE id = ?1`).bind(id).run();
 }

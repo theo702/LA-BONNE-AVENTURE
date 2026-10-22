@@ -1,5 +1,5 @@
 // GET/POST/DELETE /api/admin/promos — gestion des codes promo.
-import { listPromos, createPromo, deletePromo } from '../../_lib/db.js';
+import { listPromos, createPromo, updatePromo, deletePromo } from '../../_lib/db.js';
 
 // Code promo « offre cure » pré-chargé une seule fois : cure de 3 semaines à 650 € (−100 €
 // sur les 750 €), usage unique, valable jusqu'à fin octobre. Marqueur KV → si l'hôte le
@@ -19,6 +19,33 @@ async function seedCurePromo(env) {
 export async function onRequestGet({ env }) {
   await seedCurePromo(env);
   return Response.json({ ok: true, promos: await listPromos(env) });
+}
+
+function parsePromo(b) {
+  const code = (b.code || '').toString().trim().toUpperCase();
+  if (!code) return { error: 'Code requis.' };
+  const kind = b.kind === 'fixed' ? 'fixed' : 'percent';
+  const value = Math.max(0, Math.round(Number(b.value) || 0));
+  if (value <= 0) return { error: 'Valeur invalide.' };
+  if (kind === 'percent' && value > 100) return { error: 'Pourcentage max 100.' };
+  return { p: {
+    code, kind, value,
+    min_nights: Math.max(0, Math.round(Number(b.min_nights) || 0)),
+    valid_from: b.valid_from || null,
+    valid_to: b.valid_to || null,
+    max_uses: Math.max(0, Math.round(Number(b.max_uses) || 0)),
+  } };
+}
+
+// Modifier un code existant (PUT /api/admin/promos?id=…) — le compteur d'usages est conservé.
+export async function onRequestPut({ env, request }) {
+  const id = Number(new URL(request.url).searchParams.get('id'));
+  if (!id) return Response.json({ ok: false, message: 'id manquant.' }, { status: 400 });
+  const r = parsePromo(await request.json().catch(() => ({})));
+  if (r.error) return Response.json({ ok: false, message: r.error }, { status: 400 });
+  try { await updatePromo(env, id, r.p); }
+  catch (e) { return Response.json({ ok: false, message: 'Ce code existe déjà.' }, { status: 409 }); }
+  return Response.json({ ok: true });
 }
 
 export async function onRequestPost({ env, request }) {
