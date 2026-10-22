@@ -61,7 +61,27 @@ function tierLabel(nights, s) {
   return null;
 }
 
+// Nuits du séjour couvertes par la période d'un code promo. La période se lit comme une
+// réservation : du `valid_from` (nuit incluse) au `valid_to` (jour de départ, exclu).
+// « du 12 au 14 » = nuits du 12 et du 13. Si les deux dates sont identiques : cette nuit-là.
+// Sans période, toutes les nuits sont couvertes. La date à laquelle le client réserve n'entre
+// pas en compte : il peut réserver quand il veut.
+export function promoNights(promo, checkin, checkout) {
+  const total = nightsBetween(checkin, checkout);
+  if (!promo || (!promo.valid_from && !promo.valid_to)) return total;
+  const from = promo.valid_from || null, to = promo.valid_to || null;
+  let n = 0;
+  for (let i = 0; i < total; i++) {
+    const d = new Date(Date.parse(checkin) + i * 86400000).toISOString().slice(0, 10);
+    const ok = from && to && from === to ? d === from : (!from || d >= from) && (!to || d < to);
+    if (ok) n++;
+  }
+  return n;
+}
+const dmy = (iso) => (iso ? iso.split('-').reverse().join('/') : '');
+
 // Valide un code promo (async car lecture D1). Renvoie { ok, promo } ou { ok:false, message }.
+// ctx = { nights, checkin, checkout }.
 export async function validatePromo(env, rawCode, ctx) {
   const code = (rawCode || '').toString().trim().toUpperCase();
   if (!code) return { ok: true, promo: null };
@@ -70,12 +90,15 @@ export async function validatePromo(env, rawCode, ctx) {
     row = await env.DB.prepare(`SELECT * FROM promo_codes WHERE code = ?1`).bind(code).first();
   } catch (e) { return { ok: false, message: 'Code promo indisponible.' }; }
   if (!row || !row.active) return { ok: false, message: 'Code promo inconnu.' };
-  const today = new Date().toISOString().slice(0, 10);
-  if (row.valid_from && today < row.valid_from) return { ok: false, message: 'Code promo pas encore actif.' };
-  if (row.valid_to && today > row.valid_to) return { ok: false, message: 'Code promo expiré.' };
   if (row.max_uses > 0 && row.used_count >= row.max_uses) return { ok: false, message: 'Code promo épuisé.' };
   if (ctx && ctx.nights != null && row.min_nights > 0 && ctx.nights < row.min_nights) {
     return { ok: false, message: `Code valable à partir de ${row.min_nights} nuits.` };
+  }
+  if (ctx && isValidDate(ctx.checkin) && isValidDate(ctx.checkout) && (row.valid_from || row.valid_to)
+      && promoNights(row, ctx.checkin, ctx.checkout) === 0) {
+    const per = row.valid_from && row.valid_to ? `du ${dmy(row.valid_from)} au ${dmy(row.valid_to)}`
+      : row.valid_from ? `à partir du ${dmy(row.valid_from)}` : `jusqu'au ${dmy(row.valid_to)}`;
+    return { ok: false, message: `Ce code est valable pour les nuits ${per}.` };
   }
   return { ok: true, promo: row };
 }
@@ -125,12 +148,16 @@ export function computeQuote(input, ctx) {
   // Code promo.
   let promoCents = 0;
   let promoFixed = 0;
+  // Seules les nuits comprises dans la période du code sont remisées (ex. code « du 12 au 14 »,
+  // séjour du 11 au 14 → −% sur les nuits du 12 et du 13 uniquement).
   if (promo) {
-    if (promo.kind === 'percent') {
-      promoCents = Math.round(lodgingNet * promo.value / 100);
+    const covered = promoNights(promo, checkin, checkout);
+    if (covered > 0 && promo.kind === 'percent') {
+      promoCents = Math.round(lodgingNet * (covered / nights) * promo.value / 100);
       lodgingNet -= promoCents;
-      lines.push({ label: `Code ${promo.code} (−${promo.value}%)`, cents: -promoCents });
-    } else {
+      const sur = covered < nights ? ` sur ${covered} nuit${covered > 1 ? 's' : ''}` : '';
+      lines.push({ label: `Code ${promo.code} (−${promo.value}%${sur})`, cents: -promoCents });
+    } else if (covered > 0) {
       promoFixed = Math.min(promo.value, lodgingNet); // ne descend pas sous 0 sur l'hébergement
       lodgingNet -= promoFixed;
       lines.push({ label: `Code ${promo.code}`, cents: -promoFixed });

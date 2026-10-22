@@ -238,15 +238,16 @@
           <label>Type<select name="kind"><option value="percent">%</option><option value="fixed">Montant fixe (€)</option></select></label>
           <label>Valeur<input name="value" type="number" step="0.01" min="0" required></label>
           <label>Nuits min<input name="min_nights" type="number" min="0" value="0"></label>
-          <label>Du<input name="valid_from" type="text" inputmode="numeric" placeholder="jj/mm/aaaa" maxlength="10" autocomplete="off"></label>
-          <label>Au<input name="valid_to" type="text" inputmode="numeric" placeholder="jj/mm/aaaa" maxlength="10" autocomplete="off"></label>
+          <label>Séjour du<input name="valid_from" type="text" inputmode="numeric" placeholder="jj/mm/aaaa" maxlength="10" autocomplete="off"></label>
+          <label>au (départ)<input name="valid_to" type="text" inputmode="numeric" placeholder="jj/mm/aaaa" maxlength="10" autocomplete="off"></label>
           <label>Usages max<input name="max_uses" type="number" min="0" value="0" title="0 = illimité"></label>
           <button type="submit" class="adm-btn">Ajouter</button>
         </form>
+        <p class="adm-hint">Les dates portent sur les <b>nuits du séjour</b>, comme une réservation : « du 12/02 au 15/02 » = nuits du 12, 13 et 14. Le client peut réserver quand il veut. Si son séjour déborde, seules les nuits comprises dans la période sont remisées.</p>
         <div id="promoMsg" class="adm-msg"></div>
         <div class="adm-card">
           <div class="adm-scroll"><table class="adm-table" id="promoTable">
-            <thead><tr><th>Code</th><th>Réduction</th><th>Nuits min</th><th>Validité</th><th>Usages</th><th></th></tr></thead>
+            <thead><tr><th>Code</th><th>Réduction</th><th>Nuits min</th><th>Nuits du séjour</th><th>Usages</th><th></th></tr></thead>
             <tbody></tbody>
           </table></div>
           <div id="promoEmpty" class="adm-empty" hidden>Aucun code promo.</div>

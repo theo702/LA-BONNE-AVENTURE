@@ -25,7 +25,7 @@ async function handleCheckout({ env, request }) {
   const nights = (body.checkin && body.checkout)
     ? Math.round((Date.parse(body.checkout) - Date.parse(body.checkin)) / 86400000)
     : 0;
-  const promoRes = await validatePromo(env, body.promo, { nights, checkin: body.checkin });
+  const promoRes = await validatePromo(env, body.promo, { nights, checkin: body.checkin, checkout: body.checkout });
   if (!promoRes.ok) return Response.json({ ok: false, error: 'promo', message: promoRes.message }, { status: 400 });
 
   const quote = computeQuote(body, { settings, promo: promoRes.promo });
