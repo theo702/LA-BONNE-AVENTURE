@@ -294,7 +294,11 @@
           <div id="extraEmpty" class="adm-empty" hidden>Aucun extra.</div>
         </div>
 
-        <h3 class="adm-subhead">Commandes d'extras</h3>
+        <h3 class="adm-subhead" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">Commandes d'extras
+          <select id="orderFilter" style="font:inherit;font-size:14px;padding:7px 12px;border:1px solid #E6E1D4;border-radius:99px;background:#fff">
+            <option value="all">Tous les statuts</option><option value="requested">À valider</option><option value="approved">Validé — paiement</option>
+            <option value="pending">En attente paiement</option><option value="confirmed">Payé</option><option value="cancelled">Annulé</option>
+          </select></h3>
         <div class="adm-card">
           <div class="adm-scroll"><table class="adm-table" id="orderTable">
             <thead><tr><th>Date</th><th>Extra</th><th>Jour concerné</th><th>Client</th><th>Montant</th><th>Statut</th></tr></thead>
@@ -335,6 +339,6 @@
     </main>
   </div>
 
-<script src="assets/admin.js?v=24" defer></script>
+<script src="assets/admin.js?v=25" defer></script>
 </body>
 </html>

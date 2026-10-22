@@ -660,8 +660,22 @@
       tr.querySelector('.adm-del').addEventListener('click', async () => { await api('extras?id=' + x.id, { method: 'DELETE' }); loadExtras(); });
     });
 
+    allOrders = (j && j.orders) || [];
+    renderOrders();
+  }
+
+  // Commandes d'extras : filtre par statut, tri par statut puis date ; les commandes en attente
+  // de paiement dont le jour concerné est passé ne s'affichent plus.
+  let allOrders = [];
+  const ORDER_RANK = { requested: 0, approved: 1, pending: 2, confirmed: 3, cancelled: 4 };
+  function renderOrders() {
     const ob = $('#orderTable tbody'); ob.innerHTML = '';
-    const orders = (j && j.orders) || [];
+    const today = new Date().toISOString().slice(0, 10);
+    const filter = ($('#orderFilter') && $('#orderFilter').value) || 'all';
+    const orders = allOrders
+      .filter((o) => !((o.status === 'pending' || o.status === 'approved') && o.service_date && o.service_date < today))
+      .filter((o) => filter === 'all' || o.status === filter)
+      .sort((x, y) => ((ORDER_RANK[x.status] ?? 9) - (ORDER_RANK[y.status] ?? 9)) || String(y.created_at).localeCompare(String(x.created_at)));
     $('#orderEmpty').hidden = orders.length > 0;
     orders.forEach((o) => {
       const tr = document.createElement('tr');
@@ -671,6 +685,7 @@
       ob.appendChild(tr);
     });
   }
+  if ($('#orderFilter')) $('#orderFilter').addEventListener('change', renderOrders);
 
   function fillExtraForm(x) {
     const f = $('#extraForm');
