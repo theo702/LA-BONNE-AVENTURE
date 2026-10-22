@@ -1,5 +1,5 @@
 // POST /api/quote — valide les dates + code promo et calcule le prix (contrôle serveur).
-import { loadSettings, validatePromo, computeQuote } from '../_lib/pricing.js';
+import { loadSettings, validatePromo, computeQuote, loadEventRates } from '../_lib/pricing.js';
 import { fetchExternalRanges } from '../_lib/ical.js';
 import { getBusyRanges, overlaps } from '../_lib/db.js';
 
@@ -13,7 +13,7 @@ export async function onRequestPost({ env, request }) {
   const promoRes = await validatePromo(env, body.promo, { nights, checkin: body.checkin, checkout: body.checkout });
   if (!promoRes.ok) return Response.json({ ok: false, error: 'promo', message: promoRes.message }, { status: 400 });
 
-  const quote = computeQuote(body, { settings, promo: promoRes.promo });
+  const quote = computeQuote(body, { settings, promo: promoRes.promo, eventRates: await loadEventRates(env) });
   if (!quote.ok) return Response.json(quote, { status: 400 });
 
   // Disponibilité (cache 30 min — suffisant pour un devis, revérifié au paiement).

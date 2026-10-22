@@ -80,7 +80,7 @@
   // ---------- Init / chargement ----------
   function initApp() {
     bindAllDmyInputs();
-    loadBookings(); loadSettings(); loadStripeStatus(); loadPromos(); loadExtras(); loadCalendar(); loadSync();
+    loadBookings(); loadSettings(); loadStripeStatus(); loadPromos(); loadEvents(); loadExtras(); loadCalendar(); loadSync();
   }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée', both: 'Départ tardif + Arrivée anticipée', weekly: 'Pack hebdo (cure)' };
@@ -467,6 +467,44 @@
     tb.querySelectorAll('.adm-del').forEach((b) => b.addEventListener('click', async () => {
       await api('promos?id=' + b.dataset.id, { method: 'DELETE' }); loadPromos();
     }));
+  }
+
+  // ---------- Tarifs événements ----------
+  let eventEditId = null;
+  async function loadEvents() {
+    const { j } = await api('event-rates');
+    const tb = $('#eventTable tbody'); if (!tb) return; tb.innerHTML = '';
+    const rows = (j && j.rates) || [];
+    $('#eventEmpty').hidden = rows.length > 0;
+    rows.forEach((r) => {
+      const last = new Date(Date.parse(r.date_to) - 86400000).toISOString().slice(0, 10);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><b>${esc(r.label)}</b></td><td>${isoToDmy(r.date_from)} → ${isoToDmy(last)} <span style="color:#8a8f99">(départ ${isoToDmy(r.date_to)})</span></td>` +
+        `<td>${euro(r.nightly_cents)}</td><td>${r.min_nights || '—'}</td>` +
+        `<td style="white-space:nowrap"><button class="adm-ghost adm-edit" style="padding:5px 10px">Modifier</button> <button class="adm-del" title="Supprimer">✕</button></td>`;
+      tr.querySelector('.adm-edit').addEventListener('click', () => {
+        const f = $('#eventForm'); eventEditId = r.id;
+        f.label.value = r.label; f.valid_from.value = isoToDmy(r.date_from); f.valid_to.value = isoToDmy(r.date_to);
+        f.price.value = r.nightly_cents / 100; f.min_nights.value = r.min_nights || 0;
+        f.querySelector('button[type="submit"]').textContent = 'Enregistrer';
+        f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      tr.querySelector('.adm-del').addEventListener('click', async () => { await api('event-rates?id=' + r.id, { method: 'DELETE' }); loadEvents(); });
+      tb.appendChild(tr);
+    });
+  }
+  if ($('#eventForm')) {
+    $('#eventForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      const body = { label: f.label.value, date_from: dmyToIso(f.valid_from.value), date_to: dmyToIso(f.valid_to.value),
+        nightly_cents: cents(f.price.value), min_nights: +f.min_nights.value || 0 };
+      const { status, j } = eventEditId
+        ? await api('event-rates?id=' + eventEditId, { method: 'PUT', body: JSON.stringify(body) })
+        : await api('event-rates', { method: 'POST', body: JSON.stringify(body) });
+      if (status === 200) { f.reset(); msg('#eventMsg', eventEditId ? 'Modifié ✓' : 'Ajouté ✓'); eventEditId = null; f.querySelector('button[type="submit"]').textContent = 'Ajouter'; loadEvents(); }
+      else msg('#eventMsg', (j && j.message) || 'Erreur', true);
+    });
   }
 
   // Modifier un code : remplit le formulaire, le bouton devient « Enregistrer ».
@@ -1130,6 +1168,6 @@
     document.addEventListener('click', (e) => { if (!pop.hidden && !pop.contains(e.target) && e.target !== a && e.target !== b) close(); });
     window.addEventListener('resize', () => { if (!pop.hidden) place(); });
   }
-  function init() { const f = document.getElementById('promoForm'); if (f) attach(f); }
+  function init() { ['promoForm', 'eventForm'].forEach((id) => { const f = document.getElementById(id); if (f) attach(f); }); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

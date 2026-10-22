@@ -81,6 +81,33 @@ export function promoNights(promo, checkin, checkout) {
 }
 const dmy = (iso) => (iso ? iso.split('-').reverse().join('/') : '');
 
+// ---------- Tarifs événements (ex. Musilac) : prix/nuit spécial sur des dates précises ----------
+// Une ligne = des nuits du `date_from` (incluse) au `date_to` (jour de départ, exclu).
+async function ensureEventRates(env) {
+  await env.DB.prepare(`CREATE TABLE IF NOT EXISTS event_rates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, label TEXT NOT NULL, date_from TEXT NOT NULL, date_to TEXT NOT NULL,
+    nightly_cents INTEGER NOT NULL, min_nights INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL)`).run();
+}
+export async function loadEventRates(env) {
+  try {
+    await ensureEventRates(env);
+    // Musilac 2027 (8 → 11 juillet, David Guetta le dimanche 11) : pré-chargé une seule fois.
+    if (env.CACHE && !(await env.CACHE.get('seed:musilac27'))) {
+      const now = new Date().toISOString();
+      const rows = [['Musilac 2027', '2027-07-07', '2027-07-08', 15000, 2], ['Musilac 2027', '2027-07-08', '2027-07-11', 21000, 2],
+        ['Musilac 2027 · David Guetta', '2027-07-11', '2027-07-12', 24000, 2]];
+      for (const r of rows) {
+        await env.DB.prepare(`INSERT INTO event_rates (label, date_from, date_to, nightly_cents, min_nights, created_at) VALUES (?1,?2,?3,?4,?5,?6)`)
+          .bind(r[0], r[1], r[2], r[3], r[4], now).run();
+      }
+      await env.CACHE.put('seed:musilac27', '1');
+    }
+    const { results } = await env.DB.prepare(`SELECT * FROM event_rates ORDER BY date_from`).all();
+    return results || [];
+  } catch (e) { return []; }
+}
+function eventRateFor(rates, day) { return (rates || []).find((r) => day >= r.date_from && day < r.date_to) || null; }
+
 // Valide un code promo (async car lecture D1). Renvoie { ok, promo } ou { ok:false, message }.
 // ctx = { nights, checkin, checkout }.
 export async function validatePromo(env, rawCode, ctx) {
@@ -124,16 +151,34 @@ export function computeQuote(input, ctx) {
   // Tarif par durée (paliers dégressifs). Le total est arrondi une seule fois à partir du
   // taux/nuit (fractionnaire pour semaine/cure) → totaux ronds exacts aux seuils.
   const rate = tierRate(nights, s);
-  const lodging = Math.round(nights * rate);
+  // Nuits à tarif événement (ex. Musilac) : prix spécial ; les autres nuits au tarif par durée.
+  const rates = ctx.eventRates || [];
+  const special = new Map();
+  let minEvent = 0, minLabel = '';
+  for (let i = 0; i < nights; i++) {
+    const day = new Date(Date.parse(checkin) + i * 86400000).toISOString().slice(0, 10);
+    const r = eventRateFor(rates, day);
+    if (!r) continue;
+    const k = r.label + '|' + r.nightly_cents;
+    special.set(k, { label: r.label, cents: r.nightly_cents, n: ((special.get(k) || {}).n || 0) + 1 });
+    if ((r.min_nights || 0) > minEvent) { minEvent = r.min_nights; minLabel = r.label; }
+  }
+  if (minEvent && nights < minEvent) return { ok: false, error: 'min', message: `Séjour minimum de ${minEvent} nuits pendant ${minLabel.split(' ·')[0]}.` };
+  const specialNights = [...special.values()].reduce((a, x) => a + x.n, 0);
+  const normalNights = nights - specialNights;
+  const normalCents = Math.round(normalNights * rate);
+  const lodging = normalCents + [...special.values()].reduce((a, x) => a + x.n * x.cents, 0);
   const nightlyEq = lodging / nights; // taux/nuit effectif (pour la taxe de séjour)
 
   const lines = [];
   const tag = tierLabel(nights, s);
-  const perNightEuro = Math.round(nightlyEq / 100);
-  lines.push({
-    label: tag ? `${nights} nuits · ${tag}` : `${perNightEuro} € × ${nights} nuits`,
-    cents: lodging,
-  });
+  if (normalNights > 0) {
+    lines.push({
+      label: tag && !specialNights ? `${nights} nuits · ${tag}` : `${Math.round(rate / 100)} € × ${normalNights} nuit${normalNights > 1 ? 's' : ''}`,
+      cents: normalCents,
+    });
+  }
+  for (const x of special.values()) lines.push({ label: `${x.label} · ${Math.round(x.cents / 100)} € × ${x.n} nuit${x.n > 1 ? 's' : ''}`, cents: x.n * x.cents });
 
   // Réduction dernière minute (optionnelle, sur l'hébergement).
   let lastminPct = 0;
