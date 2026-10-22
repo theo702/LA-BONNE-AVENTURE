@@ -1043,3 +1043,78 @@
 
   tryAuto();
 })();
+
+/* ---------- Sélecteur de période (codes promo) : calendrier, 1er clic = début, 2e clic = fin ---------- */
+(function () {
+  'use strict';
+  const MONTHS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  const pad = (n) => (n < 10 ? '0' : '') + n;
+  const iso = (y, m, d) => y + '-' + pad(m + 1) + '-' + pad(d);
+  const toDmy = (s) => (s ? s.split('-').reverse().join('/') : '');
+  const fromDmy = (s) => { const m = String(s || '').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); return m ? m[3] + '-' + pad(+m[2]) + '-' + pad(+m[1]) : ''; };
+
+  function attach(form) {
+    const a = form.valid_from, b = form.valid_to;
+    if (!a || !b || form.dataset.rpBound) return;
+    form.dataset.rpBound = '1';
+    const pop = document.createElement('div');
+    pop.className = 'rp-pop'; pop.hidden = true;
+    document.body.appendChild(pop);
+    let start = '', end = '', hover = '', view = new Date();
+
+    function render() {
+      const months = [0, 1].map((k) => new Date(view.getFullYear(), view.getMonth() + k, 1));
+      let h = '<div class="rp-head"><button type="button" class="rp-nav" data-n="-1">‹</button><span>' +
+        (start && !end ? 'Choisissez la date de départ' : 'Choisissez la 1<sup>re</sup> nuit') +
+        '</span><button type="button" class="rp-nav" data-n="1">›</button></div><div class="rp-months">';
+      months.forEach((m) => {
+        const y = m.getFullYear(), mo = m.getMonth(), first = (new Date(y, mo, 1).getDay() + 6) % 7, days = new Date(y, mo + 1, 0).getDate();
+        h += '<div class="rp-month"><div class="rp-title">' + MONTHS[mo] + ' ' + y + '</div><div class="rp-dow"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="rp-grid">';
+        for (let i = 0; i < first; i++) h += '<span></span>';
+        for (let d = 1; d <= days; d++) {
+          const s = iso(y, mo, d), e2 = end || (start && hover > start ? hover : '');
+          let c = 'rp-day';
+          if (s === start) c += ' rp-start';
+          if (e2 && s === e2) c += ' rp-end';
+          if (start && e2 && s > start && s < e2) c += ' rp-in';
+          h += '<button type="button" class="' + c + '" data-d="' + s + '">' + d + '</button>';
+        }
+        h += '</div></div>';
+      });
+      h += '</div><div class="rp-foot"><span class="rp-sum">' + (start ? toDmy(start) + ' → ' + (end ? toDmy(end) : '…') : '') +
+        '</span><button type="button" class="rp-clear">Effacer</button><button type="button" class="rp-ok">OK</button></div>';
+      pop.innerHTML = h;
+    }
+    function place() {
+      const r = a.getBoundingClientRect();
+      pop.style.top = (window.scrollY + r.bottom + 6) + 'px';
+      pop.style.left = Math.max(8, Math.min(window.scrollX + r.left, window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 8)) + 'px';
+    }
+    function open() {
+      start = fromDmy(a.value); end = fromDmy(b.value); hover = '';
+      const base = start ? new Date(start + 'T00:00:00') : new Date();
+      view = new Date(base.getFullYear(), base.getMonth(), 1);
+      render(); pop.hidden = false; place();
+    }
+    function close() { pop.hidden = true; }
+    function commit() { a.value = toDmy(start); b.value = toDmy(end); close(); }
+
+    [a, b].forEach((inp) => { inp.readOnly = true; inp.style.cursor = 'pointer'; inp.addEventListener('click', open); inp.addEventListener('focus', open); });
+    pop.addEventListener('mouseover', (e) => { const d = e.target.dataset && e.target.dataset.d; if (d && start && !end && d !== hover) { hover = d; render(); } });
+    pop.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const t = e.target.closest('button'); if (!t) return;
+      if (t.dataset.n) { view = new Date(view.getFullYear(), view.getMonth() + Number(t.dataset.n), 1); render(); return; }
+      if (t.classList.contains('rp-clear')) { start = end = ''; a.value = b.value = ''; render(); return; }
+      if (t.classList.contains('rp-ok')) { commit(); return; }
+      const d = t.dataset.d; if (!d) return;
+      if (!start || end || d < start) { start = d; end = ''; render(); }
+      else if (d === start) { end = d; commit(); }
+      else { end = d; commit(); }
+    });
+    document.addEventListener('click', (e) => { if (!pop.hidden && !pop.contains(e.target) && e.target !== a && e.target !== b) close(); });
+    window.addEventListener('resize', () => { if (!pop.hidden) place(); });
+  }
+  function init() { const f = document.getElementById('promoForm'); if (f) attach(f); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();

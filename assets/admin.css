@@ -547,3 +547,22 @@ tr.presta-paid td:last-child{opacity:1}
 @media (prefers-reduced-motion:reduce){
   .adm-panel.on,.adm-btn{animation:none;transition:none}
 }
+
+/* Sélecteur de période (codes promo) */
+.rp-pop{position:absolute;z-index:1000;background:#fff;border:1px solid #E6E1D4;border-radius:16px;box-shadow:0 18px 40px rgba(15,30,55,.16);padding:14px;font-family:'Jost',sans-serif;color:#1f2838}
+.rp-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:#5f6675;margin-bottom:8px}
+.rp-nav{border:1px solid #E6E1D4;background:#fff;border-radius:99px;width:32px;height:32px;cursor:pointer;font-size:18px;line-height:1}
+.rp-months{display:flex;gap:18px;flex-wrap:wrap}
+.rp-month{width:252px}
+.rp-title{text-align:center;font-weight:600;margin-bottom:6px}
+.rp-dow,.rp-grid{display:grid;grid-template-columns:repeat(7,36px)}
+.rp-dow span{text-align:center;font-size:11px;color:#a9760f;font-weight:600;padding:4px 0}
+.rp-day{height:34px;border:0;background:none;cursor:pointer;font:inherit;font-size:14px;border-radius:8px;color:#1f2838}
+.rp-day:hover{background:#F1ECE0}
+.rp-in{background:#F6EBD2;border-radius:0}
+.rp-start,.rp-end{background:#0f2a4a!important;color:#fff;border-radius:8px}
+.rp-foot{display:flex;align-items:center;gap:8px;margin-top:10px;border-top:1px solid #F0ECE1;padding-top:10px}
+.rp-sum{flex:1;font-size:13px;color:#5f6675}
+.rp-clear,.rp-ok{border:1px solid #E6E1D4;background:#fff;border-radius:99px;padding:7px 14px;cursor:pointer;font:inherit;font-size:13px}
+.rp-ok{background:#0f2a4a;color:#fff;border-color:#0f2a4a}
+@media (max-width:600px){.rp-month:nth-child(2){display:none}}
