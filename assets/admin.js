@@ -110,7 +110,7 @@
         `<td>${r.checkin}</td><td>${r.checkout}</td><td>${r.nights}</td>` +
         `<td>${esc(r.guest_name)}${r.notes ? '<div class="adm-note">' + esc(r.notes) + '</div>' : ''}</td>` +
         `<td>${esc(r.email || '—')}${r.phone ? '<br>' + esc(r.phone) : ''}</td>` +
-        `<td>${r.guests}</td><td>${euro(r.amount_total_cents)}</td>` +
+        `<td>${r.guests}${r.dog ? " + 🐕" : ""}</td><td>${euro(r.amount_total_cents)}</td>` +
         `<td><span class="adm-badge ${pay.cls}">${pay.label}</span></td>` +
         `<td><span class="adm-badge ${r.status}">${statusFr(r.status)}</span></td>` +
         `<td>${r.stripe_payment_method ? `<button class="adm-caution" data-id="${r.id}" title="Débiter la caution">Caution</button> ` : ''}<button class="adm-del" data-id="${r.id}" title="Supprimer">✕</button></td>`;

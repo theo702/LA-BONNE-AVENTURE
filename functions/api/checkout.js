@@ -55,7 +55,7 @@ async function handleCheckout({ env, request }) {
   // mais le séjour reste visible dans Mon espace jusqu’à paiement ou J-1.
   const { id } = await createPendingBooking(env, {
     checkin: quote.checkin, checkout: quote.checkout, nights: quote.nights,
-    name, email, phone, guests: quote.guests,
+    name, email, phone, guests: quote.guests, dog: quote.dog ? 1 : 0,
     amountCents: quote.totalCents, taxeCents: quote.taxeCents,
     discountCents: quote.discountCents, promoCode: quote.promoCode, currency: quote.currency,
   });

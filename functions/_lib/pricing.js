@@ -23,6 +23,7 @@ export function defaults(env = {}) {
     cleaning_emails: '',
     dynamic_pricing_enabled: 1,
     caution_cents: int('CAUTION_CENTS', 0),       // caution (empreinte)
+    pet_fee_cents: int('PET_FEE_CENTS', 2000),    // chien : forfait par séjour (max 1 chien)
   };
 }
 
@@ -180,11 +181,16 @@ export function computeQuote(input, ctx) {
     if (taxe > 0) lines.push({ label: 'Taxe de séjour', cents: taxe });
   }
 
-  const total = Math.max(0, lodgingNet + taxe);
+  // Chien (1 maximum) : forfait par séjour, hors remises et hors taxe de séjour.
+  const dog = !!(input && (input.dog === true || input.dog === 1 || input.dog === '1' || input.dog === 'true'));
+  const petCents = dog ? (s.pet_fee_cents ?? 2000) : 0;
+  if (petCents > 0) lines.push({ label: 'Chien (forfait séjour)', cents: petCents });
+
+  const total = Math.max(0, lodgingNet + taxe + petCents);
 
   return {
     ok: true,
-    checkin, checkout, nights, guests,
+    checkin, checkout, nights, guests, dog, petCents,
     currency: s.currency,
     lodgingCents: lodging,
     discountCents,

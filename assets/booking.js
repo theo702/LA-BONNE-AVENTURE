@@ -42,6 +42,7 @@
     checkout: null,
     quote: null,
     promo: '',
+    dog: false,
     promoError: '',
     form: { name: '', email: '', phone: '' },
     submitting: false,
@@ -208,7 +209,10 @@
           '<div class="bw-field"><label>'+T('bw.email')+'</label><input id="bwEmail" type="email" value="'+esc(f.email)+'" placeholder="vous@email.com" autocomplete="email"></div>'+
           '<div class="bw-field"><label>'+T('bw.phone')+'</label><input id="bwPhone" type="tel" value="'+esc(f.phone)+'" placeholder="06 12 34 56 78" autocomplete="tel"></div>'+
         '</div>'+
-        '<div class="bw-field"><label>'+T('bw.guests')+'</label><select id="bwGuests">'+opts+'</select></div>'+
+        '<div class="bw-row2">'+
+          '<div class="bw-field"><label>'+T('bw.guests')+'</label><select id="bwGuests">'+opts+'</select></div>'+
+          '<div class="bw-field"><label>'+dogTxt('label')+'</label><select id="bwDog"><option value="0"'+(state.dog?'':' selected')+'>'+dogTxt('no')+'</option><option value="1"'+(state.dog?' selected':'')+'>'+dogTxt('yes')+'</option></select></div>'+
+        '</div>'+
         '<button class="bw-pay" id="bwPay"'+(state.submitting?' disabled':'')+'>'+icon('card')+(state.submitting?T('bw.redirect'):(T('bw.pay')+' '+euros(q.totalCents,q.currency)))+'</button>'+
         '<div class="bw-err" id="bwErr"></div>'+
         '<div class="bw-secure">'+icon('lock')+T('bw.secure')+'</div>'+
@@ -220,6 +224,13 @@
     return s.firstChild;
   }
 
+  // Chien : 1 maximum, forfait par séjour (montant calculé par le serveur).
+  function dogTxt(k){
+    var L = (document.documentElement.lang || 'fr').slice(0,2);
+    var d = { fr:{label:'Chien', no:'Non', yes:'Oui (+20 € / séjour)'}, en:{label:'Dog', no:'No', yes:'Yes (+€20 / stay)'},
+      es:{label:'Perro', no:'No', yes:'Sí (+20 € / estancia)'}, de:{label:'Hund', no:'Nein', yes:'Ja (+20 € / Aufenthalt)'} };
+    return (d[L] || d.en)[k];
+  }
   function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 
   // ---- interactions ----
@@ -232,6 +243,8 @@
     });
     var guests = document.getElementById('bwGuests');
     if(guests) guests.addEventListener('change', function(){ refreshQuote(); });
+    var dogSel = document.getElementById('bwDog');
+    if(dogSel) dogSel.addEventListener('change', function(){ state.dog = dogSel.value === '1'; refreshQuote(); });
     var pay = document.getElementById('bwPay');
     if(pay) pay.addEventListener('click', pay_);
 
@@ -286,14 +299,15 @@
       else if(cfg.weeklyMinNights && n >= cfg.weeklyMinNights && cfg.weekTotalCents){ rate = cfg.weekTotalCents/cfg.weeklyMinNights; tag = 'tarif semaine'; }
       var lodging = Math.round(n*rate);
       var label = tag ? (n+' nuits · '+tag) : (Math.round(rate/100)+' € × '+n+' nuits');
-      state.quote = { ok:true, guests:guests, currency:cfg.currency, totalCents:lodging,
-        lines:[ {label:label, cents:lodging} ] };
+      var lines = [ {label:label, cents:lodging} ];
+      if(state.dog){ lines.push({label:'Chien (forfait séjour)', cents:2000}); }
+      state.quote = { ok:true, guests:guests, currency:cfg.currency, totalCents:lodging + (state.dog?2000:0), lines:lines };
     }
     render();
 
     // devis serveur : remises, taxe de séjour, code promo, disponibilité
     fetch(API+'/api/quote', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ checkin:state.checkin, checkout:state.checkout, guests:guests, promo:state.promo||'' }) })
+      body: JSON.stringify({ checkin:state.checkin, checkout:state.checkout, guests:guests, dog:!!state.dog, promo:state.promo||'' }) })
       .then(function(r){ return r.json(); })
       .then(function(j){
         if(j && j.ok){ state.promoError=''; state.quote=j; render(); }
@@ -317,7 +331,7 @@
     state.submitting = true; render();
 
     fetch(API+'/api/checkout', { method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ checkin:state.checkin, checkout:state.checkout, guests:guests,
+      body: JSON.stringify({ checkin:state.checkin, checkout:state.checkout, guests:guests, dog:!!state.dog,
         name:name.trim(), email:email.trim(), phone:phone.trim(), promo:state.promo||'' }) })
       .then(function(r){ return r.json(); })
       .then(function(j){

@@ -127,7 +127,8 @@ async function sendEmails(env, booking) {
         ${row('Email', booking.email)}
         ${row('Téléphone', booking.phone || '—')}
         ${row('Dates', booking.checkin + ' → ' + booking.checkout + ' (' + booking.nights + ' nuits)')}
-        ${row('Voyageurs', booking.guests)}
+        ${row('Adultes', booking.guests)}
+        ${row('Chien', booking.dog ? 'Oui' : 'Non')}
         ${row('Montant', total)}
       </table>
       <p style="color:#5f6675;font-size:13px">Les dates sont automatiquement bloquées sur Airbnb via /calendar.ics.</p>`);
@@ -149,7 +150,8 @@ async function sendEmails(env, booking) {
           ${row('Arrivée', booking.checkin + ' (dès 16h)')}
           ${row('Départ — ménage', booking.checkout + ' (après 10h)')}
           ${row('Nuits', booking.nights)}
-          ${row('Voyageurs', booking.guests)}
+          ${row('Adultes', booking.guests)}
+        ${row('Chien', booking.dog ? 'Oui' : 'Non')}
         </table>
         <p style="color:#5f6675;font-size:13px">Merci de prévoir le ménage pour le jour du départ.</p>`);
       await Promise.all(list.map((to) => send(to, `Ménage à prévoir — séjour du ${booking.checkin} au ${booking.checkout}`, cleanHtml)));

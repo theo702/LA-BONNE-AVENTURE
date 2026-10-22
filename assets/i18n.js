@@ -1440,10 +1440,10 @@
       ur: "فون"
     },
     'bw.guests': {
-      fr: "Voyageurs",
-      en: "Guests",
-      es: "Viajeros",
-      de: "Gäste",
+      fr: "Adultes",
+      en: "Adults",
+      es: "Adultos",
+      de: "Erwachsene",
       zh: "住客",
       hi: "अतिथि",
       ar: "الضيوف",

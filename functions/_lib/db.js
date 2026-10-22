@@ -319,12 +319,12 @@ export async function createPendingBooking(env, b) {
     `INSERT INTO bookings
        (id, checkin, checkout, nights, guest_name, email, phone, guests,
         amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
-        status, payment_source, hold_expires_at, created_at)
-     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,'pending','stripe',?14,?15)`
+        status, payment_source, hold_expires_at, created_at, dog)
+     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,'pending','stripe',?14,?15,?16)`
   ).bind(
     id, b.checkin, b.checkout, b.nights, b.name, b.email, b.phone || '',
     b.guests, b.amountCents, b.taxeCents || 0, b.discountCents || 0, b.promoCode || null,
-    b.currency, holdExpires, nowIso
+    b.currency, holdExpires, nowIso, b.dog ? 1 : 0
   ).run();
   return { id, holdExpires };
 }
@@ -602,6 +602,7 @@ export async function ensurePricingSchema(env) {
   await run(`ALTER TABLE bookings ADD COLUMN stripe_payment_method TEXT`);
   // Blocage calendrier temporaire (réservation en attente de paiement).
   await run(`ALTER TABLE bookings ADD COLUMN hold_expires_at TEXT`);
+  await run(`ALTER TABLE bookings ADD COLUMN dog INTEGER NOT NULL DEFAULT 0`);
   // Prestations ménage : montant payé au prestataire par séjour + suivi « payé ».
   await run(`ALTER TABLE settings ADD COLUMN cleaning_pay_cents INTEGER NOT NULL DEFAULT 0`);
   await run(`ALTER TABLE bookings ADD COLUMN cleaning_paid INTEGER NOT NULL DEFAULT 0`);
