@@ -356,7 +356,7 @@ export async function listBookings(env, limit = 200) {
   // SELECT complet d'abord (colonnes caution + paiement) ; repli si la base n'est pas migrée.
   try {
     const { results } = await env.DB.prepare(
-      `SELECT id, checkin, checkout, nights, guest_name, email, phone, guests,
+      `SELECT id, checkin, checkout, nights, guest_name, email, phone, guests, dog,
               amount_total_cents, taxe_cents, discount_cents, promo_code, currency,
               status, created_at, stripe_customer_id, stripe_payment_method,
               payment_source, notes
