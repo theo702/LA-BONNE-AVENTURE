@@ -107,7 +107,7 @@
       const pay = paymentLabel(r);
       const tr = document.createElement('tr');
       tr.innerHTML =
-        `<td>${r.checkin}</td><td>${r.checkout}</td><td>${r.nights}</td>` +
+        `<td>${isoToDmy(r.checkin) || r.checkin}</td><td>${isoToDmy(r.checkout) || r.checkout}</td><td>${r.nights}</td>` +
         `<td>${esc(r.guest_name)}${r.notes ? '<div class="adm-note">' + esc(r.notes) + '</div>' : ''}</td>` +
         `<td>${esc(r.email || '—')}${r.phone ? '<br>' + esc(r.phone) : ''}</td>` +
         `<td>${r.guests}${r.dog ? " + 🐕" : ""}</td><td>${euro(r.amount_total_cents)}</td>` +
@@ -212,8 +212,8 @@
         return list.map((r) => {
           const pay = paymentSourceOf(r) === 'virement' ? 'Virement' : 'Stripe';
           return '<tr>' +
-            '<td>' + esc(r.checkin) + '</td>' +
-            '<td>' + esc(r.checkout) + '</td>' +
+            '<td>' + esc(isoToDmy(r.checkin) || r.checkin) + '</td>' +
+            '<td>' + esc(isoToDmy(r.checkout) || r.checkout) + '</td>' +
             '<td class="num">' + (r.nights || 0) + '</td>' +
             '<td>' + esc(r.guest_name) + (r.notes ? '<div class="note">' + esc(r.notes) + '</div>' : '') + '</td>' +
             '<td>' + pay + '</td>' +
@@ -225,7 +225,7 @@
         return list.map((e) => {
           const d = (e.service_date && String(e.service_date).slice(0, 10)) || String(e.created_at || '').slice(0, 10);
           return '<tr>' +
-            '<td>' + esc(d) + '</td>' +
+            '<td>' + esc(isoToDmy(d) || d) + '</td>' +
             '<td>' + esc(e.title || 'Extra') + '</td>' +
             '<td>' + esc(e.guest_name || '—') + '</td>' +
             '<td>Stripe</td>' +
@@ -555,7 +555,7 @@
       const tr = document.createElement('tr');
       if (r.paid) tr.classList.add('presta-paid');
       tr.innerHTML =
-        `<td><b>${r.checkout}</b></td><td>${r.checkin}</td><td>${r.nights}</td>` +
+        `<td><b>${isoToDmy(r.checkout) || r.checkout}</b></td><td>${isoToDmy(r.checkin) || r.checkin}</td><td>${r.nights}</td>` +
         `<td>${esc(r.guest)}</td>` +
         `<td><input class="presta-amount" type="number" step="1" min="0" value="${Math.round(r.amountCents / 100)}" data-id="${r.id}"${r.custom ? ' title="Montant personnalisé"' : ''}></td>` +
         `<td><button class="presta-toggle ${r.paid ? 'on' : ''}" data-id="${r.id}">${r.paid ? '✓ Payé' : 'À payer'}</button></td>`;
@@ -679,8 +679,8 @@
     $('#orderEmpty').hidden = orders.length > 0;
     orders.forEach((o) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${(o.created_at || '').slice(0, 10)}</td><td>${esc(o.title || '')}</td>` +
-        `<td>${o.service_date || '—'}</td><td>${esc(o.guest_name || '')}<br>${esc(o.email || '')}</td>` +
+      tr.innerHTML = `<td>${isoToDmy(o.created_at) || '—'}</td><td>${esc(o.title || '')}</td>` +
+        `<td>${isoToDmy(o.service_date) || o.service_date || '—'}</td><td>${esc(o.guest_name || '')}<br>${esc(o.email || '')}</td>` +
         `<td>${euro(o.amount_cents)}</td><td><span class="adm-badge ${orderBadgeCls(o.status)}">${orderStatusFr(o.status)}</span></td>`;
       ob.appendChild(tr);
     });
