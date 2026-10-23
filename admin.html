@@ -165,9 +165,9 @@
 
         <form id="ratesForm" class="adm-form">
           <fieldset>
-            <legend>Tarifs par durée <em>(ménage inclus)</em></legend>
+            <legend>Tarifs par durée <em>(semaine et cure : ménage inclus)</em></legend>
             <div class="adm-grid">
-              <label>Courts séjours (€ / nuit)<input name="nightly" type="number" step="1" min="0" placeholder="120"></label>
+              <label>Courts séjours — secours (€ / nuit)<input name="nightly" type="number" step="1" min="0" placeholder="55"></label>
               <label>Prix d'une semaine (€ total)<input name="week_total" type="number" step="1" min="0" placeholder="300"></label>
               <label>… semaine dès (nuits)<input name="weekly_min_nights" type="number" min="1" placeholder="6"></label>
               <label>Prix d'une cure — 3 sem. (€ total)<input name="cure_total" type="number" step="1" min="0" placeholder="750"></label>
@@ -175,7 +175,7 @@
               <label>Nuits minimum<input name="min_nights" type="number" min="1" placeholder="1"></label>
               <label>Voyageurs max<input name="max_guests" type="number" min="1" placeholder="2"></label>
             </div>
-            <p class="adm-hint">Ex. : <b>120 €/nuit</b> en court séjour · <b>300 €</b> la semaine · <b>750 €</b> la cure. Les seuils sont en <b>nuits</b> (semaine = 6 nuits, cure 3 sem. = 20 nuits).</p>
+            <p class="adm-hint">Courts séjours (1–5 nuits) : <b>prix Airbnb du jour −15,5 %</b> + 50 € de ménage (le montant ci-dessus ne sert que si Airbnb n'a pas de prix pour la date) · <b>300 €</b> la semaine · <b>750 €</b> la cure. Les seuils sont en <b>nuits</b> (semaine = 6 nuits, cure 3 sem. = 20 nuits).</p>
           </fieldset>
 
           <fieldset>

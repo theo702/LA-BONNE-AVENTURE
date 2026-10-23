@@ -294,14 +294,20 @@
     if(cfg.minNights > 1 && n < cfg.minNights){
       state.quote = { ok:false, message:'Séjour minimum de '+cfg.minNights+' nuits.' };
     } else {
-      var rate = cfg.nightlyCents, tag = null;
+      var rate = cfg.nightlyCents, tag = null, lines = [], lodging = 0, clean = 0;
       if(cfg.monthlyMinNights && n >= cfg.monthlyMinNights && cfg.cureTotalCents){ rate = cfg.cureTotalCents/cfg.monthlyMinNights; tag = 'tarif cure'; }
       else if(cfg.weeklyMinNights && n >= cfg.weeklyMinNights && cfg.weekTotalCents){ rate = cfg.weekTotalCents/cfg.weeklyMinNights; tag = 'tarif semaine'; }
-      var lodging = Math.round(n*rate);
-      var label = tag ? (n+' nuits · '+tag) : (Math.round(rate/100)+' € × '+n+' nuits');
-      var lines = [ {label:label, cents:lodging} ];
+      if(tag){ lodging = Math.round(n*rate); lines.push({label:n+' nuits · '+tag, cents:lodging}); }
+      else {
+        // prix du site = prix Airbnb du jour −15,5 % (+ 50 € de ménage)
+        var groups = {}, d0 = new Date(state.checkin+'T00:00:00Z');
+        for(var i=0;i<n;i++){ var ds=new Date(d0.getTime()+i*86400000).toISOString().slice(0,10); var p=(cfg.prices&&cfg.prices[ds])||cfg.nightlyCents; groups[p]=(groups[p]||0)+1; lodging+=p; }
+        Object.keys(groups).sort(function(a,b){return a-b;}).forEach(function(p){ var k=groups[p]; lines.push({label:Math.round(p/100)+' € × '+k+' nuit'+(k>1?'s':''), cents:p*k}); });
+        clean = cfg.cleaningCents || 0;
+        if(clean){ lines.push({label:'Ménage (par séjour)', cents:clean}); }
+      }
       if(state.dog){ lines.push({label:'Chien (forfait séjour)', cents:2000}); }
-      state.quote = { ok:true, guests:guests, currency:cfg.currency, totalCents:lodging + (state.dog?2000:0), lines:lines };
+      state.quote = { ok:true, guests:guests, currency:cfg.currency, totalCents:lodging + clean + (state.dog?2000:0), lines:lines };
     }
     render();
 
@@ -353,6 +359,8 @@
       minNights: raw.minNights != null ? raw.minNights : 2,
       maxGuests: raw.maxGuests != null ? raw.maxGuests : 2,
       nightlyCents: raw.nightlyCents,
+      prices: raw.prices || {},
+      cleaningCents: raw.cleaningCents || 0,
       currency: raw.currency || 'eur',
       weekTotalCents: raw.weekTotalCents,
       cureTotalCents: raw.cureTotalCents,

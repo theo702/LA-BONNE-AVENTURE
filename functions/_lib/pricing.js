@@ -1,6 +1,27 @@
 // Tarification v2 — calcul du prix côté serveur (jamais de confiance au client).
 // Réglages en base D1 (table settings) + tarifs saisonniers + réductions + taxe de séjour.
 
+import AIRBNB from './airbnb-prices.js';
+
+// Le site suit Airbnb : chaque nuit = prix Airbnb du jour −15,5 % (les frais Airbnb), arrondi à
+// l'euro. Ménage : 50 € par séjour, comme sur Airbnb. Les prix Airbnb sont relevés sur le
+// calendrier hôte et enregistrés dans airbnb-prices.js (mis à jour automatiquement).
+export const SITE_FACTOR = 0.845;
+export const CLEANING_CENTS = 5000;
+// Airbnb fait −10 % quand on réserve au moins 3 mois avant l'arrivée : le site fait pareil.
+export const EARLY_MONTHS = 3, EARLY_PCT = 10;
+export function siteNightCents(day, s) {
+  const a = AIRBNB && AIRBNB.prices && AIRBNB.prices[day];
+  return a ? Math.round((a * SITE_FACTOR) / 100) * 100 : s.nightly_cents;
+}
+// Prix site des prochains jours (pour l'estimation instantanée du widget).
+export function sitePrices() {
+  const out = {};
+  const today = new Date().toISOString().slice(0, 10);
+  for (const [d, a] of Object.entries((AIRBNB && AIRBNB.prices) || {})) if (d >= today) out[d] = Math.round((a * SITE_FACTOR) / 100) * 100;
+  return out;
+}
+
 // Valeurs par défaut (fallback si la table settings n'est pas encore renseignée).
 export function defaults(env = {}) {
   const int = (k, d) => { const x = parseInt(env[k], 10); return Number.isFinite(x) ? x : d; };
@@ -8,7 +29,7 @@ export function defaults(env = {}) {
     currency: env.CURRENCY || 'eur',
     // Tarifs par durée (ménage inclus). La semaine et la cure sont exprimées en TOTAL
     // (prix pour la durée de référence) → on obtient des totaux ronds exacts aux seuils.
-    nightly_cents: int('NIGHTLY_CENTS', 12000),   // 1–6 nuits : 120 €/nuit
+    nightly_cents: int('NIGHTLY_CENTS', 5500),    // 1–5 nuits : seulement si pas de prix Airbnb pour la date
     week_total_cents: int('WEEK_TOTAL_CENTS', 30000),  // ≥ 7 nuits : 300 € la semaine
     cure_total_cents: int('CURE_TOTAL_CENTS', 75000),  // ≥ 21 nuits : 750 € la cure
     cleaning_cents: int('CLEANING_CENTS', 0),     // ménage inclus
@@ -28,7 +49,18 @@ export function defaults(env = {}) {
 }
 
 // Charge les réglages depuis D1, complétés par les valeurs par défaut.
+// Une seule fois : l'ancien tarif fixe (120 €/nuit ménage inclus) devient un simple secours
+// (55 €) — le vrai prix vient d'Airbnb −15,5 %.
+async function migrateAirbnbMirror(env) {
+  try {
+    if (!env.CACHE || (await env.CACHE.get('seed:airbnb-mirror'))) return;
+    await env.DB.prepare(`UPDATE settings SET nightly_cents = 5500 WHERE id = 1`).run();
+    await env.CACHE.put('seed:airbnb-mirror', '1');
+  } catch (e) { /* non bloquant */ }
+}
+
 export async function loadSettings(env) {
+  await migrateAirbnbMirror(env);
   const d = defaults(env);
   try {
     const row = await env.DB.prepare(`SELECT * FROM settings WHERE id = 1`).first();
@@ -91,15 +123,24 @@ async function ensureEventRates(env) {
 export async function loadEventRates(env) {
   try {
     await ensureEventRates(env);
-    // Musilac 2027 (8 → 11 juillet, David Guetta le dimanche 11) : pré-chargé une seule fois.
-    if (env.CACHE && !(await env.CACHE.get('seed:musilac27'))) {
+    // Grille des événements (prix site = prix Airbnb −15,5 %), chargée une seule fois.
+    // Airbnb : Marchés de Noël 85 €, fin d'année 90 €, réveillon 120 €, 1er janvier 95 €,
+    // Saint-Valentin 90 €, Pâques 80 €, veille de Musilac 100 €, Musilac 150 €.
+    if (env.CACHE && !(await env.CACHE.get('seed:events-v2'))) {
       const now = new Date().toISOString();
-      const rows = [['Musilac 2027', '2027-07-07', '2027-07-08', 15000, 2], ['Musilac 2027', '2027-07-08', '2027-07-11', 21000, 2],
-        ['Musilac 2027 · David Guetta', '2027-07-11', '2027-07-12', 24000, 2]];
+      await env.DB.prepare(`DELETE FROM event_rates WHERE label LIKE 'Musilac 2027%'`).run();
+      const rows = [
+        ['Marchés de Noël', '2026-12-11', '2026-12-13', 7200, 0], ['Marchés de Noël', '2026-12-18', '2026-12-20', 7200, 0],
+        ["Fêtes de fin d'année", '2026-12-21', '2026-12-31', 7600, 0], ['Nouvel An', '2026-12-31', '2027-01-01', 10100, 2],
+        ["Jour de l'an", '2027-01-01', '2027-01-02', 8000, 0], ['Saint-Valentin', '2027-02-12', '2027-02-14', 7600, 0],
+        ['Pâques', '2027-03-26', '2027-03-29', 6800, 0],
+        ['Musilac 2027 · veille', '2027-07-07', '2027-07-08', 8500, 2], ['Musilac 2027', '2027-07-08', '2027-07-12', 12700, 2],
+      ];
       for (const r of rows) {
         await env.DB.prepare(`INSERT INTO event_rates (label, date_from, date_to, nightly_cents, min_nights, created_at) VALUES (?1,?2,?3,?4,?5,?6)`)
           .bind(r[0], r[1], r[2], r[3], r[4], now).run();
       }
+      await env.CACHE.put('seed:events-v2', '1');
       await env.CACHE.put('seed:musilac27', '1');
     }
     const { results } = await env.DB.prepare(`SELECT * FROM event_rates ORDER BY date_from`).all();
@@ -151,34 +192,45 @@ export function computeQuote(input, ctx) {
   // Tarif par durée (paliers dégressifs). Le total est arrondi une seule fois à partir du
   // taux/nuit (fractionnaire pour semaine/cure) → totaux ronds exacts aux seuils.
   const rate = tierRate(nights, s);
-  // Nuits à tarif événement (ex. Musilac) : prix spécial ; les autres nuits au tarif par durée.
+  // Forfaits semaine / cure (ménage inclus) inchangés. Sinon : chaque nuit = Airbnb −15,5 %
+  // + 50 € de ménage. Les tarifs événements (ex. Musilac) priment dans tous les cas.
+  const tierMode = !!tierLabel(nights, s);
   const rates = ctx.eventRates || [];
   const special = new Map();
-  let minEvent = 0, minLabel = '';
+  const byPrice = new Map();
+  let minEvent = 0, minLabel = '', tierNights = 0;
   for (let i = 0; i < nights; i++) {
     const day = new Date(Date.parse(checkin) + i * 86400000).toISOString().slice(0, 10);
     const r = eventRateFor(rates, day);
-    if (!r) continue;
+    if (!r) {
+      if (tierMode) tierNights++;
+      else { const p = siteNightCents(day, s); byPrice.set(p, (byPrice.get(p) || 0) + 1); }
+      continue;
+    }
     const k = r.label + '|' + r.nightly_cents;
     special.set(k, { label: r.label, cents: r.nightly_cents, n: ((special.get(k) || {}).n || 0) + 1 });
     if ((r.min_nights || 0) > minEvent) { minEvent = r.min_nights; minLabel = r.label; }
   }
   if (minEvent && nights < minEvent) return { ok: false, error: 'min', message: `Séjour minimum de ${minEvent} nuits pendant ${minLabel.split(' ·')[0]}.` };
   const specialNights = [...special.values()].reduce((a, x) => a + x.n, 0);
-  const normalNights = nights - specialNights;
-  const normalCents = Math.round(normalNights * rate);
-  const lodging = normalCents + [...special.values()].reduce((a, x) => a + x.n * x.cents, 0);
+  const tierCents = Math.round(tierNights * rate);
+  const mirrorCents = [...byPrice.entries()].reduce((a, [p, n]) => a + p * n, 0);
+  const lodging = tierCents + mirrorCents + [...special.values()].reduce((a, x) => a + x.n * x.cents, 0);
   const nightlyEq = lodging / nights; // taux/nuit effectif (pour la taxe de séjour)
 
   const lines = [];
   const tag = tierLabel(nights, s);
-  if (normalNights > 0) {
+  if (tierNights > 0) {
     lines.push({
-      label: tag && !specialNights ? `${nights} nuits · ${tag}` : `${Math.round(rate / 100)} € × ${normalNights} nuit${normalNights > 1 ? 's' : ''}`,
-      cents: normalCents,
+      label: !specialNights ? `${nights} nuits · ${tag}` : `${tag} · ${tierNights} nuit${tierNights > 1 ? 's' : ''}`,
+      cents: tierCents,
     });
   }
+  for (const [p, n] of [...byPrice.entries()].sort((a, b) => a[0] - b[0])) {
+    lines.push({ label: `${Math.round(p / 100)} € × ${n} nuit${n > 1 ? 's' : ''}`, cents: p * n });
+  }
   for (const x of special.values()) lines.push({ label: `${x.label} · ${Math.round(x.cents / 100)} € × ${x.n} nuit${x.n > 1 ? 's' : ''}`, cents: x.n * x.cents });
+  const cleaningCents = tierMode ? 0 : CLEANING_CENTS;   // 50 € par séjour, comme sur Airbnb
 
   // Réduction dernière minute (optionnelle, sur l'hébergement).
   let lastminPct = 0;
@@ -189,7 +241,18 @@ export function computeQuote(input, ctx) {
   let lastminCents = Math.round(lodging * lastminPct / 100);
   if (lastminCents > 0) lines.push({ label: `Dernière minute (−${lastminPct}%)`, cents: -lastminCents });
 
-  let lodgingNet = lodging - lastminCents;
+  // Réservation anticipée (comme Airbnb) : −10 % sur les nuits si l'arrivée est à 3 mois ou plus.
+  // Ne s'applique pas aux forfaits semaine / cure.
+  let earlyCents = 0;
+  if (!tierMode) {
+    const lim = new Date(); lim.setUTCMonth(lim.getUTCMonth() + EARLY_MONTHS);
+    if (checkin >= lim.toISOString().slice(0, 10)) {
+      earlyCents = Math.round((lodging - tierCents) * EARLY_PCT / 100);
+      if (earlyCents > 0) lines.push({ label: `Réservation anticipée (−${EARLY_PCT}%)`, cents: -earlyCents });
+    }
+  }
+
+  let lodgingNet = lodging - lastminCents - earlyCents;
 
   // Code promo.
   let promoCents = 0;
@@ -210,15 +273,15 @@ export function computeQuote(input, ctx) {
     }
   }
 
-  const discountCents = lastminCents + promoCents + promoFixed;
+  const discountCents = lastminCents + earlyCents + promoCents + promoFixed;
+  if (cleaningCents > 0) lines.push({ label: 'Ménage (par séjour)', cents: cleaningCents });
 
-  // Le ménage est inclus dans le tarif : plus aucun frais de ménage séparé.
 
   // Taxe de séjour : par personne et par nuit, sur la base hébergement effectivement payée.
   // Ratio de remise appliqué au tarif de chaque nuit (hors promo fixe).
   let taxe = 0;
   if (s.taxe_enabled) {
-    const ratio = lodging > 0 ? (lodging - lastminCents - promoCents) / lodging : 1;
+    const ratio = lodging > 0 ? (lodging - lastminCents - earlyCents - promoCents) / lodging : 1;
     const perPerson = (nightlyEq * ratio) / guests;                  // coût HT nuit / personne
     const communal = Math.min((s.taxe_rate_pct / 100) * perPerson, s.taxe_cap_cents);
     const withAdd = communal * (1 + s.taxe_additional_pct / 100);
@@ -231,7 +294,7 @@ export function computeQuote(input, ctx) {
   const petCents = dog ? (s.pet_fee_cents ?? 2000) : 0;
   if (petCents > 0) lines.push({ label: 'Chien (forfait séjour)', cents: petCents });
 
-  const total = Math.max(0, lodgingNet + taxe + petCents);
+  const total = Math.max(0, lodgingNet + cleaningCents + taxe + petCents);
 
   return {
     ok: true,
@@ -239,7 +302,7 @@ export function computeQuote(input, ctx) {
     currency: s.currency,
     lodgingCents: lodging,
     discountCents,
-    cleaningCents: 0,
+    cleaningCents,
     taxeCents: taxe,
     cautionCents: s.caution_cents || 0,
     promoCode: promo ? promo.code : null,
