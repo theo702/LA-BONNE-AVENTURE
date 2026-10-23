@@ -116,7 +116,7 @@ export async function loadEventRates(env) {
       await env.DB.prepare(`DELETE FROM event_rates WHERE label LIKE 'Musilac 2027%'`).run();
       const rows = [
         ['Marchés de Noël', '2026-12-11', '2026-12-13', 7200, 0], ['Marchés de Noël', '2026-12-18', '2026-12-20', 7200, 0],
-        ["Fêtes de fin d'année", '2026-12-21', '2026-12-31', 7600, 0], ['Nouvel An', '2026-12-31', '2027-01-01', 10100, 2],
+        ["Fêtes de fin d'année", '2026-12-21', '2026-12-31', 7600, 0], ['Nouvel An', '2026-12-31', '2027-01-01', 10100, 3],
         ["Jour de l'an", '2027-01-01', '2027-01-02', 8000, 0], ['Saint-Valentin', '2027-02-12', '2027-02-14', 7600, 0],
         ['Pâques', '2027-03-26', '2027-03-29', 6800, 0],
         ['Musilac 2027 · veille', '2027-07-07', '2027-07-08', 8500, 2], ['Musilac 2027', '2027-07-08', '2027-07-12', 12700, 2],
@@ -127,6 +127,11 @@ export async function loadEventRates(env) {
       }
       await env.CACHE.put('seed:events-v2', '1');
       await env.CACHE.put('seed:musilac27', '1');
+    }
+    // Réveillon : 3 nuits minimum.
+    if (env.CACHE && !(await env.CACHE.get('seed:nye-min3'))) {
+      await env.DB.prepare(`UPDATE event_rates SET min_nights = 3 WHERE label = 'Nouvel An' AND date_from = '2026-12-31'`).run();
+      await env.CACHE.put('seed:nye-min3', '1');
     }
     const { results } = await env.DB.prepare(`SELECT * FROM event_rates ORDER BY date_from`).all();
     return results || [];
