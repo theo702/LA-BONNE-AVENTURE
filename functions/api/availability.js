@@ -1,7 +1,7 @@
 // GET /api/availability — plages occupées (Airbnb ⋃ réservations directes) + réglages.
 import { fetchExternalRanges } from '../_lib/ical.js';
 import { getBusyRanges, seedTierPricingOnce, ensurePricingSchema } from '../_lib/db.js';
-import { loadSettings, defaults, sitePrices, CLEANING_CENTS } from '../_lib/pricing.js';
+import { loadSettings, defaults, CLEANING_CENTS } from '../_lib/pricing.js';
 
 export async function onRequestGet({ env }) {
   try {
@@ -23,7 +23,6 @@ export async function onRequestGet({ env }) {
         minNights: s.min_nights,
         maxGuests: s.max_guests,
         nightlyCents: s.nightly_cents,
-        prices: sitePrices(),
         cleaningCents: CLEANING_CENTS,
         currency: s.currency,
         weekTotalCents: s.week_total_cents,

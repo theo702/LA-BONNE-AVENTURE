@@ -1,26 +1,12 @@
 // Tarification v2 — calcul du prix côté serveur (jamais de confiance au client).
 // Réglages en base D1 (table settings) + tarifs saisonniers + réductions + taxe de séjour.
 
-import AIRBNB from './airbnb-prices.js';
-
-// Le site suit Airbnb : chaque nuit = prix Airbnb du jour −15,5 % (les frais Airbnb), arrondi à
-// l'euro. Ménage : 50 € par séjour, comme sur Airbnb. Les prix Airbnb sont relevés sur le
-// calendrier hôte et enregistrés dans airbnb-prices.js (mis à jour automatiquement).
-export const SITE_FACTOR = 0.845;
+// Prix du site = prix Airbnb −15,5 % (les frais Airbnb), en tarifs FIXES : un prix par nuit
+// (réglable dans l'admin) + des prix par date pour les événements. Ménage : 50 € par séjour,
+// comme sur Airbnb. Pas de prix « dernière minute » sur le site.
 export const CLEANING_CENTS = 5000;
 // Airbnb fait −10 % quand on réserve au moins 3 mois avant l'arrivée : le site fait pareil.
 export const EARLY_MONTHS = 3, EARLY_PCT = 10;
-export function siteNightCents(day, s) {
-  const a = AIRBNB && AIRBNB.prices && AIRBNB.prices[day];
-  return a ? Math.round((a * SITE_FACTOR) / 100) * 100 : s.nightly_cents;
-}
-// Prix site des prochains jours (pour l'estimation instantanée du widget).
-export function sitePrices() {
-  const out = {};
-  const today = new Date().toISOString().slice(0, 10);
-  for (const [d, a] of Object.entries((AIRBNB && AIRBNB.prices) || {})) if (d >= today) out[d] = Math.round((a * SITE_FACTOR) / 100) * 100;
-  return out;
-}
 
 // Valeurs par défaut (fallback si la table settings n'est pas encore renseignée).
 export function defaults(env = {}) {
@@ -29,7 +15,7 @@ export function defaults(env = {}) {
     currency: env.CURRENCY || 'eur',
     // Tarifs par durée (ménage inclus). La semaine et la cure sont exprimées en TOTAL
     // (prix pour la durée de référence) → on obtient des totaux ronds exacts aux seuils.
-    nightly_cents: int('NIGHTLY_CENTS', 5500),    // 1–5 nuits : seulement si pas de prix Airbnb pour la date
+    nightly_cents: int('NIGHTLY_CENTS', 5400),    // 1–5 nuits : 54 €/nuit (≈ 64 € Airbnb −15,5 %)
     week_total_cents: int('WEEK_TOTAL_CENTS', 30000),  // ≥ 7 nuits : 300 € la semaine
     cure_total_cents: int('CURE_TOTAL_CENTS', 75000),  // ≥ 21 nuits : 750 € la cure
     cleaning_cents: int('CLEANING_CENTS', 0),     // ménage inclus
@@ -49,18 +35,17 @@ export function defaults(env = {}) {
 }
 
 // Charge les réglages depuis D1, complétés par les valeurs par défaut.
-// Une seule fois : l'ancien tarif fixe (120 €/nuit ménage inclus) devient un simple secours
-// (55 €) — le vrai prix vient d'Airbnb −15,5 %.
-async function migrateAirbnbMirror(env) {
+// Une seule fois : prix fixe 54 €/nuit (moyenne Airbnb ≈ 64 € −15,5 %), + 50 € de ménage.
+async function migrateFixedPrice(env) {
   try {
-    if (!env.CACHE || (await env.CACHE.get('seed:airbnb-mirror'))) return;
-    await env.DB.prepare(`UPDATE settings SET nightly_cents = 5500 WHERE id = 1`).run();
-    await env.CACHE.put('seed:airbnb-mirror', '1');
+    if (!env.CACHE || (await env.CACHE.get('seed:fixed54'))) return;
+    await env.DB.prepare(`UPDATE settings SET nightly_cents = 5400 WHERE id = 1`).run();
+    await env.CACHE.put('seed:fixed54', '1');
   } catch (e) { /* non bloquant */ }
 }
 
 export async function loadSettings(env) {
-  await migrateAirbnbMirror(env);
+  await migrateFixedPrice(env);
   const d = defaults(env);
   try {
     const row = await env.DB.prepare(`SELECT * FROM settings WHERE id = 1`).first();
@@ -192,7 +177,7 @@ export function computeQuote(input, ctx) {
   // Tarif par durée (paliers dégressifs). Le total est arrondi une seule fois à partir du
   // taux/nuit (fractionnaire pour semaine/cure) → totaux ronds exacts aux seuils.
   const rate = tierRate(nights, s);
-  // Forfaits semaine / cure (ménage inclus) inchangés. Sinon : chaque nuit = Airbnb −15,5 %
+  // Forfaits semaine / cure (ménage inclus) inchangés. Sinon : prix fixe par nuit (Airbnb −15,5 %)
   // + 50 € de ménage. Les tarifs événements (ex. Musilac) priment dans tous les cas.
   const tierMode = !!tierLabel(nights, s);
   const rates = ctx.eventRates || [];
@@ -204,7 +189,7 @@ export function computeQuote(input, ctx) {
     const r = eventRateFor(rates, day);
     if (!r) {
       if (tierMode) tierNights++;
-      else { const p = siteNightCents(day, s); byPrice.set(p, (byPrice.get(p) || 0) + 1); }
+      else { const p = s.nightly_cents; byPrice.set(p, (byPrice.get(p) || 0) + 1); }
       continue;
     }
     const k = r.label + '|' + r.nightly_cents;
