@@ -906,6 +906,11 @@
       ru: "Предпочитаете Airbnb&nbsp;? <a href=\"https://www.airbnb.fr/h/labonneaventure\" target=\"_blank\" rel=\"noopener\">Смотреть объявление</a>",
       ur: "Airbnb&nbsp;؟ پسند ہے <a href=\"https://www.airbnb.fr/h/labonneaventure\" target=\"_blank\" rel=\"noopener\">فہرست دیکھیں</a>"
     },
+    'sec.book.instagram': {
+      fr: "Suivez-nous sur Instagram", en: "Follow us on Instagram", es: "Síguenos en Instagram", de: "Folge uns auf Instagram",
+      zh: "在 Instagram 上关注我们", hi: "Instagram पर हमें फ़ॉलो करें", ar: "تابعونا على Instagram", bn: "Instagram-এ আমাদের ফলো করুন",
+      pt: "Siga-nos no Instagram", ru: "Подписывайтесь на нас в Instagram", ur: "Instagram پر ہمیں فالو کریں"
+    },
     'sec.book.whatsapp': {
       fr: "Une question ? Écrivez-moi sur WhatsApp",
       en: "A question? Message me on WhatsApp",
