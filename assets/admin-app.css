@@ -1,0 +1,256 @@
+/* ==========================================================================
+   La Bonne Aventure — Gestion (admin en mode « app »)
+   iPhone : en-tête bleu nuit + barre d'onglets en bas.
+   PC : même look, barre latérale à gauche.
+   ========================================================================== */
+
+:root{
+  --navy:#0f2a4a; --navy2:#0a1f38; --gold:#d9971a; --gold-ink:#a9760f; --gold-l:#e6a92c;
+  --paper:#FBF7EE; --ink:#1f2838; --mute:#5f6675; --line:#E6E1D4;
+  --ext:#c4893a;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+}
+
+.adm-body{
+  background:radial-gradient(700px 480px at 0% 30%,rgba(217,151,26,.07),transparent 60%),#EDE6D8;
+  background-attachment:fixed;
+  -webkit-tap-highlight-color:transparent;
+}
+.adm-login{padding-top:calc(32px + var(--safe-t));padding-bottom:calc(32px + var(--safe-b))}
+
+/* ---------- Coquille ---------- */
+.adm-app{display:block;min-height:100vh}
+.adm-shell{min-width:0}
+
+/* ---------- En-tête bleu nuit ---------- */
+.adm-app .adm-top{
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:0;
+  padding:calc(22px + var(--safe-t)) 22px 24px;
+  background:radial-gradient(ellipse at 92% 0%,rgba(217,151,26,.24),transparent 52%),linear-gradient(160deg,var(--navy) 0%,var(--navy2) 100%);
+  color:var(--paper);
+  border:0;border-radius:0 0 26px 26px;
+  box-shadow:0 14px 34px rgba(10,31,56,.18);
+}
+.adm-frond{position:absolute;top:-10px;right:-12px;width:110px;height:190px;color:rgba(251,247,238,.15);pointer-events:none}
+.adm-top-kicker{position:relative;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(251,247,238,.8)}
+.adm-top-title{
+  position:relative;margin:10px 0 0;
+  font-family:'Fraunces',serif;font-weight:400;font-size:34px;line-height:1.02;letter-spacing:-.02em;color:var(--paper);
+}
+.adm-top-title em{font-style:italic;font-weight:300;color:var(--gold-l)}
+.adm-top-filet{position:relative;width:56px;height:2px;border-radius:2px;background:var(--gold);margin:14px 0 0}
+.adm-top-extra{position:relative;display:flex;flex-direction:column;margin-top:14px}
+.adm-top-extra:empty{display:none}
+.tx-lab{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(251,247,238,.72)}
+.tx-big{margin-top:5px;font-family:'Fraunces',serif;font-weight:400;font-size:21px;line-height:1.2;color:var(--paper)}
+.tx-sub{margin-top:3px;font-size:14px;font-weight:300;color:rgba(251,247,238,.88)}
+.tx-sep{height:1px;background:rgba(251,247,238,.14);margin:14px 0}
+
+/* ---------- Contenu ---------- */
+.adm-app .adm-main{max-width:1080px;margin:0 auto;padding:20px 16px 40px}
+.adm-app .adm-panel-head h2{display:none}
+.adm-app .adm-panel-head{margin:0 0 16px}
+.adm-app .adm-lede{font-size:14px}
+.adm-app .adm-subhead{font-size:19px;margin:26px 0 12px}
+
+/* Titres de section numérotés */
+.h-sec{display:flex;align-items:center;gap:10px;margin:22px 0 12px;color:var(--navy)}
+.h-sec:first-child{margin-top:4px}
+.h-sec i{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:15px}
+.h-sec span{font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.h-sec-row{justify-content:space-between}
+.h-sec-l{display:flex;align-items:center;gap:10px}
+.h-sec-l span{font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.adm-link-btn{
+  border:0;background:none;padding:6px 0;cursor:pointer;
+  font:600 11.5px/1 'Jost',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-ink);
+}
+
+/* Chiffres du mois */
+.h-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.h-kpi{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:14px 6px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);
+}
+.h-kpi span{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--navy)}
+.h-kpi b{font-family:'Fraunces',serif;font-weight:400;font-size:26px;color:var(--ink);margin:4px 0 2px;white-space:nowrap}
+.h-kpi em{font-style:normal;font-size:11.5px;font-weight:300;color:var(--mute)}
+
+/* 7 prochains jours */
+.h-week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.h-day{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  height:58px;border-radius:12px;background:rgba(255,255,255,.75);box-shadow:inset 0 0 0 1px #D9D1C0;color:var(--ink);
+}
+.h-day span{font-size:10.5px;font-weight:500;text-transform:capitalize;opacity:.8}
+.h-day b{font-family:'Fraunces',serif;font-weight:400;font-size:18px;line-height:1}
+.h-day.s-book{background:var(--navy);color:#fff;box-shadow:none}
+.h-day.s-ext{background:var(--ext);color:#fff;box-shadow:none}
+.h-day.s-block{background:repeating-linear-gradient(135deg,#eee,#eee 4px,#ddd 4px,#ddd 8px);color:var(--mute)}
+.h-day.today{outline:2px solid var(--gold);outline-offset:2px}
+.h-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12px;color:var(--mute)}
+.h-legend span{display:inline-flex;align-items:center;gap:6px}
+.h-legend i{width:11px;height:11px;border-radius:3px;border:1px solid #D8D1C2}
+.h-legend .c-book{background:var(--navy);border-color:var(--navy)}
+.h-legend .c-ext{background:var(--ext);border-color:var(--gold-ink)}
+.h-legend .c-block{background:repeating-linear-gradient(135deg,#eee,#eee 3px,#ddd 3px,#ddd 6px)}
+.h-legend .c-free{background:#fff}
+
+/* Raccourcis */
+.h-acts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.h-act{
+  display:flex;align-items:center;gap:10px;min-height:54px;padding:0 14px;
+  border:0;border-radius:12px;cursor:pointer;text-align:left;
+  background:var(--navy);color:var(--paper);
+  font:600 11.5px/1.25 'Jost',sans-serif;letter-spacing:.1em;text-transform:uppercase;
+}
+.h-act .ic{width:19px;height:19px;flex:0 0 19px;color:var(--gold-l)}
+.h-act:active{transform:scale(.98)}
+
+/* Revenus */
+.adm-app .adm-rev{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.adm-app .adm-rev-card{border-radius:18px;box-shadow:inset 0 0 0 1px var(--line);border:0;background:#fff}
+
+/* À venir */
+.up-list{display:flex;flex-direction:column;gap:10px}
+.up-empty{padding:18px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);color:var(--mute);font-size:14px}
+.up-item{
+  position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;
+  padding:13px 14px 13px 16px;border-radius:18px;
+  background:linear-gradient(165deg,rgba(255,255,255,.94),rgba(241,236,224,.6));box-shadow:inset 0 0 0 1px rgba(230,225,212,.9);
+}
+.up-item::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:2px;border-radius:2px;background:linear-gradient(180deg,var(--navy),transparent)}
+.up-item.airbnb::before{background:linear-gradient(180deg,var(--ext),transparent)}
+.up-date{width:50px;flex:0 0 50px;display:flex;flex-direction:column;align-items:center}
+.up-date em{font-style:normal;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--navy)}
+.up-date b{font-family:'Fraunces',serif;font-weight:400;font-size:27px;line-height:1.05;color:var(--ink)}
+.up-body{display:flex;flex-direction:column;gap:2px;min-width:0}
+.up-body b{font-size:14.5px;font-weight:600}
+.up-body span{font-size:12.5px;font-weight:300;color:var(--mute)}
+.up-body span strong{font-weight:600;color:var(--gold-ink)}
+.up-body i{font-family:'Fraunces',serif;font-size:13.5px;color:var(--navy)}
+.up-item.airbnb .up-body i{color:var(--gold-ink)}
+
+/* Bloc « Ajouter une réservation » repliable */
+.adm-add{margin:16px 0 0;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.adm-add summary{
+  list-style:none;display:flex;align-items:center;gap:10px;min-height:52px;padding:0 16px;cursor:pointer;
+  font:600 12px/1.2 'Jost',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--navy);
+}
+.adm-add summary::-webkit-details-marker{display:none}
+.adm-add summary .ic{width:18px;height:18px;color:var(--gold)}
+.adm-add[open] summary{border-bottom:1px solid #F0ECE1}
+.adm-add .adm-form-card{margin:0;border:0;box-shadow:none;border-radius:0 0 16px 16px}
+
+/* Boutons dans le style du site (rectangles bleu nuit) */
+.adm-app .adm-btn{
+  border-radius:12px;min-height:48px;padding:0 20px;
+  font-weight:600;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  box-shadow:none;
+}
+.adm-app .adm-btn-ghost{border:1px solid var(--line)!important}
+.adm-app .adm-ghost{border-radius:10px}
+
+/* Cartes et formulaires */
+.adm-app .adm-card{border-radius:18px;border:0;box-shadow:inset 0 0 0 1px var(--line)}
+.adm-app .adm-form fieldset,.adm-app .adm-form-card,.adm-app .adm-inline{border-radius:18px;border:0;box-shadow:inset 0 0 0 1px var(--line)}
+
+/* Plus */
+.more-list{display:flex;flex-direction:column;border-radius:18px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.more-list > *{
+  display:flex;align-items:center;gap:14px;min-height:64px;padding:0 16px;
+  border:0;border-bottom:1px solid #F0ECE1;background:none;cursor:pointer;text-align:left;text-decoration:none;color:var(--ink);font:inherit;
+}
+.more-list > *:last-child{border-bottom:0}
+.more-list .ic{width:22px;height:22px;flex:0 0 22px;color:var(--navy)}
+.more-list span{display:flex;flex-direction:column;flex:1;min-width:0}
+.more-list b{font-size:15px;font-weight:600}
+.more-list em{font-style:normal;font-size:12.5px;font-weight:300;color:var(--mute)}
+.more-list .chev{width:16px;height:16px;color:#8b919c}
+
+/* ---------- Navigation ---------- */
+.adm-app .adm-nav{display:flex;padding:0;border:0;overflow:visible}
+.adm-nav .ic{width:21px;height:21px;flex:0 0 21px}
+.adm-nav-brand,.adm-nav-foot{display:none}
+
+/* iPhone / petits écrans : barre d'onglets en bas */
+@media (max-width: 899px){
+  .adm-app .adm-nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;
+    gap:4px;padding:7px 8px calc(7px + var(--safe-b));
+    background:rgba(251,247,238,.94);
+    -webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);
+    border-top:1px solid #E4DCCB;
+  }
+  .adm-app .adm-nav button{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    min-height:52px;padding:0;border:0;border-radius:12px;box-shadow:none;background:none;
+    font:500 11px/1 'Jost',sans-serif;letter-spacing:.02em;color:var(--mute);
+  }
+  .adm-app .adm-nav button.on{color:var(--gold-ink);background:rgba(217,151,26,.13);border:0;box-shadow:none}
+  .adm-app .adm-nav .nav-x{display:none}
+  .adm-shell{padding-bottom:calc(74px + var(--safe-b))}
+
+  /* champs ≥ 16 px : iOS ne zoome plus quand on tape */
+  .adm-app input,.adm-app select,.adm-app textarea{font-size:16px!important}
+  .adm-app .adm-grid{grid-template-columns:1fr 1fr}
+  .adm-app .adm-inline label{flex:1 1 140px}
+  .adm-app .adm-inline .adm-btn{width:100%}
+
+  /* Tableaux → cartes */
+  .adm-app .adm-scroll{overflow:visible}
+  .adm-app .adm-table{min-width:0}
+  .adm-app .adm-table thead{display:none}
+  .adm-app .adm-table,.adm-app .adm-table tbody,.adm-app .adm-table tr,.adm-app .adm-table td{display:block;width:auto}
+  .adm-app .adm-table tr{padding:10px 16px;border-bottom:1px solid #F0ECE1}
+  .adm-app .adm-table tr:last-child{border-bottom:0}
+  .adm-app .adm-table td{
+    padding:5px 0;border:0;text-align:right;font-size:14px;line-height:1.45;overflow-wrap:anywhere;
+  }
+  .adm-app .adm-table td::after{content:"";display:block;clear:both}
+  .adm-app .adm-table td::before{
+    content:attr(data-label);float:left;margin-right:14px;text-align:left;line-height:2;
+    font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);
+  }
+  .adm-app .adm-table td[data-label=""]::before{display:none}
+  .adm-app .adm-table td:empty{display:none}
+  .adm-app .adm-table .adm-note{text-align:right;margin-top:2px}
+  .adm-app .adm-table tbody tr:hover{background:none}
+  .adm-app .adm-card-cal{padding:12px}
+}
+@media (max-width: 380px){
+  .h-kpi b{font-size:22px}
+  .adm-top-title{font-size:30px}
+}
+
+/* PC : barre latérale */
+@media (min-width: 900px){
+  .adm-app .adm-nav{
+    position:fixed;top:0;left:0;bottom:0;z-index:50;width:236px;
+    flex-direction:column;gap:4px;padding:22px 14px 18px;
+    background:radial-gradient(ellipse at 100% 0%,rgba(217,151,26,.18),transparent 45%),linear-gradient(170deg,var(--navy),var(--navy2));
+  }
+  .adm-nav-brand{display:flex;align-items:center;gap:10px;padding:0 8px 20px;margin-bottom:8px;border-bottom:1px solid rgba(251,247,238,.12)}
+  .adm-nav-brand img{width:44px;height:44px;border-radius:11px;box-shadow:0 0 0 1px rgba(251,247,238,.14)}
+  .adm-nav-brand div{display:flex;flex-direction:column}
+  .adm-nav-brand strong{font-family:'Fraunces',serif;font-weight:400;font-size:16px;color:var(--paper)}
+  .adm-nav-brand span{font-size:10.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-l)}
+  .adm-app .adm-nav button,.adm-nav-link{
+    display:flex;align-items:center;gap:12px;min-height:44px;padding:0 12px;
+    border:0;border-radius:11px;background:none;box-shadow:none;cursor:pointer;text-align:left;text-decoration:none;
+    font:500 14px/1.2 'Jost',sans-serif;color:rgba(251,247,238,.78);
+  }
+  .adm-app .adm-nav button:hover,.adm-nav-link:hover{background:rgba(251,247,238,.07);color:var(--paper)}
+  .adm-app .adm-nav button.on{background:rgba(217,151,26,.16);color:var(--gold-l);border:0;box-shadow:none}
+  .adm-app .adm-nav .nav-m{display:none}
+  .adm-nav-foot{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:12px;border-top:1px solid rgba(251,247,238,.12)}
+  .adm-shell{margin-left:236px}
+  .adm-app .adm-top{border-radius:0 0 28px 28px;padding:30px clamp(24px,4vw,48px) 28px;margin:0 clamp(0px,2vw,24px)}
+  .adm-app .adm-main{padding:26px clamp(20px,4vw,48px) 60px}
+  .h-kpis{max-width:640px}
+  .h-acts{grid-template-columns:repeat(4,1fr)}
+  .adm-app .adm-rev{grid-template-columns:repeat(4,1fr)}
+  .h-week{max-width:640px}
+  .up-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+}

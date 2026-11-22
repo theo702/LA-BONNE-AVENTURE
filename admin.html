@@ -2,18 +2,24 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>La Bonne Aventure — Administration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LBA Gestion</title>
 <meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0f2a4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LBA Gestion">
+<link rel="manifest" href="/admin.webmanifest">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/admin.css?v=11">
+<link rel="stylesheet" href="assets/admin.css?v=12">
+<link rel="stylesheet" href="assets/admin-app.css?v=1">
 <style>
-  /* Filet de sécurité anti-cache : logo jamais en taille native 720px */
   img.adm-logo{width:96px!important;height:96px!important;max-width:96px!important;max-height:96px!important;object-fit:contain!important}
-  img.adm-brand-logo{width:36px!important;height:36px!important;max-width:36px!important;max-height:36px!important;object-fit:contain!important;flex:0 0 36px!important}
 </style>
 </head>
 <body class="adm-body">
@@ -35,40 +41,55 @@
 
   <!-- Application -->
   <div id="app" class="adm-app" hidden>
-    <header class="adm-top">
-      <div class="adm-brand">
-        <img class="adm-brand-logo" src="assets/logo-black.png" width="36" height="36" alt="La Bonne Aventure">
-        <div class="adm-brand-text">
-          <strong>La Bonne Aventure</strong>
-          <span>Administration</span>
-        </div>
+    <nav class="adm-tabs adm-nav" aria-label="Sections">
+      <div class="adm-nav-brand">
+        <img src="assets/icon-192.png" width="44" height="44" alt="">
+        <div><strong>La Bonne Aventure</strong><span>Gestion</span></div>
       </div>
-      <div class="adm-top-actions">
-        <a class="adm-ghost" href="/" id="homeBtn">Site</a>
-        <button type="button" id="logoutBtn" class="adm-ghost">Déconnexion</button>
+      <button type="button" class="on" data-tab="t-home"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>Accueil</span></button>
+      <button type="button" data-tab="t-book"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Séjours</span></button>
+      <button type="button" data-tab="t-cal"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M16 14h0M8 17h2M12 17h2"/></svg><span>Calendrier</span></button>
+      <button type="button" data-tab="t-rates"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg><span>Tarifs</span></button>
+      <button type="button" class="nav-x" data-tab="t-promo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v8a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2z"/><path d="M9.5 14.5l5-5"/><circle cx="9.5" cy="9.5" r=".6"/><circle cx="14.5" cy="14.5" r=".6"/></svg><span>Promos &amp; événements</span></button>
+      <button type="button" class="nav-x" data-tab="t-extra"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span>Extras</span></button>
+      <button type="button" class="nav-x" data-tab="t-sync"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 3v4h-4M6 21v-4h4"/></svg><span>Synchro</span></button>
+      <button type="button" class="nav-m" data-tab="t-more"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Plus</span></button>
+      <div class="adm-nav-foot">
+        <a class="adm-nav-link" href="/" id="homeBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span>Voir le site</span></a>
+        <button type="button" id="logoutBtn" class="adm-nav-link"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/><path d="M10 16l4-4-4-4M14 12H4"/></svg><span>Déconnexion</span></button>
       </div>
-    </header>
-
-    <nav class="adm-tabs" aria-label="Sections">
-      <button class="on" data-tab="t-book">Réservations</button>
-      <button data-tab="t-cal">Calendrier</button>
-      <button data-tab="t-rates">Tarifs</button>
-      <button data-tab="t-promo">Codes promo</button>
-      <button data-tab="t-extra">Extras</button>
-      <button data-tab="t-sync">Synchro</button>
     </nav>
-
+    <div class="adm-shell">
+    <header class="adm-top">
+      <svg class="adm-frond" viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg>
+      <span class="adm-top-kicker" id="topKicker">Espace hôte</span>
+      <h1 class="adm-top-title" id="topTitle">Accueil</h1>
+      <div class="adm-top-filet"></div>
+      <div id="topExtra" class="adm-top-extra"></div>
+    </header>
     <main class="adm-main">
 
-      <section id="t-book" class="adm-panel on">
-        <header class="adm-panel-head adm-panel-head-row">
-          <div>
-            <h2>Réservations</h2>
-            <p class="adm-lede">Séjours en direct (site + virement) — historique pour le calcul des revenus.</p>
-          </div>
-          <button type="button" class="adm-btn adm-btn-ghost" id="revPdfBtn" hidden>Exporter en PDF</button>
-        </header>
+      <section id="t-home" class="adm-panel on">
+        <div class="h-kpis">
+          <div class="h-kpi"><span>Nuits</span><b id="kNights">—</b><em id="kNightsSub">ce mois-ci</em></div>
+          <div class="h-kpi"><span>Occupation</span><b id="kOcc">—</b><em id="kOccSub">ce mois-ci</em></div>
+          <div class="h-kpi"><span>Site direct</span><b id="kSite">—</b><em>encaissé ce mois</em></div>
+        </div>
 
+        <div class="h-sec"><i>01</i><span>Les 7 prochains jours</span></div>
+        <div class="h-week" id="homeWeek"></div>
+        <div class="h-legend"><span><i class="c-book"></i>Site direct</span><span><i class="c-ext"></i>Airbnb</span><span><i class="c-block"></i>Bloqué</span><span><i class="c-free"></i>Libre</span></div>
+
+        <div class="h-sec"><i>02</i><span>Raccourcis</span></div>
+        <div class="h-acts">
+          <button type="button" class="h-act" data-tab="t-cal"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Bloquer des dates</span></button>
+          <button type="button" class="h-act" data-tab="t-book" data-open="addbook"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Ajouter une résa</span></button>
+          <button type="button" class="h-act" data-tab="t-promo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v8a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2z"/><path d="M9.5 14.5l5-5"/><circle cx="9.5" cy="9.5" r=".6"/><circle cx="14.5" cy="14.5" r=".6"/></svg><span>Codes promo</span></button>
+          <button type="button" class="h-act" data-tab="t-rates"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg><span>Mes tarifs</span></button>
+        </div>
+
+        <div class="h-sec h-sec-row"><span class="h-sec-l"><i>03</i><span>Revenus du site</span></span>
+          <button type="button" class="adm-link-btn" id="revPdfBtn" hidden>Exporter en PDF</button></div>
         <div class="adm-rev" id="bookRevenue" hidden>
           <div class="adm-rev-card">
             <div class="adm-rev-lab">CA direct <span id="revYearLabel">2026</span></div>
@@ -97,6 +118,16 @@
         </div>
         <div class="adm-rev-months" id="revMonths" hidden></div>
 
+      </section>
+
+
+      <section id="t-book" class="adm-panel">
+        <div class="h-sec"><i>01</i><span>À venir</span></div>
+        <div class="up-list" id="upcomingList"><div class="up-empty">Chargement…</div></div>
+
+        <details class="adm-add" id="addBookDetails">
+          <summary><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Ajouter une réservation (virement, espèces…)</span></summary>
+
         <form id="directBookForm" class="adm-form adm-form-card">
           <fieldset>
             <legend>Ajouter une réservation (virement / hors Stripe)</legend>
@@ -116,7 +147,9 @@
             <p class="adm-hint">Sert à garder l’historique comptable des paiements hors Stripe (virement, espèces…). Le calendrier est bloqué automatiquement.</p>
           </fieldset>
         </form>
+        </details>
 
+        <div class="h-sec"><i>02</i><span>Réservations directes</span></div>
         <div class="adm-card">
           <div class="adm-scroll"><table class="adm-table" id="bookTable">
             <thead><tr><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Voyageur</th><th>Contact</th><th>Pers.</th><th>Total</th><th>Paiement</th><th>Statut</th><th></th></tr></thead>
@@ -154,13 +187,13 @@
         </div>
 
         <div class="adm-explain">
-          <b>Tarifs par durée (ménage inclus)</b>
+          <b>Comment le prix est calculé</b>
           <ol>
-            <li><b>1 à 6 nuits</b> → prix « courts séjours ».</li>
-            <li><b>À partir de 7 nuits</b> → prix « semaine » (dégressif).</li>
-            <li><b>À partir de 21 nuits (cure)</b> → prix « cure » (le plus bas).</li>
+            <li><b>1 à 5 nuits</b> → prix par nuit + ménage (<b>35 €</b> pour 1–2 nuits, <b>50 €</b> dès 3 nuits).</li>
+            <li><b>Dès 6 nuits</b> → prix « semaine », ménage inclus.</li>
+            <li><b>Dès 20 nuits (cure)</b> → prix « cure », ménage inclus.</li>
           </ol>
-          <span>Le ménage est inclus. Le tarif dépend uniquement de la durée du séjour.</span>
+          <span>Les dates spéciales (fêtes, Musilac…) se règlent dans « Promos &amp; événements ».</span>
         </div>
 
         <form id="ratesForm" class="adm-form">
@@ -175,7 +208,7 @@
               <label>Nuits minimum<input name="min_nights" type="number" min="1" placeholder="1"></label>
               <label>Voyageurs max<input name="max_guests" type="number" min="1" placeholder="2"></label>
             </div>
-            <p class="adm-hint">1 à 5 nuits : <b>prix fixe par nuit (≈ Airbnb −15,5 %)</b> + 50 € de ménage · dates spéciales dans « Tarifs événements » · <b>300 €</b> la semaine · <b>750 €</b> la cure. Les seuils sont en <b>nuits</b> (semaine = 6 nuits, cure 3 sem. = 20 nuits).</p>
+            <p class="adm-hint">1 à 5 nuits : <b>prix fixe par nuit (≈ Airbnb −15,5 %)</b> + ménage (35 € pour 1–2 nuits, 50 € dès 3) · dates spéciales dans « Tarifs événements » · <b>300 €</b> la semaine · <b>750 €</b> la cure. Les seuils sont en <b>nuits</b> (semaine = 6 nuits, cure 3 sem. = 20 nuits).</p>
           </fieldset>
 
           <fieldset>
@@ -354,10 +387,20 @@
         <p class="adm-hint adm-hint-block">Dans chaque plateforme, importez <b>son</b> lien : il contient toutes les dates occupées sauf celles de cette plateforme.</p>
         <div id="syncExport" class="sync-links"></div>
       </section>
+      <section id="t-more" class="adm-panel">
+        <div class="more-list">
+          <button type="button" data-tab="t-promo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v8a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2z"/><path d="M9.5 14.5l5-5"/><circle cx="9.5" cy="9.5" r=".6"/><circle cx="14.5" cy="14.5" r=".6"/></svg><span><b>Promos &amp; événements</b><em>Codes promo, prix des dates spéciales</em></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" data-tab="t-extra"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span><b>Extras</b><em>Arrivée anticipée, départ tardif, commandes</em></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button type="button" data-tab="t-sync"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 3v4h-4M6 21v-4h4"/></svg><span><b>Synchro</b><em>Calendriers Airbnb / Booking</em></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+          <a href="/"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span><b>Voir le site</b><em>labonneaventure-aixlesbains.fr</em></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></a>
+          <button type="button" data-action="logout"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/><path d="M10 16l4-4-4-4M14 12H4"/></svg><span><b>Déconnexion</b><em>Fermer la session</em></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+      </section>
 
     </main>
+    </div>
   </div>
 
-<script src="assets/admin.js?v=27" defer></script>
+<script src="assets/admin.js?v=28" defer></script>
 </body>
 </html>

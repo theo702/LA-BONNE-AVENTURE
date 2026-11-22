@@ -68,19 +68,156 @@
   }
   $('#logoutBtn').addEventListener('click', async () => { await api('logout', { method: 'POST' }); showLogin(); });
 
-  // ---------- Tabs ----------
-  document.querySelectorAll('.adm-tabs button').forEach((b) => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('.adm-tabs button').forEach((x) => x.classList.toggle('on', x === b));
-      document.querySelectorAll('.adm-panel').forEach((p) => p.classList.toggle('on', p.id === b.dataset.tab));
-      if (b.dataset.tab === 't-cal') loadCalendar(); // rafraîchir à l'ouverture
+  // ---------- Onglets (barre du bas sur iPhone, barre latérale sur PC) ----------
+  var TAB_TITLES = {
+    't-home': null, 't-book': 'Séjours', 't-cal': 'Calendrier', 't-rates': 'Tarifs',
+    't-promo': 'Promos & événements', 't-extra': 'Extras', 't-sync': 'Synchro', 't-more': 'Plus',
+  };
+  var SECONDARY_TABS = { 't-promo': 1, 't-extra': 1, 't-sync': 1 };
+  var JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  var MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  function frShort(iso) { const d = new Date(iso + 'T00:00:00Z'); return JOURS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MOIS[d.getUTCMonth()]; }
+
+  function setTopTitle(id) {
+    const t = $('#topTitle'), k = $('#topKicker');
+    const now = new Date();
+    k.textContent = 'Espace hôte · ' + JOURS[now.getDay()] + ' ' + now.getDate() + ' ' + MOIS[now.getMonth()];
+    if (id === 't-home') t.innerHTML = (now.getHours() >= 18 || now.getHours() < 5 ? 'Bonsoir' : 'Bonjour') + ' <em>Théo</em>';
+    else t.textContent = TAB_TITLES[id] || '';
+    document.body.dataset.tab = id;
+  }
+
+  function goTab(id, open) {
+    if (!document.getElementById(id)) id = 't-home';
+    document.querySelectorAll('.adm-tabs [data-tab]').forEach((x) => {
+      x.classList.toggle('on', x.dataset.tab === id || (x.dataset.tab === 't-more' && !!SECONDARY_TABS[id]));
     });
+    document.querySelectorAll('.adm-panel').forEach((p) => p.classList.toggle('on', p.id === id));
+    setTopTitle(id);
+    renderTopExtra(id);
+    try { history.replaceState(null, '', '#' + id.slice(2)); } catch (e) {}
+    window.scrollTo(0, 0);
+    if (id === 't-cal') loadCalendar(); // rafraîchir à l'ouverture
+    if (open === 'addbook') {
+      const d = $('#addBookDetails');
+      if (d) { d.open = true; setTimeout(() => d.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }
+    }
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tab]');
+    if (b && !b.closest('#login')) { e.preventDefault(); goTab(b.dataset.tab, b.dataset.open); return; }
+    const out = e.target.closest('[data-action="logout"]');
+    if (out) { e.preventDefault(); $('#logoutBtn').click(); }
+  });
+
+  // Tableaux → cartes sur mobile : chaque cellule reçoit le titre de sa colonne.
+  function labelTable(t) {
+    const heads = Array.from(t.querySelectorAll('thead th')).map((th) => th.textContent.trim());
+    t.querySelectorAll('tbody tr').forEach((tr) => {
+      Array.from(tr.children).forEach((td, i) => { if (!td.hasAttribute('data-label')) td.setAttribute('data-label', heads[i] || ''); });
+    });
+  }
+  document.querySelectorAll('table.adm-table').forEach((t) => {
+    labelTable(t);
+    const tb = t.querySelector('tbody');
+    if (tb && window.MutationObserver) new MutationObserver(() => labelTable(t)).observe(tb, { childList: true });
   });
 
   // ---------- Init / chargement ----------
   function initApp() {
     bindAllDmyInputs();
+    const h = (location.hash || '').replace('#', '');
+    goTab(h ? 't-' + h : 't-home');
     loadBookings(); loadSettings(); loadStripeStatus(); loadPromos(); loadEvents(); loadExtras(); loadCalendar(); loadSync();
+  }
+
+  // ---------- Accueil : prochaine arrivée, chiffres du mois, 7 jours ----------
+  function stays() {
+    if (!cal.data) return [];
+    const list = [];
+    (cal.data.bookings || []).forEach((b) => { if (b.from && b.to && b.status !== 'cancelled') list.push({ from: b.from, to: b.to, who: b.guest || 'Voyageur', src: 'site' }); });
+    (cal.data.external || []).forEach((r) => { if (r.from && r.to) list.push({ from: r.from, to: r.to, who: 'Réservation Airbnb', src: 'airbnb' }); });
+    return list.sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0));
+  }
+  function daysBetween(a, b) { return Math.round((Date.parse(b) - Date.parse(a)) / 86400000); }
+
+  function renderTopExtra(id) {
+    const box = $('#topExtra'); if (!box) return;
+    if (id !== 't-home') { box.innerHTML = ''; return; }
+    if (!cal.data) { box.innerHTML = '<span class="tx-lab">Chargement…</span>'; return; }
+    const t = today();
+    const all = stays();
+    const cur = all.find((s) => s.from <= t && s.to > t);
+    const next = all.find((s) => s.from > t);
+    let h = '';
+    if (cur) {
+      h += '<span class="tx-lab">En ce moment · départ ' + (daysBetween(t, cur.to) === 0 ? "aujourd'hui" : frShort(cur.to)) + '</span>' +
+        '<strong class="tx-big">' + esc(cur.who) + '</strong>' +
+        '<span class="tx-sub">' + daysBetween(cur.from, cur.to) + ' nuit' + (daysBetween(cur.from, cur.to) > 1 ? 's' : '') + ' · ' + (cur.src === 'site' ? 'site direct' : 'Airbnb') + ' · ménage le ' + frShort(cur.to) + '</span>';
+    }
+    if (next) {
+      const d = daysBetween(t, next.from);
+      const quand = d === 1 ? 'demain' : 'dans ' + d + ' jours';
+      const n = daysBetween(next.from, next.to);
+      h += (cur ? '<div class="tx-sep"></div>' : '') +
+        '<span class="tx-lab">Prochaine arrivée · ' + quand + '</span>' +
+        '<strong class="tx-big">' + frShort(next.from) + ' → ' + frShort(next.to) + '</strong>' +
+        '<span class="tx-sub">' + n + ' nuit' + (n > 1 ? 's' : '') + ' · ' + (next.src === 'site' ? esc(next.who) + ' · site direct' : 'Airbnb') + '</span>';
+    }
+    if (!cur && !next) h = '<span class="tx-lab">Prochaine arrivée</span><strong class="tx-big">Aucune réservation à venir</strong>';
+    box.innerHTML = h;
+  }
+
+  function renderHome() {
+    if (!cal.data) return;
+    const t = today();
+    const now = new Date(t + 'T00:00:00Z');
+    const y = now.getUTCFullYear(), m = now.getUTCMonth();
+    const days = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+    let occ = 0;
+    for (let d = 1; d <= days; d++) {
+      const ds = y + '-' + pad2(m + 1) + '-' + pad2(d);
+      if (cal.booked.has(ds) || cal.external.has(ds)) occ++;
+    }
+    const kN = $('#kNights'); if (kN) kN.textContent = occ;
+    const kNs = $('#kNightsSub'); if (kNs) kNs.textContent = 'sur ' + days + ' en ' + CAL_MONTHS[m];
+    const kO = $('#kOcc'); if (kO) kO.textContent = Math.round((occ / days) * 100) + ' %';
+    const kOs = $('#kOccSub'); if (kOs) kOs.textContent = CAL_MONTHS[m] + ' ' + y;
+    const kS = $('#kSite');
+    if (kS) {
+      const key = y + '-' + pad2(m + 1);
+      const bm = _lastRevenue && _lastRevenue.by_month && _lastRevenue.by_month[key];
+      kS.textContent = Math.round((bm ? bm.total_cents || 0 : 0) / 100).toLocaleString('fr-FR') + ' €';
+    }
+    const w = $('#homeWeek');
+    if (w) {
+      let h = '';
+      for (let i = 0; i < 7; i++) {
+        const ds = ymd(new Date(now.getTime() + i * 86400000));
+        const d = new Date(ds + 'T00:00:00Z');
+        h += '<div class="h-day s-' + stateOf(ds) + (i === 0 ? ' today' : '') + '"><span>' + JOURS[d.getUTCDay()].slice(0, 3) + '</span><b>' + d.getUTCDate() + '</b></div>';
+      }
+      w.innerHTML = h;
+    }
+    renderUpcoming();
+    if (document.body.dataset.tab === 't-home') renderTopExtra('t-home');
+  }
+
+  function renderUpcoming() {
+    const box = $('#upcomingList'); if (!box) return;
+    const t = today();
+    const list = stays().filter((s) => s.to > t).slice(0, 12);
+    if (!list.length) { box.innerHTML = '<div class="up-empty">Aucun séjour à venir pour le moment.</div>'; return; }
+    box.innerHTML = list.map((s) => {
+      const d = new Date(s.from + 'T00:00:00Z');
+      const n = daysBetween(s.from, s.to);
+      const now = s.from <= t;
+      return '<div class="up-item ' + s.src + '">' +
+        '<span class="up-date"><em>' + MOIS[d.getUTCMonth()] + '</em><b>' + d.getUTCDate() + '</b></span>' +
+        '<span class="up-body"><b>' + esc(s.who) + '</b>' +
+        '<span>' + n + ' nuit' + (n > 1 ? 's' : '') + ' · départ ' + frShort(s.to) + (now ? ' · <strong>en cours</strong>' : '') + '</span>' +
+        '<i>' + (s.src === 'site' ? 'Site direct' : 'Airbnb') + '</i></span></div>';
+    }).join('');
   }
 
   var KIND_FR = { none: '—', late_checkout: 'Départ tardif', early_checkin: 'Arrivée anticipée', both: 'Départ tardif + Arrivée anticipée', weekly: 'Pack hebdo (cure)' };
@@ -101,6 +238,7 @@
     _lastRevenue = j && j.revenue;
     $('#bookEmpty').hidden = rows.length > 0;
     renderRevenue(_lastRevenue);
+    if (cal.data) renderHome();
     const pdfBtn = $('#revPdfBtn');
     if (pdfBtn) pdfBtn.hidden = !(_lastRevenue && _lastRevenue.year_stats);
     rows.forEach((r) => {
@@ -910,6 +1048,7 @@
     (j.bookings || []).forEach((b) => { let d = parseD(b.from); const e = parseD(b.to); let g = 0; while (d < e && g < 1200) { cal.bookByNight[ymd(d)] = b; d = new Date(d.getTime() + 86400000); g++; } });
     if (!cal.view) { const n = new Date(); cal.view = new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), 1)); }
     renderCal();
+    renderHome();
   }
 
   function stateOf(ds) {
