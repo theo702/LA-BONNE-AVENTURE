@@ -204,8 +204,8 @@
       const mail = stock.email ? 'Les alertes partent à <b>' + esc(stock.email) + '</b>.' : '<b>Attention :</b> aucune adresse mail d’alerte n’est configurée.';
       if (stock.token) {
         const link = location.origin + '/menage?k=' + stock.token;
-        const sms = 'sms:&body=' + encodeURIComponent('Bonjour ! Voici le lien pour le stock du studio. Ouvrez-le dans Safari, puis Partager > Sur l’écran d’accueil : ' + link);
-        acc.innerHTML = '<p>Envoyez-lui ce lien. Elle peut seulement dire ce qu’elle utilise : elle ne voit ni vos réservations ni vos prix.</p>' +
+        const sms = 'sms:&body=' + encodeURIComponent('Bonjour ! Voici le lien pour le studio (stock et demandes d’extras). Ouvrez-le dans Safari, puis Partager > Sur l’écran d’accueil : ' + link);
+        acc.innerHTML = '<p>Envoyez-lui ce lien. Elle peut dire ce qu’elle utilise et accepter ou refuser les demandes d’extras (arrivée anticipée, départ tardif). Elle ne voit ni vos réservations ni vos prix.</p>' +
           '<input class="st-link" readonly value="' + esc(link) + '">' +
           '<div class="st-acc-acts"><button type="button" class="adm-btn" data-st="copy">Copier le lien</button>' +
           '<a class="adm-btn adm-btn-ghost" href="' + esc(sms) + '">Par SMS</a></div>' +
@@ -213,7 +213,7 @@
           '<button type="button" class="adm-link-btn st-danger" data-st="revoke">Couper l’accès</button></div>' +
           '<p class="adm-hint">' + mail + '</p>';
       } else {
-        acc.innerHTML = '<p>Créez un lien personnel pour votre femme de ménage. Elle l’ajoute sur son écran d’accueil et touche un produit à chaque fois qu’elle en utilise un.</p>' +
+        acc.innerHTML = '<p>Créez un lien personnel pour votre femme de ménage. Elle l’ajoute sur son écran d’accueil : elle y valide les demandes d’extras et touche un produit à chaque fois qu’elle en utilise un.</p>' +
           '<button type="button" class="adm-btn" data-st="rotate">Créer son lien d’accès</button>' +
           '<p class="adm-hint">' + mail + '</p>';
       }

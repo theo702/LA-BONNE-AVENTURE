@@ -52,10 +52,38 @@
   .use:active{transform:scale(.985)}
   .use:disabled{opacity:.55}
   .msg{padding:22px 18px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font-size:15px;line-height:1.5;color:var(--mute)}
+  .sec{display:flex;align-items:center;gap:10px;margin:22px 0 12px;color:var(--navy)}
+  .sec:first-child{margin-top:4px}
+  .sec i{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:15px}
+  .sec span{font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+  .sec b{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:var(--gold);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .req{position:relative;overflow:hidden;padding:16px;border-radius:20px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);margin-bottom:12px}
+  .req::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:2px;background:var(--gold)}
+  .req h3{margin:0 0 6px;font-size:17px;font-weight:600}
+  .req p{margin:0;font-size:14px;color:var(--mute);line-height:1.5}
+  .req p strong{color:var(--ink);font-weight:600}
+  .req-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .req-acts button{min-height:50px;border-radius:12px;cursor:pointer;font:600 12px/1 'Jost',sans-serif;letter-spacing:.12em;text-transform:uppercase}
+  .ok{border:0;background:var(--navy);color:var(--paper)}
+  .no{border:1px solid #D8CDB8;background:#fff;color:#9A3412}
+  .req-acts button:disabled{opacity:.5}
+  .none{margin:0;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.6);box-shadow:inset 0 0 0 1px var(--line);font-size:14px;color:var(--mute)}
+  .plan{border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+  .plan-row{display:flex;gap:14px;align-items:center;padding:12px 16px;border-bottom:1px solid #F0ECE1}
+  .plan-row:last-child{border-bottom:0}
+  .plan-d{width:46px;flex:0 0 46px;display:flex;flex-direction:column;align-items:center}
+  .plan-d em{font-style:normal;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--navy)}
+  .plan-d b{font-family:'Fraunces',serif;font-weight:400;font-size:24px;line-height:1.05}
+  .plan-t{display:flex;flex-direction:column;min-width:0;flex:1}
+  .plan-t b{font-size:14.5px;font-weight:600}
+  .plan-t span{font-size:12.5px;color:var(--mute)}
+  .chip{font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;white-space:nowrap}
+  .chip.paid{background:rgba(95,138,106,.16);color:#3f6b4a}
+  .chip.wait{background:rgba(217,151,26,.16);color:var(--gold-ink)}
   .toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9;max-width:536px;margin:0 auto;
     display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:var(--navy);color:var(--paper);
-    box-shadow:0 14px 34px rgba(10,31,56,.3);font-size:14.5px;transform:translateY(140%);transition:transform .25s ease}
-  .toast.on{transform:none}
+    box-shadow:0 14px 34px rgba(10,31,56,.3);font-size:14.5px;transform:translateY(140%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s}
+  .toast.on{transform:none;visibility:visible;transition:transform .25s ease}
   .toast span{flex:1}
   .toast button{border:0;background:rgba(230,169,44,.18);color:var(--gold-l);border-radius:10px;padding:10px 12px;cursor:pointer;font:600 12px 'Jost',sans-serif;letter-spacing:.1em;text-transform:uppercase}
 </style>
@@ -64,15 +92,17 @@
 <header>
   <svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg>
   <div class="kick">La Bonne Aventure · Ménage</div>
-  <h1>Le <em>stock</em></h1>
+  <h1>Espace <em>ménage</em></h1>
   <div class="filet"></div>
-  <p>Quand vous prenez un produit, touchez « J’en ai pris 1 ». Merci !</p>
+  <p>Validez les demandes des voyageurs et dites ce que vous utilisez. Merci !</p>
 </header>
 <main>
   <div class="tip" id="tip" hidden>
     <span>Pour l’avoir comme une appli : dans Safari, touchez <b>Partager</b> puis <b>Sur l’écran d’accueil</b>.</span>
     <button type="button" id="tipClose" aria-label="Fermer">×</button>
   </div>
+  <div id="extras"></div>
+  <div class="sec"><i>02</i><span>Le stock</span></div>
   <div class="list" id="list"><div class="msg">Chargement…</div></div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastTxt"></span><button type="button" id="undoBtn">Annuler</button></div>
@@ -142,13 +172,60 @@
     });
   });
 
+
+  // ---------- Demandes d'extras ----------
+  var JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  var MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  function fr(iso) { var d = new Date(iso + 'T00:00:00Z'); return JOURS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MOIS[d.getUTCMonth()]; }
+  var extras = { pending: [], planned: [] };
+  function callX(method, body) {
+    return fetch('/api/menage/extras', { method: method, headers: { 'Content-Type': 'application/json', 'x-menage-key': key }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
+  }
+  function renderExtras() {
+    var h = '<div class="sec"><i>01</i><span>Demandes à valider</span>' + (extras.pending.length ? '<b>' + extras.pending.length + '</b>' : '') + '</div>';
+    if (!extras.pending.length) h += '<p class="none">Aucune demande en attente.</p>';
+    extras.pending.forEach(function (g) {
+      var what = g.lines.length ? g.lines.map(function (l) { return '<strong>' + esc(l.label) + '</strong> le ' + fr(l.date); }).join('<br>') : esc(g.title);
+      h += '<div class="req"><h3>' + esc(g.guest) + ' demande un extra</h3><p>' + what + '</p>' +
+        '<div class="req-acts"><button type="button" class="ok" data-x="accept" data-id="' + esc(g.id) + '">Accepter</button>' +
+        '<button type="button" class="no" data-x="reject" data-id="' + esc(g.id) + '">Refuser</button></div></div>';
+    });
+    if (extras.planned.length) {
+      h += '<div class="sec"><i>·</i><span>Extras déjà prévus</span></div><div class="plan">';
+      extras.planned.forEach(function (g) {
+        var d = new Date(g.date + 'T00:00:00Z');
+        var lab = g.lines.map(function (l) { return l.label; }).join(' + ') || g.title;
+        var chip = g.status === 'confirmed' ? '<span class="chip paid">payé</span>' : '<span class="chip wait">paiement en attente</span>';
+        h += '<div class="plan-row"><span class="plan-d"><em>' + MOIS[d.getUTCMonth()] + '</em><b>' + d.getUTCDate() + '</b></span>' +
+          '<span class="plan-t"><b>' + esc(lab) + '</b><span>' + esc(g.guest) + ' · ' + fr(g.date) + '</span></span>' + chip + '</div>';
+      });
+      h += '</div>';
+    }
+    $('#extras').innerHTML = h;
+  }
+  function loadExtras() {
+    if (!key) return;
+    callX('GET').then(function (j) { if (j.ok) { extras = j; renderExtras(); } }).catch(function () {});
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-x]'); if (!b) return;
+    var accept = b.dataset.x === 'accept';
+    if (!confirm(accept ? 'Accepter cette demande ? Le voyageur recevra le lien pour payer.' : 'Refuser cette demande ? Le voyageur sera prévenu.')) return;
+    var btns = b.parentNode.querySelectorAll('button'); for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+    callX('POST', { id: b.dataset.id, action: b.dataset.x }).then(function (j) {
+      if (j.pending) { extras = { pending: j.pending, planned: j.planned || [] }; renderExtras(); }
+      toast(j.message || (j.ok === false ? 'Erreur, réessayez.' : 'C’est fait.'), false);
+    }).catch(function () { for (var i = 0; i < btns.length; i++) btns[i].disabled = false; toast('Pas de connexion. Réessayez.', false); });
+  });
+
   var standalone = window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
   var tipSeen = false; try { tipSeen = localStorage.getItem('lba_menage_tip') === '1'; } catch (e) {}
   if (!standalone && !tipSeen && key) $('#tip').hidden = false;
   $('#tipClose').addEventListener('click', function () { $('#tip').hidden = true; try { localStorage.setItem('lba_menage_tip', '1'); } catch (e) {} });
 
-  document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
-  load();
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) { load(); loadExtras(); } });
+  load(); loadExtras();
 })();
 </script>
 </body>
