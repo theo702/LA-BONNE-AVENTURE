@@ -350,3 +350,19 @@ export async function confirmAndNotify(env, bookingId, stripeInfo) {
   await sendEmails(env, { ...booking, status: 'confirmed' });
   return { ...booking, status: 'confirmed' };
 }
+
+// Stock bas : un produit vient de passer sous son seuil d'alerte.
+export async function sendStockAlert(env, item, who) {
+  if (!env.HOST_EMAIL) return { ok: false, message: 'HOST_EMAIL manquant.' };
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const unit = item.unit ? ' × ' + esc(item.unit) : '';
+  const reste = item.qty === 0 ? '<b style="color:#9A3412">Il n’en reste plus.</b>' : `Il en reste <b>${item.qty}</b>${unit}.`;
+  const par = who === 'menage' ? 'Signalé par votre femme de ménage.' : 'Après votre dernière mise à jour.';
+  const html = wrap(`
+    <p style="margin:0 0 6px;font-size:12px;letter-spacing:2px;color:#a9760f;font-weight:600">STOCK BAS</p>
+    <h2 style="margin:0 0 14px;font-size:21px;font-weight:600;color:#0f2a4a">${esc(item.name)}</h2>
+    <p style="margin:0 0 8px;font-size:15px;line-height:1.5">${reste} Pensez à en racheter.</p>
+    <p style="margin:0 0 20px;font-size:13px;color:#5f6675">${par} Seuil d’alerte : ${item.threshold}.</p>
+    <a href="https://labonneaventure-aixlesbains.fr/admin#stock" style="display:inline-block;background:#0f2a4a;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:10px;font-size:13px;letter-spacing:1.5px;font-weight:600">VOIR MON STOCK</a>`);
+  return sendResend(env, env.HOST_EMAIL, `Stock bas : ${item.name} (reste ${item.qty})`, html);
+}

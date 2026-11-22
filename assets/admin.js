@@ -70,10 +70,10 @@
 
   // ---------- Onglets (barre du bas sur iPhone, barre latérale sur PC) ----------
   var TAB_TITLES = {
-    't-home': null, 't-book': 'Séjours', 't-cal': 'Calendrier', 't-rates': 'Tarifs',
+    't-home': null, 't-book': 'Séjours', 't-cal': 'Calendrier', 't-stock': 'Stock', 't-rates': 'Tarifs',
     't-promo': 'Promos & événements', 't-extra': 'Extras', 't-sync': 'Synchro', 't-more': 'Plus',
   };
-  var SECONDARY_TABS = { 't-promo': 1, 't-extra': 1, 't-sync': 1 };
+  var SECONDARY_TABS = { 't-rates': 1, 't-promo': 1, 't-extra': 1, 't-sync': 1 };
   var JOURS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
   var MOIS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
   function frShort(iso) { const d = new Date(iso + 'T00:00:00Z'); return JOURS[d.getUTCDay()] + ' ' + d.getUTCDate() + ' ' + MOIS[d.getUTCMonth()]; }
@@ -84,7 +84,7 @@
     k.textContent = 'Espace hôte · ' + JOURS[now.getDay()] + ' ' + now.getDate() + ' ' + MOIS[now.getMonth()];
     if (id === 't-home') t.innerHTML = (now.getHours() >= 18 || now.getHours() < 5 ? 'Bonsoir' : 'Bonjour') + ' <em>Théo</em>';
     else t.textContent = TAB_TITLES[id] || '';
-    document.body.dataset.tab = id;
+    document.body.dataset.curTab = id;
   }
 
   function goTab(id, open) {
@@ -98,13 +98,14 @@
     try { history.replaceState(null, '', '#' + id.slice(2)); } catch (e) {}
     window.scrollTo(0, 0);
     if (id === 't-cal') loadCalendar(); // rafraîchir à l'ouverture
+    if (id === 't-stock' || id === 't-home') loadStock();
     if (open === 'addbook') {
       const d = $('#addBookDetails');
       if (d) { d.open = true; setTimeout(() => d.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }
     }
   }
   document.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-tab]');
+    const b = e.target.closest('button[data-tab], a[data-tab]');
     if (b && !b.closest('#login')) { e.preventDefault(); goTab(b.dataset.tab, b.dataset.open); return; }
     const out = e.target.closest('[data-action="logout"]');
     if (out) { e.preventDefault(); $('#logoutBtn').click(); }
@@ -128,8 +129,146 @@
     bindAllDmyInputs();
     const h = (location.hash || '').replace('#', '');
     goTab(h ? 't-' + h : 't-home');
+    if (h && h !== 'stock' && h !== 'home') loadStock();
     loadBookings(); loadSettings(); loadStripeStatus(); loadPromos(); loadEvents(); loadExtras(); loadCalendar(); loadSync();
   }
+
+
+  // ---------- Stock ----------
+  var stock = { items: [], moves: [], token: null, email: null, editing: null, loaded: false };
+  var STOCK_SUGG = [
+    ['Papier toilette', 'paquet de 6 rouleaux'], ['Essuie-tout', 'rouleau'], ['Sacs poubelle', 'rouleau'],
+    ['Café', 'boîte de capsules'], ['Thé', 'boîte'], ['Savon mains', 'recharge'], ['Gel douche', 'recharge'],
+    ['Liquide vaisselle', 'flacon'], ['Éponges', 'paquet'], ['Pastilles lave-vaisselle', 'boîte'], ['Produit ménager', 'flacon'],
+  ];
+
+  async function loadStock() {
+    const { status, j } = await api('stock');
+    if (status !== 200 || !j || !j.ok) { const l = $('#stockList'); if (l && !stock.loaded) l.innerHTML = '<div class="up-empty">Stock momentanément indisponible.</div>'; return; }
+    setStock(j);
+  }
+  function setStock(j) {
+    stock.items = j.items || []; stock.moves = j.moves || []; stock.token = j.menage_token || null; stock.email = j.alert_email || null; stock.loaded = true;
+    renderStock(); renderHomeLow();
+  }
+  async function stockPost(body) {
+    const { status, j } = await api('stock', { method: 'POST', body: JSON.stringify(body) });
+    if (status === 200 && j && j.ok) { setStock(j); return true; }
+    alert((j && j.message) || 'Erreur, réessayez.');
+    return false;
+  }
+  const unitTxt = (x) => (x.unit ? esc(x.unit) : 'unité');
+
+  function renderHomeLow() {
+    const box = $('#homeLow'), list = $('#homeLowList'); if (!box || !list) return;
+    const low = stock.items.filter((x) => x.low);
+    box.hidden = !low.length;
+    list.innerHTML = low.map((x) => '<div class="low-row"><span><b>' + esc(x.name) + '</b><em>' +
+      (x.qty === 0 ? 'plus rien' : 'reste ' + x.qty + ' · ' + unitTxt(x)) + '</em></span><i class="' + (x.qty === 0 ? 'urg' : '') + '">' + (x.qty === 0 ? 'urgent' : 'bientôt') + '</i></div>').join('');
+  }
+
+  function renderStock() {
+    const list = $('#stockList'); if (!list) return;
+    if (!stock.items.length) {
+      list.innerHTML = '<div class="up-empty">Aucun produit pour l’instant. Ajoutez votre premier produit juste en dessous.</div>';
+      const d = $('#stockAdd'); if (d) d.open = true;
+    } else {
+      list.innerHTML = stock.items.map((x) => {
+        if (stock.editing === x.id) {
+          return '<form class="st-item st-edit" data-id="' + x.id + '">' +
+            '<label>Produit<input name="name" value="' + esc(x.name) + '" maxlength="60" required></label>' +
+            '<label>Unité<input name="unit" value="' + esc(x.unit) + '" maxlength="60"></label>' +
+            '<div class="st-edit-row"><label>En stock<input name="qty" type="number" min="0" inputmode="numeric" value="' + x.qty + '"></label>' +
+            '<label>Alerte à<input name="threshold" type="number" min="0" inputmode="numeric" value="' + x.threshold + '"></label></div>' +
+            '<div class="st-edit-acts"><button type="submit" class="adm-btn">Enregistrer</button>' +
+            '<button type="button" class="adm-ghost" data-st="cancel">Annuler</button>' +
+            '<button type="button" class="st-del" data-st="del" data-id="' + x.id + '">Supprimer</button></div></form>';
+        }
+        return '<div class="st-item' + (x.low ? ' low' : '') + (x.qty === 0 ? ' empty' : '') + '">' +
+          '<button type="button" class="st-main" data-st="edit" data-id="' + x.id + '"><b>' + esc(x.name) + '</b>' +
+          '<span>' + unitTxt(x) + ' · alerte à ' + x.threshold + '</span>' +
+          (x.low ? '<i>' + (x.qty === 0 ? 'à racheter vite' : 'à racheter') + '</i>' : '') + '</button>' +
+          '<div class="st-qty"><button type="button" data-st="minus" data-id="' + x.id + '" aria-label="Retirer 1">−</button>' +
+          '<b>' + x.qty + '</b>' +
+          '<button type="button" data-st="plus" data-id="' + x.id + '" aria-label="Ajouter 1">+</button></div></div>';
+      }).join('');
+    }
+    const sg = $('#stockSugg');
+    if (sg) {
+      const have = new Set(stock.items.map((x) => x.name.toLowerCase()));
+      sg.innerHTML = STOCK_SUGG.filter((x) => !have.has(x[0].toLowerCase()))
+        .map((x) => '<button type="button" data-sugg="' + esc(x[0]) + '" data-unit="' + esc(x[1]) + '">' + esc(x[0]) + '</button>').join('');
+    }
+    const acc = $('#stockAccess');
+    if (acc) {
+      const mail = stock.email ? 'Les alertes partent à <b>' + esc(stock.email) + '</b>.' : '<b>Attention :</b> aucune adresse mail d’alerte n’est configurée.';
+      if (stock.token) {
+        const link = location.origin + '/menage?k=' + stock.token;
+        const sms = 'sms:&body=' + encodeURIComponent('Bonjour ! Voici le lien pour le stock du studio. Ouvrez-le dans Safari, puis Partager > Sur l’écran d’accueil : ' + link);
+        acc.innerHTML = '<p>Envoyez-lui ce lien. Elle peut seulement dire ce qu’elle utilise : elle ne voit ni vos réservations ni vos prix.</p>' +
+          '<input class="st-link" readonly value="' + esc(link) + '">' +
+          '<div class="st-acc-acts"><button type="button" class="adm-btn" data-st="copy">Copier le lien</button>' +
+          '<a class="adm-btn adm-btn-ghost" href="' + esc(sms) + '">Par SMS</a></div>' +
+          '<div class="st-acc-more"><button type="button" class="adm-link-btn" data-st="rotate">Changer le lien</button>' +
+          '<button type="button" class="adm-link-btn st-danger" data-st="revoke">Couper l’accès</button></div>' +
+          '<p class="adm-hint">' + mail + '</p>';
+      } else {
+        acc.innerHTML = '<p>Créez un lien personnel pour votre femme de ménage. Elle l’ajoute sur son écran d’accueil et touche un produit à chaque fois qu’elle en utilise un.</p>' +
+          '<button type="button" class="adm-btn" data-st="rotate">Créer son lien d’accès</button>' +
+          '<p class="adm-hint">' + mail + '</p>';
+      }
+    }
+    const mv = $('#stockMoves');
+    if (mv) {
+      mv.innerHTML = stock.moves.length ? stock.moves.map((m) => {
+        const d = new Date(m.created_at);
+        const when = pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + ' ' + pad2(d.getHours()) + 'h' + pad2(d.getMinutes());
+        return '<div class="st-move"><span class="st-when">' + when + '</span><span class="st-what"><b>' + (m.delta > 0 ? '+' : '−') + Math.abs(m.delta) + '</b> ' + esc(m.item_name) +
+          '<em>' + (m.who === 'menage' ? 'Ménage' : 'Vous') + ' · reste ' + m.qty_after + '</em></span></div>';
+      }).join('') : '<div class="up-empty">Rien pour l’instant.</div>';
+    }
+  }
+
+  document.addEventListener('click', async (e) => {
+    const sg = e.target.closest('[data-sugg]');
+    if (sg) { const f = $('#stockForm'); f.elements['name'].value = sg.dataset.sugg; f.elements['unit'].value = sg.dataset.unit; f.elements['qty'].focus(); return; }
+    const b = e.target.closest('[data-st]'); if (!b || !b.closest('#t-stock')) return;
+    const id = Number(b.dataset.id) || 0, act = b.dataset.st;
+    if (act === 'edit') { stock.editing = id; renderStock(); return; }
+    if (act === 'cancel') { stock.editing = null; renderStock(); return; }
+    if (act === 'minus' || act === 'plus') { b.disabled = true; await stockPost({ action: 'adjust', id, delta: act === 'plus' ? 1 : -1 }); return; }
+    if (act === 'del') {
+      const it = stock.items.find((x) => x.id === id);
+      if (!confirm('Supprimer « ' + (it ? it.name : 'ce produit') + ' » du stock ?')) return;
+      stock.editing = null; await stockPost({ action: 'delete', id }); return;
+    }
+    if (act === 'copy') {
+      const inp = $('.st-link'); copyText(inp.value, b); return;
+    }
+    if (act === 'rotate') {
+      if (stock.token && !confirm('Créer un nouveau lien ? L’ancien ne marchera plus : il faudra lui renvoyer le nouveau.')) return;
+      await stockPost({ action: 'token' }); return;
+    }
+    if (act === 'revoke') {
+      if (!confirm('Couper l’accès de votre femme de ménage ? Son lien ne marchera plus.')) return;
+      await stockPost({ action: 'revoke' }); return;
+    }
+  });
+  document.addEventListener('submit', async (e) => {
+    const f = e.target;
+    if (f.id === 'stockForm') {
+      e.preventDefault();
+      const ok = await stockPost({ action: 'create', name: f.elements['name'].value, unit: f.elements['unit'].value, qty: f.elements['qty'].value, threshold: f.elements['threshold'].value });
+      if (ok) { f.reset(); f.elements['qty'].value = 0; f.elements['threshold'].value = 1; msg('#stockMsg', 'Ajouté ✓'); }
+      return;
+    }
+    if (f.classList && f.classList.contains('st-edit')) {
+      e.preventDefault();
+      const id = Number(f.dataset.id);
+      stock.editing = null;
+      await stockPost({ action: 'update', id, name: f.elements['name'].value, unit: f.elements['unit'].value, qty: f.elements['qty'].value, threshold: f.elements['threshold'].value });
+    }
+  });
 
   // ---------- Accueil : prochaine arrivée, chiffres du mois, 7 jours ----------
   function stays() {
@@ -200,7 +339,7 @@
       w.innerHTML = h;
     }
     renderUpcoming();
-    if (document.body.dataset.tab === 't-home') renderTopExtra('t-home');
+    if (document.body.dataset.curTab === 't-home') renderTopExtra('t-home');
   }
 
   function renderUpcoming() {

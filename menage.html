@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>LBA Ménage</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0f2a4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LBA Ménage">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#0f2a4a;--navy2:#0a1f38;--gold:#d9971a;--gold-ink:#a9760f;--gold-l:#e6a92c;--paper:#FBF7EE;--ink:#1f2838;--mute:#5f6675;--line:#E6E1D4}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:'Jost',system-ui,sans-serif;color:var(--ink);
+    background:radial-gradient(700px 480px at 0% 30%,rgba(217,151,26,.07),transparent 60%),#EDE6D8;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+  header{position:relative;overflow:hidden;padding:calc(24px + env(safe-area-inset-top)) 22px 26px;color:var(--paper);
+    background:radial-gradient(ellipse at 92% 0%,rgba(217,151,26,.24),transparent 52%),linear-gradient(160deg,var(--navy),var(--navy2));border-radius:0 0 26px 26px}
+  header svg{position:absolute;top:-10px;right:-12px;width:110px;height:190px;color:rgba(251,247,238,.15)}
+  .kick{position:relative;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(251,247,238,.8)}
+  h1{position:relative;margin:10px 0 0;font-family:'Fraunces',serif;font-weight:400;font-size:34px;line-height:1.02;letter-spacing:-.02em}
+  h1 em{font-style:italic;font-weight:300;color:var(--gold-l)}
+  .filet{position:relative;width:56px;height:2px;border-radius:2px;background:var(--gold);margin:14px 0 12px}
+  header p{position:relative;margin:0;font-size:15px;font-weight:300;line-height:1.45;color:rgba(251,247,238,.9)}
+  main{padding:18px 16px calc(110px + env(safe-area-inset-bottom));max-width:560px;margin:0 auto}
+  .tip{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;margin:0 0 14px;border-radius:16px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font-size:13.5px;line-height:1.45;color:var(--mute)}
+  .tip b{color:var(--ink)}
+  .tip button{margin-left:auto;border:0;background:none;color:var(--mute);font-size:20px;line-height:1;cursor:pointer;padding:0 0 0 6px}
+  .list{display:flex;flex-direction:column;gap:12px}
+  .item{position:relative;overflow:hidden;padding:16px;border-radius:20px;
+    background:linear-gradient(165deg,rgba(255,255,255,.95),rgba(241,236,224,.6));box-shadow:inset 0 0 0 1px rgba(230,225,212,.9)}
+  .item.low::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:2px;background:var(--gold)}
+  .item.empty::before{background:#9A3412}
+  .top{display:flex;align-items:baseline;gap:12px}
+  .top div{flex:1;min-width:0}
+  .top b{display:block;font-size:17px;font-weight:600}
+  .top span{font-size:13px;font-weight:300;color:var(--mute)}
+  .left{font-family:'Fraunces',serif;font-size:15px;color:var(--mute);white-space:nowrap}
+  .left strong{font-weight:400;font-size:24px;color:var(--ink)}
+  .item.low .left strong{color:var(--gold-ink)}
+  .item.empty .left strong{color:#9A3412}
+  .use{margin-top:12px;width:100%;min-height:54px;border:0;border-radius:12px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:10px;background:var(--navy);color:var(--paper);
+    font:600 12.5px/1 'Jost',sans-serif;letter-spacing:.14em;text-transform:uppercase}
+  .use svg{width:18px;height:18px;color:var(--gold-l)}
+  .use:active{transform:scale(.985)}
+  .use:disabled{opacity:.55}
+  .msg{padding:22px 18px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font-size:15px;line-height:1.5;color:var(--mute)}
+  .toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9;max-width:536px;margin:0 auto;
+    display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:var(--navy);color:var(--paper);
+    box-shadow:0 14px 34px rgba(10,31,56,.3);font-size:14.5px;transform:translateY(140%);transition:transform .25s ease}
+  .toast.on{transform:none}
+  .toast span{flex:1}
+  .toast button{border:0;background:rgba(230,169,44,.18);color:var(--gold-l);border-radius:10px;padding:10px 12px;cursor:pointer;font:600 12px 'Jost',sans-serif;letter-spacing:.1em;text-transform:uppercase}
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg>
+  <div class="kick">La Bonne Aventure · Ménage</div>
+  <h1>Le <em>stock</em></h1>
+  <div class="filet"></div>
+  <p>Quand vous prenez un produit, touchez « J’en ai pris 1 ». Merci !</p>
+</header>
+<main>
+  <div class="tip" id="tip" hidden>
+    <span>Pour l’avoir comme une appli : dans Safari, touchez <b>Partager</b> puis <b>Sur l’écran d’accueil</b>.</span>
+    <button type="button" id="tipClose" aria-label="Fermer">×</button>
+  </div>
+  <div class="list" id="list"><div class="msg">Chargement…</div></div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastTxt"></span><button type="button" id="undoBtn">Annuler</button></div>
+
+<script>
+(function () {
+  var LS = 'lba_menage_key';
+  var qs = new URLSearchParams(location.search);
+  var key = qs.get('k') || '';
+  try { if (key) localStorage.setItem(LS, key); else key = localStorage.getItem(LS) || ''; } catch (e) {}
+  var items = [], lastMove = null, toastTimer = null;
+  var $ = function (s) { return document.querySelector(s); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+
+  function call(method, body) {
+    return fetch('/api/menage/stock', { method: method, headers: { 'Content-Type': 'application/json', 'x-menage-key': key }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
+  }
+  function fail(text) { $('#list').innerHTML = '<div class="msg">' + text + '</div>'; }
+
+  function render() {
+    if (!items.length) { fail('Aucun produit pour l’instant.'); return; }
+    $('#list').innerHTML = items.map(function (x) {
+      var cls = 'item' + (x.low ? ' low' : '') + (x.qty === 0 ? ' empty' : '');
+      return '<div class="' + cls + '"><div class="top"><div><b>' + esc(x.name) + '</b><span>' + esc(x.unit || '') + '</span></div>' +
+        '<span class="left">reste <strong>' + x.qty + '</strong></span></div>' +
+        '<button type="button" class="use" data-id="' + x.id + '"' + (x.qty === 0 ? ' disabled' : '') + '>' + ICON + (x.qty === 0 ? 'Plus en stock' : 'J’en ai pris 1') + '</button></div>';
+    }).join('');
+  }
+
+  function toast(text, undo) {
+    $('#toastTxt').textContent = text;
+    $('#undoBtn').hidden = !undo;
+    $('#toast').classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { $('#toast').classList.remove('on'); lastMove = null; }, 8000);
+  }
+
+  function load() {
+    if (!key) { fail('Ce lien n’est pas complet. Demandez à Théo de vous renvoyer le lien du stock.'); return; }
+    call('GET').then(function (j) {
+      if (j._status === 401) { fail('Ce lien ne marche plus. Demandez à Théo de vous renvoyer le lien du stock.'); return; }
+      if (!j.ok) { fail('Le stock n’est pas disponible pour le moment. Réessayez plus tard.'); return; }
+      items = j.items || []; render();
+    }).catch(function () { fail('Pas de connexion. Réessayez dans un instant.'); });
+  }
+
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('.use');
+    if (!b) return;
+    var id = Number(b.dataset.id);
+    var it = items.filter(function (x) { return x.id === id; })[0];
+    b.disabled = true;
+    call('POST', { id: id, qty: 1 }).then(function (j) {
+      if (!j.ok) { b.disabled = false; toast(j.message || 'Erreur, réessayez.', false); return; }
+      items = j.items || items; lastMove = j.move_id; render();
+      toast('Noté : 1 × ' + (it ? it.name + (it.unit ? ' (' + it.unit + ')' : '') : 'produit'), true);
+    }).catch(function () { b.disabled = false; toast('Pas de connexion. Réessayez.', false); });
+  });
+  $('#undoBtn').addEventListener('click', function () {
+    if (!lastMove) return;
+    var m = lastMove; lastMove = null;
+    call('POST', { action: 'undo', move_id: m }).then(function (j) {
+      if (j.ok) { items = j.items || items; render(); toast('C’est annulé.', false); }
+      else toast(j.message || 'Impossible d’annuler.', false);
+    });
+  });
+
+  var standalone = window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+  var tipSeen = false; try { tipSeen = localStorage.getItem('lba_menage_tip') === '1'; } catch (e) {}
+  if (!standalone && !tipSeen && key) $('#tip').hidden = false;
+  $('#tipClose').addEventListener('click', function () { $('#tip').hidden = true; try { localStorage.setItem('lba_menage_tip', '1'); } catch (e) {} });
+
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
+  load();
+})();
+</script>
+</body>
+</html>

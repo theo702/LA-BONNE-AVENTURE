@@ -17,7 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="stylesheet" href="assets/admin.css?v=12">
-<link rel="stylesheet" href="assets/admin-app.css?v=1">
+<link rel="stylesheet" href="assets/admin-app.css?v=2">
 <style>
   img.adm-logo{width:96px!important;height:96px!important;max-width:96px!important;max-height:96px!important;object-fit:contain!important}
 </style>
@@ -49,7 +49,8 @@
       <button type="button" class="on" data-tab="t-home"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>Accueil</span></button>
       <button type="button" data-tab="t-book"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Séjours</span></button>
       <button type="button" data-tab="t-cal"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M16 14h0M8 17h2M12 17h2"/></svg><span>Calendrier</span></button>
-      <button type="button" data-tab="t-rates"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg><span>Tarifs</span></button>
+      <button type="button" data-tab="t-stock"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg><span>Stock</span></button>
+      <button type="button" class="nav-x" data-tab="t-rates"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg><span>Tarifs</span></button>
       <button type="button" class="nav-x" data-tab="t-promo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v8a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2z"/><path d="M9.5 14.5l5-5"/><circle cx="9.5" cy="9.5" r=".6"/><circle cx="14.5" cy="14.5" r=".6"/></svg><span>Promos &amp; événements</span></button>
       <button type="button" class="nav-x" data-tab="t-extra"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span>Extras</span></button>
       <button type="button" class="nav-x" data-tab="t-sync"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 3v4h-4M6 21v-4h4"/></svg><span>Synchro</span></button>
@@ -74,6 +75,12 @@
           <div class="h-kpi"><span>Nuits</span><b id="kNights">—</b><em id="kNightsSub">ce mois-ci</em></div>
           <div class="h-kpi"><span>Occupation</span><b id="kOcc">—</b><em id="kOccSub">ce mois-ci</em></div>
           <div class="h-kpi"><span>Site direct</span><b id="kSite">—</b><em>encaissé ce mois</em></div>
+        </div>
+
+        <div id="homeLow" hidden>
+          <div class="h-sec"><i>!</i><span>À racheter</span></div>
+          <div class="low-card"><div id="homeLowList"></div>
+            <button type="button" class="adm-btn low-go" data-tab="t-stock"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11h11L21 7H6"/><circle cx="9" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg><span>Voir mon stock</span></button></div>
         </div>
 
         <div class="h-sec"><i>01</i><span>Les 7 prochains jours</span></div>
@@ -173,6 +180,33 @@
         <div class="adm-card adm-card-cal">
           <div id="admCal" class="adm-cal"><div class="adm-cal-loading">Chargement du calendrier…</div></div>
         </div>
+      </section>
+
+      <section id="t-stock" class="adm-panel">
+        <p class="adm-lede">Votre femme de ménage signale ce qu'elle utilise, le stock baisse tout seul et vous recevez un mail quand un produit passe sous son seuil.</p>
+
+        <div class="h-sec"><i>01</i><span>Mes produits</span></div>
+        <div class="st-list" id="stockList"><div class="up-empty">Chargement…</div></div>
+
+        <details class="adm-add" id="stockAdd">
+          <summary><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Ajouter un produit</span></summary>
+          <form id="stockForm" class="adm-form adm-form-card">
+            <div class="st-sugg" id="stockSugg"></div>
+            <div class="adm-grid">
+              <label>Produit<input name="name" type="text" required placeholder="Papier toilette" maxlength="60"></label>
+              <label>Unité <em>(ce qu'elle prend d'un coup)</em><input name="unit" type="text" placeholder="paquet de 6 rouleaux" maxlength="60"></label>
+              <label>Combien en stock<input name="qty" type="number" min="0" inputmode="numeric" value="0"></label>
+              <label>M'alerter quand il en reste<input name="threshold" type="number" min="0" inputmode="numeric" value="1"></label>
+            </div>
+            <div class="adm-actions"><button type="submit" class="adm-btn">Ajouter</button><span class="adm-msg" id="stockMsg"></span></div>
+          </form>
+        </details>
+
+        <div class="h-sec"><i>02</i><span>Accès femme de ménage</span></div>
+        <div class="st-access" id="stockAccess"></div>
+
+        <div class="h-sec"><i>03</i><span>Historique</span></div>
+        <div class="st-moves" id="stockMoves"></div>
       </section>
 
       <section id="t-rates" class="adm-panel">
@@ -389,6 +423,7 @@
       </section>
       <section id="t-more" class="adm-panel">
         <div class="more-list">
+          <button type="button" data-tab="t-rates"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg><span><b>Tarifs</b><em>Prix par nuit, semaine, cure, caution, taxe</em></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
           <button type="button" data-tab="t-promo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v8a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2z"/><path d="M9.5 14.5l5-5"/><circle cx="9.5" cy="9.5" r=".6"/><circle cx="14.5" cy="14.5" r=".6"/></svg><span><b>Promos &amp; événements</b><em>Codes promo, prix des dates spéciales</em></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
           <button type="button" data-tab="t-extra"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span><b>Extras</b><em>Arrivée anticipée, départ tardif, commandes</em></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
           <button type="button" data-tab="t-sync"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 3v4h-4M6 21v-4h4"/></svg><span><b>Synchro</b><em>Calendriers Airbnb / Booking</em></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
@@ -401,6 +436,6 @@
     </div>
   </div>
 
-<script src="assets/admin.js?v=28" defer></script>
+<script src="assets/admin.js?v=29" defer></script>
 </body>
 </html>
