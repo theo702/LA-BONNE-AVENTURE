@@ -25,7 +25,7 @@ export async function onRequestPost({ env, request }) {
   }
   const label = slugLabel(b.label || '') || sourceFromUrl(url);
   await createIcalSource(env, { label, url });
-  try { if (env.CACHE) await env.CACHE.delete('external_ranges'); } catch (e) { /* pas bloquant */ }
+  try { if (env.CACHE) await env.CACHE.delete('external_ranges_v2'); } catch (e) { /* pas bloquant */ }
   return Response.json({ ok: true, label });
 }
 
@@ -33,6 +33,6 @@ export async function onRequestDelete({ env, request }) {
   const id = Number(new URL(request.url).searchParams.get('id'));
   if (!id) return Response.json({ ok: false, message: 'id manquant.' }, { status: 400 });
   await deleteIcalSource(env, id);
-  try { if (env.CACHE) await env.CACHE.delete('external_ranges'); } catch (e) { /* pas bloquant */ }
+  try { if (env.CACHE) await env.CACHE.delete('external_ranges_v2'); } catch (e) { /* pas bloquant */ }
   return Response.json({ ok: true });
 }

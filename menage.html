@@ -79,6 +79,16 @@
   .chip{font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;white-space:nowrap}
   .chip.paid{background:rgba(95,138,106,.16);color:#3f6b4a}
   .chip.wait{background:rgba(217,151,26,.16);color:var(--gold-ink)}
+  .cl{border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+  .cl-row{display:flex;gap:14px;align-items:flex-start;padding:13px 16px;border-bottom:1px solid #F0ECE1}
+  .cl-row:last-child{border-bottom:0}
+  .cl-row.today{background:#FBF4E4}
+  .cl-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+  .cl-t b{font-size:15px;font-weight:600}
+  .cl-t span{font-size:13px;color:var(--mute);line-height:1.45}
+  .cl-t .late{color:var(--gold-ink);font-weight:600}
+  .cl-t .tight{color:#9A3412;font-weight:600}
+  .cl-when{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-ink)}
   .toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9;max-width:536px;margin:0 auto;
     display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:var(--navy);color:var(--paper);
     box-shadow:0 14px 34px rgba(10,31,56,.3);font-size:14.5px;transform:translateY(140%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s}
@@ -91,15 +101,16 @@
 <header>
   <div class="kick">La Bonne Aventure</div>
   <h1>Espace <em>ménage</em></h1>
-  <p>Validez les demandes des voyageurs et dites ce que vous utilisez. Merci !</p>
+  <p>Vos ménages à venir, les demandes des voyageurs et le stock. Merci !</p>
 </header>
 <main>
   <div class="tip" id="tip" hidden>
     <span>Pour l’avoir comme une appli : dans Safari, touchez <b>Partager</b> puis <b>Sur l’écran d’accueil</b>.</span>
     <button type="button" id="tipClose" aria-label="Fermer">×</button>
   </div>
+  <div id="cleanings"></div>
   <div id="extras"></div>
-  <div class="sec"><i>02</i><span>Le stock</span></div>
+  <div class="sec"><i>03</i><span>Le stock</span></div>
   <div class="list" id="list"><div class="msg">Chargement…</div></div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastTxt"></span><button type="button" id="undoBtn">Annuler</button></div>
@@ -180,7 +191,7 @@
       .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
   }
   function renderExtras() {
-    var h = '<div class="sec"><i>01</i><span>Demandes à valider</span>' + (extras.pending.length ? '<b>' + extras.pending.length + '</b>' : '') + '</div>';
+    var h = '<div class="sec"><i>02</i><span>Demandes à valider</span>' + (extras.pending.length ? '<b>' + extras.pending.length + '</b>' : '') + '</div>';
     if (!extras.pending.length) h += '<p class="none">Aucune demande en attente.</p>';
     extras.pending.forEach(function (g) {
       var what = g.lines.length ? g.lines.map(function (l) { return '<strong>' + esc(l.label) + '</strong> le ' + fr(l.date); }).join('<br>') : esc(g.title);
@@ -201,9 +212,38 @@
     }
     $('#extras').innerHTML = h;
   }
+
+  // ---------- Ménages à venir ----------
+  function relDay(iso) {
+    var t = new Date(); var today = Date.UTC(t.getFullYear(), t.getMonth(), t.getDate());
+    var d = Math.round((Date.parse(iso + 'T00:00:00Z') - today) / 86400000);
+    return d === 0 ? "Aujourd'hui" : d === 1 ? 'Demain' : 'Dans ' + d + ' jours';
+  }
+  function renderCleanings(list) {
+    var box = $('#cleanings'); if (!box) return;
+    var h = '<div class="sec"><i>01</i><span>Ménages à venir</span></div>';
+    if (!list || !list.length) { box.innerHTML = h + '<p class="none">Aucun départ prévu pour le moment.</p>'; return; }
+    h += '<div class="cl">';
+    list.forEach(function (c) {
+      var d = new Date(c.date + 'T00:00:00Z');
+      var out = c.late
+        ? '<span class="late">Départ tardif : le voyageur part à ' + c.out_time + (c.late_paid ? '' : ' (pas encore payé)') + '</span>'
+        : '<span>Départ à ' + c.out_time + '</span>';
+      var next;
+      if (c.next_same_day) next = '<span class="' + (c.late || c.next_early ? 'tight' : '') + '">Nouvelle arrivée le jour même à ' + c.next_time + (c.next_early ? ' (arrivée anticipée)' : '') + '</span>';
+      else if (c.next_date) next = '<span>Prochaine arrivée : ' + fr(c.next_date) + ' à ' + c.next_time + '</span>';
+      else next = '<span>Pas d’arrivée prévue derrière</span>';
+      var start = parseInt(c.out_time, 10), end = c.next_same_day ? parseInt(c.next_time, 10) : null;
+      var slot = end ? '<span><b style="font-weight:600;color:var(--ink)">Ménage entre ' + start + ' h et ' + end + ' h</b></span>' : '<span><b style="font-weight:600;color:var(--ink)">Ménage à partir de ' + start + ' h</b></span>';
+      h += '<div class="cl-row' + (relDay(c.date) === "Aujourd'hui" ? ' today' : '') + '"><span class="plan-d"><em>' + MOIS[d.getUTCMonth()] + '</em><b>' + d.getUTCDate() + '</b></span>' +
+        '<span class="cl-t"><span class="cl-when">' + relDay(c.date) + ' · ' + fr(c.date) + '</span>' + slot + out + next + '</span></div>';
+    });
+    box.innerHTML = h + '</div>';
+  }
+
   function loadExtras() {
     if (!key) return;
-    callX('GET').then(function (j) { if (j.ok) { extras = j; renderExtras(); } }).catch(function () {});
+    callX('GET').then(function (j) { if (j.ok) { extras = j; renderExtras(); renderCleanings(j.cleanings); } }).catch(function () {});
   }
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-x]'); if (!b) return;
@@ -211,7 +251,7 @@
     if (!confirm(accept ? 'Accepter cette demande ? Le voyageur recevra le lien pour payer.' : 'Refuser cette demande ? Le voyageur sera prévenu.')) return;
     var btns = b.parentNode.querySelectorAll('button'); for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
     callX('POST', { id: b.dataset.id, action: b.dataset.x }).then(function (j) {
-      if (j.pending) { extras = { pending: j.pending, planned: j.planned || [] }; renderExtras(); }
+      if (j.pending) { extras = { pending: j.pending, planned: j.planned || [] }; renderExtras(); if (j.cleanings) renderCleanings(j.cleanings); }
       toast(j.message || (j.ok === false ? 'Erreur, réessayez.' : 'C’est fait.'), false);
     }).catch(function () { for (var i = 0; i < btns.length; i++) btns[i].disabled = false; toast('Pas de connexion. Réessayez.', false); });
   });

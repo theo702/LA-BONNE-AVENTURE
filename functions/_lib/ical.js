@@ -119,7 +119,7 @@ export async function fetchExternalRanges(env, { bypassCache = false } = {}) {
   } catch (e) { /* table absente : ignorer */ }
   if (!sources.length) return [];
 
-  const CACHE_KEY = 'external_ranges';
+  const CACHE_KEY = 'external_ranges_v2';
   if (!bypassCache && env.CACHE) {
     const cached = await env.CACHE.get(CACHE_KEY, 'json');
     if (cached && Array.isArray(cached.ranges)) return cached.ranges;
@@ -132,7 +132,8 @@ export async function fetchExternalRanges(env, { bypassCache = false } = {}) {
         const res = await fetch(url, { cf: { cacheTtl: 0 } });
         if (!res.ok) return [];
         const text = await res.text();
-        return parseICal(text).map((e) => ({ from: e.from, to: e.to, source: label }));
+        // blocked : dates fermées par l'hôte sur Airbnb (« Not available »), pas un vrai séjour.
+        return parseICal(text).map((e) => ({ from: e.from, to: e.to, source: label, blocked: /not available|indisponible|blocked|bloqu/i.test(e.summary || '') }));
       })
     );
     ranges = results.flat();

@@ -344,7 +344,7 @@
     if (!cal.data) return [];
     const list = [];
     (cal.data.bookings || []).forEach((b) => { if (b.from && b.to && b.status !== 'cancelled') list.push({ from: b.from, to: b.to, who: b.guest || 'Voyageur', src: 'site' }); });
-    (cal.data.external || []).forEach((r) => { if (r.from && r.to) list.push({ from: r.from, to: r.to, who: 'Réservation Airbnb', src: 'airbnb' }); });
+    (cal.data.external || []).forEach((r) => { if (r.from && r.to && !r.blocked) list.push({ from: r.from, to: r.to, who: 'Réservation Airbnb', src: 'airbnb' }); });
     return list.sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0));
   }
   function daysBetween(a, b) { return Math.round((Date.parse(b) - Date.parse(a)) / 86400000); }

@@ -24,7 +24,7 @@ export async function onRequestGet({ env }) {
     currency: s.currency,
     bookings: bookings.map((b) => ({ id: b.id, from: b.checkin, to: b.checkout, guest: b.guest_name, status: b.status })),
     blocks: (blocks || []).map((b) => ({ id: b.id, from: b.date_from, to: b.date_to, label: b.label || null })),
-    external: (external || []).map((r) => ({ from: r.from, to: r.to })),
+    external: (external || []).map((r) => ({ from: r.from, to: r.to, blocked: !!r.blocked })),
   }, { headers: { 'cache-control': 'no-store' } });
 }
 

@@ -3,7 +3,8 @@
 // L'acceptation/le refus passe par EXACTEMENT la même logique que le lien du mail
 // (/api/extras-approve) : lien de paiement au voyageur, mail de refus, etc.
 import { checkMenageToken } from '../../_lib/stock.js';
-import { ensurePricingSchema, listExtraOrders, getExtraOrder, createExtraActionToken } from '../../_lib/db.js';
+import { ensurePricingSchema, listExtraOrders, getExtraOrder, createExtraActionToken, getConfirmed } from '../../_lib/db.js';
+import { fetchExternalRanges } from '../../_lib/ical.js';
 import { onRequestPost as approvePost } from '../extras-approve.js';
 
 const deny = () => Response.json({ ok: false, error: 'auth', message: 'Lien invalide ou expiré. Demandez un nouveau lien.' }, { status: 401 });
@@ -35,6 +36,46 @@ function groups(orders) {
   });
 }
 
+// Ménages à venir : chaque fin de séjour (site + Airbnb), avec l'heure de départ
+// (10 h, ou 14 h si départ tardif) et la prochaine arrivée (16 h, ou 12 h si anticipée).
+async function cleanings(env, extras, t) {
+  const [direct, ext] = await Promise.all([
+    getConfirmed(env).catch(() => []),
+    fetchExternalRanges(env).catch(() => []),
+  ]);
+  const stays = [];
+  for (const b of direct) if (b.checkin && b.checkout) stays.push({ from: b.checkin, to: b.checkout });
+  for (const r of ext) if (r.from && r.to && !r.blocked) stays.push({ from: r.from, to: r.to });
+  stays.sort((a, b) => (a.from < b.from ? -1 : 1));
+  const live = extras.filter((o) => ['approved', 'pending', 'confirmed'].includes(o.status));
+  const late = (d) => live.find((o) => o.kind === 'late_checkout' && o.service_date === d);
+  const early = (d) => live.find((o) => o.kind === 'early_checkin' && o.service_date === d);
+  const horizon = new Date(Date.parse(t + 'T00:00:00Z') + 45 * 86400000).toISOString().slice(0, 10);
+  const seen = new Set();
+  const out = [];
+  for (const s of stays) {
+    if (s.to < t || s.to > horizon || seen.has(s.to)) continue;
+    seen.add(s.to);
+    const l = late(s.to);
+    const next = stays.find((x) => x.from >= s.to);
+    const sameDay = next && next.from === s.to;
+    const e = next ? early(next.from) : null;
+    out.push({
+      date: s.to,
+      nights: Math.round((Date.parse(s.to) - Date.parse(s.from)) / 86400000),
+      out_time: l ? '14 h' : '10 h',
+      late: !!l,
+      late_paid: !!(l && l.status === 'confirmed'),
+      next_date: next ? next.from : null,
+      next_time: next ? (e ? '12 h' : '16 h') : null,
+      next_same_day: !!sameDay,
+      next_early: !!e,
+    });
+    if (out.length >= 12) break;
+  }
+  return out;
+}
+
 async function state(env) {
   await ensurePricingSchema(env);
   const all = await listExtraOrders(env, 300);
@@ -44,7 +85,7 @@ async function state(env) {
   const planned = groups(all.filter((o) => ['approved', 'pending', 'confirmed'].includes(o.status) && o.service_date && o.service_date >= t))
     .sort((a, b) => String(a.date || '').localeCompare(String(b.date || '')))
     .slice(0, 20);
-  return { ok: true, pending, planned };
+  return { ok: true, pending, planned, cleanings: await cleanings(env, all, t) };
 }
 
 export async function onRequestGet({ request, env }) {
