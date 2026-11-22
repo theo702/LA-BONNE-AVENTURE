@@ -303,7 +303,7 @@
         var groups = {}, d0 = new Date(state.checkin+'T00:00:00Z');
         for(var i=0;i<n;i++){ var ds=new Date(d0.getTime()+i*86400000).toISOString().slice(0,10); var p=(cfg.prices&&cfg.prices[ds])||cfg.nightlyCents; groups[p]=(groups[p]||0)+1; lodging+=p; }
         Object.keys(groups).sort(function(a,b){return a-b;}).forEach(function(p){ var k=groups[p]; lines.push({label:Math.round(p/100)+' € × '+k+' nuit'+(k>1?'s':''), cents:p*k}); });
-        clean = cfg.cleaningCents || 0;
+        clean = (cfg.cleaningShortCents && n <= cfg.cleaningShortMaxNights) ? cfg.cleaningShortCents : (cfg.cleaningCents || 0);
         if(clean){ lines.push({label:'Ménage (par séjour)', cents:clean}); }
       }
       if(state.dog){ lines.push({label:'Chien (forfait séjour)', cents:2000}); }
@@ -361,6 +361,8 @@
       nightlyCents: raw.nightlyCents,
       prices: raw.prices || {},
       cleaningCents: raw.cleaningCents || 0,
+      cleaningShortCents: raw.cleaningShortCents || 0,
+      cleaningShortMaxNights: raw.cleaningShortMaxNights || 0,
       currency: raw.currency || 'eur',
       weekTotalCents: raw.weekTotalCents,
       cureTotalCents: raw.cureTotalCents,

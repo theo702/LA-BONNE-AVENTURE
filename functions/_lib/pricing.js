@@ -5,6 +5,7 @@
 // (réglable dans l'admin) + des prix par date pour les événements. Ménage : 50 € par séjour,
 // comme sur Airbnb. Pas de prix « dernière minute » sur le site.
 export const CLEANING_CENTS = 5000;
+export const CLEANING_SHORT_CENTS = 3500, CLEANING_SHORT_MAX_NIGHTS = 2;  // 35 € pour 1–2 nuits, comme sur Airbnb
 // Airbnb fait −10 % quand on réserve au moins 3 mois avant l'arrivée : le site fait pareil.
 export const EARLY_MONTHS = 3, EARLY_PCT = 10;
 
@@ -220,7 +221,7 @@ export function computeQuote(input, ctx) {
     lines.push({ label: `${Math.round(p / 100)} € × ${n} nuit${n > 1 ? 's' : ''}`, cents: p * n });
   }
   for (const x of special.values()) lines.push({ label: `${x.label} · ${Math.round(x.cents / 100)} € × ${x.n} nuit${x.n > 1 ? 's' : ''}`, cents: x.n * x.cents });
-  const cleaningCents = tierMode ? 0 : CLEANING_CENTS;   // 50 € par séjour, comme sur Airbnb
+  const cleaningCents = tierMode ? 0 : (nights <= CLEANING_SHORT_MAX_NIGHTS ? CLEANING_SHORT_CENTS : CLEANING_CENTS);   // 35 € (1–2 nuits) / 50 €, comme sur Airbnb
 
   // Réduction dernière minute (optionnelle, sur l'hébergement).
   let lastminPct = 0;
