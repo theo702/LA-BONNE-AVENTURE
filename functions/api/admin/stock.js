@@ -1,6 +1,6 @@
 // GET/POST /api/admin/stock — stock des consommables + lien d'accès ménage.
 import {
-  listStock, listMoves, createItem, updateItem, deleteItem, applyDelta,
+  listStock, listMoves, createItem, updateItem, deleteItem, applyDelta, restockItem,
   getMenageToken, rotateMenageToken, revokeMenageToken,
 } from '../../_lib/stock.js';
 
@@ -23,6 +23,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     case 'update': res = await updateItem(env, id, b); break;
     case 'delete': res = await deleteItem(env, id); break;
     case 'adjust': res = await applyDelta(env, id, b.delta, 'hote', { waitUntil }); break;
+    case 'restock': res = await restockItem(env, id, b); break;
     case 'token': await rotateMenageToken(env); break;
     case 'revoke': await revokeMenageToken(env); break;
     default: res = { error: 'Action inconnue.' };

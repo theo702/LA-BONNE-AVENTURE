@@ -20,11 +20,10 @@
   *{box-sizing:border-box}
   body{margin:0;min-height:100vh;font-family:'Jost',system-ui,sans-serif;color:var(--ink);
     background:radial-gradient(700px 480px at 0% 30%,rgba(217,151,26,.07),transparent 60%),#EDE6D8;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
-  header{position:relative;overflow:hidden;padding:calc(24px + env(safe-area-inset-top)) 22px 26px;color:var(--paper);
-    background:radial-gradient(ellipse at 92% 0%,rgba(217,151,26,.24),transparent 52%),linear-gradient(160deg,var(--navy),var(--navy2));border-radius:0 0 26px 26px}
-  header svg{position:absolute;top:-10px;right:-12px;width:110px;height:190px;color:rgba(251,247,238,.15)}
-  .kick{position:relative;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(251,247,238,.8)}
-  h1{position:relative;margin:10px 0 0;font-family:'Fraunces',serif;font-weight:400;font-size:34px;line-height:1.02;letter-spacing:-.02em}
+  header{position:relative;overflow:hidden;padding:calc(18px + env(safe-area-inset-top)) 20px 22px;color:var(--paper);
+    background:radial-gradient(120% 90% at 100% 0%,rgba(230,169,44,.16),transparent 55%),linear-gradient(165deg,#14365f 0%,#0f2a4a 45%,#0a1f38 100%);border-radius:0 0 24px 24px;box-shadow:0 10px 30px rgba(10,31,56,.16)}
+  .kick{position:relative;font-size:13px;font-weight:500;color:rgba(251,247,238,.62)}
+  h1{position:relative;margin:4px 0 10px;font-family:'Fraunces',serif;font-weight:400;font-size:30px;line-height:1.08;letter-spacing:-.015em}
   h1 em{font-style:italic;font-weight:300;color:var(--gold-l)}
   .filet{position:relative;width:56px;height:2px;border-radius:2px;background:var(--gold);margin:14px 0 12px}
   header p{position:relative;margin:0;font-size:15px;font-weight:300;line-height:1.45;color:rgba(251,247,238,.9)}
@@ -90,10 +89,8 @@
 </head>
 <body>
 <header>
-  <svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/><path d="M61 98 C43 92 34 84 30 70"/></svg>
-  <div class="kick">La Bonne Aventure · Ménage</div>
+  <div class="kick">La Bonne Aventure</div>
   <h1>Espace <em>ménage</em></h1>
-  <div class="filet"></div>
   <p>Validez les demandes des voyageurs et dites ce que vous utilisez. Merci !</p>
 </header>
 <main>

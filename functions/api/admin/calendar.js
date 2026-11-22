@@ -14,7 +14,7 @@ export async function onRequestGet({ env }) {
   try {
     [bookings, blocks, external] = await Promise.all([
       listCalendarBookings(env), listBlocks(env),
-      fetchExternalRanges(env, {}).catch(() => []),
+      fetchExternalRanges(env, { bypassCache: true }).catch(() => []),  // admin : toujours relu en direct
     ]);
   } catch (e) { /* on ne casse pas le calendrier si une source échoue */ }
 

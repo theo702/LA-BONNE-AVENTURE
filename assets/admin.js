@@ -81,7 +81,9 @@
   function setTopTitle(id) {
     const t = $('#topTitle'), k = $('#topKicker');
     const now = new Date();
-    k.textContent = 'Espace hôte · ' + JOURS[now.getDay()] + ' ' + now.getDate() + ' ' + MOIS[now.getMonth()];
+    const JL = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    const ML = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    k.textContent = JL[now.getDay()] + ' ' + now.getDate() + ' ' + ML[now.getMonth()];
     if (id === 't-home') t.innerHTML = (now.getHours() >= 18 || now.getHours() < 5 ? 'Bonsoir' : 'Bonjour') + ' <em>Théo</em>';
     else t.textContent = TAB_TITLES[id] || '';
     document.body.dataset.curTab = id;
@@ -135,12 +137,8 @@
 
 
   // ---------- Stock ----------
-  var stock = { items: [], moves: [], token: null, email: null, editing: null, loaded: false };
-  var STOCK_SUGG = [
-    ['Papier toilette', 'paquet de 6 rouleaux'], ['Essuie-tout', 'rouleau'], ['Sacs poubelle', 'rouleau'],
-    ['Café', 'boîte de capsules'], ['Thé', 'boîte'], ['Savon mains', 'recharge'], ['Gel douche', 'recharge'],
-    ['Liquide vaisselle', 'flacon'], ['Éponges', 'paquet'], ['Pastilles lave-vaisselle', 'boîte'], ['Produit ménager', 'flacon'],
-  ];
+  var stock = { items: [], moves: [], token: null, email: null, editing: null, loaded: false, pick: null };
+  var PACK_SIZES = [1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 30, 32, 36, 40, 48, 50, 60, 72, 80, 100];
 
   async function loadStock() {
     const { status, j } = await api('stock');
@@ -149,7 +147,8 @@
   }
   function setStock(j) {
     stock.items = j.items || []; stock.moves = j.moves || []; stock.token = j.menage_token || null; stock.email = j.alert_email || null; stock.loaded = true;
-    renderStock(); renderHomeLow();
+    if (stock.pick && !stock.items.some((x) => x.id === stock.pick)) stock.pick = null;
+    renderStock(); renderHomeLow(); renderStockForm();
   }
   async function stockPost(body) {
     const { status, j } = await api('stock', { method: 'POST', body: JSON.stringify(body) });
@@ -157,7 +156,22 @@
     alert((j && j.message) || 'Erreur, réessayez.');
     return false;
   }
-  const unitTxt = (x) => (x.unit ? esc(x.unit) : 'unité');
+  // Taille du paquet : colonne pack_size, sinon le nombre écrit dans l'ancien libellé (« paquet de 6 rouleaux »).
+  function packOf(x) {
+    if (x && x.pack_size > 1) return x.pack_size;
+    const m = x && x.unit && String(x.unit).match(/\d+/);
+    return m ? Math.max(1, parseInt(m[0], 10)) : 1;
+  }
+  const packTxt = (n) => (n > 1 ? 'paquet de ' + n : 'à l’unité');
+  const unitTxt = (x) => esc(x.unit || packTxt(packOf(x)));
+  const plural = (n, w) => n + ' ' + w + (n > 1 ? 's' : '');
+  function fillSelect(sel, values, label, val) {
+    if (!sel) return;
+    sel.innerHTML = values.map((v) => '<option value="' + v + '">' + label(v) + '</option>').join('');
+    sel.value = String(values.includes(val) ? val : values[0]);
+  }
+  const range = (a, b) => { const r = []; for (let i = a; i <= b; i++) r.push(i); return r; };
+  const withValue = (list, v) => (list.includes(v) ? list : list.concat([v]).sort((x, y) => x - y));
 
   function renderHomeLow() {
     const box = $('#homeLow'), list = $('#homeLowList'); if (!box || !list) return;
@@ -165,6 +179,44 @@
     box.hidden = !low.length;
     list.innerHTML = low.map((x) => '<div class="low-row"><span><b>' + esc(x.name) + '</b><em>' +
       (x.qty === 0 ? 'plus rien' : 'reste ' + x.qty + ' · ' + unitTxt(x)) + '</em></span><i class="' + (x.qty === 0 ? 'urg' : '') + '">' + (x.qty === 0 ? 'urgent' : 'bientôt') + '</i></div>').join('');
+  }
+
+  // Formulaire « Ajouter au stock » : récents en ajout rapide + menus déroulants.
+  function renderStockForm(keep) {
+    const f = $('#stockForm'); if (!f) return;
+    const it = stock.items.find((x) => x.id === stock.pick) || null;
+    const wrap = $('#stockRecentWrap'), rec = $('#stockRecent');
+    if (wrap && rec) {
+      const recent = stock.items.slice().sort((a, b) => String(b.last_added || '').localeCompare(String(a.last_added || ''))).slice(0, 10);
+      wrap.hidden = !recent.length;
+      rec.innerHTML = recent.map((x) => '<button type="button" data-recent="' + x.id + '" class="' + (x.id === stock.pick ? 'on' : '') + '">' +
+        '<b>' + esc(x.name) + '</b><em>' + unitTxt(x) + '</em></button>').join('') +
+        (it ? '<button type="button" data-recent="new" class="st-new">+ Nouveau produit</button>' : '');
+    }
+    const name = f.elements['name'];
+    if (!keep && f.dataset.pick === String(stock.pick) && f.elements['packs'].options.length) keep = true;
+    f.dataset.pick = String(stock.pick);
+    if (!keep) {
+      const pack = it ? packOf(it) : 1;
+      fillSelect(f.elements['packs'], range(it ? 1 : 0, 30), (v) => (v === 0 ? 'Aucun pour l’instant' : plural(v, 'paquet')), 1);
+      fillSelect(f.elements['pack_size'], withValue(PACK_SIZES, pack), (v) => (v === 1 ? '1 (à l’unité)' : v + ' unités'), pack);
+      fillSelect(f.elements['threshold'], withValue(range(0, 10), it ? it.threshold : 1), (v) => plural(v, 'paquet'), it ? it.threshold : 1);
+      if (it) { name.value = it.name; name.readOnly = true; } else if (name.readOnly) { name.value = ''; name.readOnly = false; }
+    }
+    f.classList.toggle('picked', !!it);
+    $('#stockSubmit').textContent = it ? 'Ajouter au stock' : 'Créer et ajouter';
+    updateStockPreview();
+  }
+  function updateStockPreview() {
+    const f = $('#stockForm'), out = $('#stockPreview'); if (!f || !out) return;
+    const it = stock.items.find((x) => x.id === stock.pick) || null;
+    const packs = Number(f.elements['packs'].value) || 0, size = Number(f.elements['pack_size'].value) || 1;
+    const what = plural(packs, 'paquet') + (size > 1 ? ' de ' + size : '') + (size > 1 ? ' (' + packs * size + ' unités)' : '');
+    if (it) out.innerHTML = '<b>' + esc(it.name) + '</b> : +' + what + ' · stock ' + it.qty + ' → <b>' + (it.qty + packs) + '</b>';
+    else {
+      const n = f.elements['name'].value.trim();
+      out.innerHTML = n ? 'Nouveau produit <b>' + esc(n) + '</b> : ' + (packs ? what : 'stock à 0 pour l’instant') : (stock.items.length ? 'Touchez un produit récent ou tapez un nouveau nom.' : 'Tapez le nom de votre premier produit.');
+    }
   }
 
   function renderStock() {
@@ -175,11 +227,13 @@
     } else {
       list.innerHTML = stock.items.map((x) => {
         if (stock.editing === x.id) {
+          const pack = packOf(x);
+          const opt = (vals, cur, lab) => withValue(vals, cur).map((v) => '<option value="' + v + '"' + (v === cur ? ' selected' : '') + '>' + lab(v) + '</option>').join('');
           return '<form class="st-item st-edit" data-id="' + x.id + '">' +
             '<label>Produit<input name="name" value="' + esc(x.name) + '" maxlength="60" required></label>' +
-            '<label>Unité<input name="unit" value="' + esc(x.unit) + '" maxlength="60"></label>' +
-            '<div class="st-edit-row"><label>En stock<input name="qty" type="number" min="0" inputmode="numeric" value="' + x.qty + '"></label>' +
-            '<label>Alerte à<input name="threshold" type="number" min="0" inputmode="numeric" value="' + x.threshold + '"></label></div>' +
+            '<div class="st-edit-row"><label>Unités dans un paquet<select name="pack_size">' + opt(PACK_SIZES, pack, (v) => (v === 1 ? '1 (à l’unité)' : v + ' unités')) + '</select></label>' +
+            '<label>Alerte quand il reste<select name="threshold">' + opt(range(0, 10), x.threshold, (v) => plural(v, 'paquet')) + '</select></label></div>' +
+            '<label>Paquets en stock (correction)<input name="qty" type="number" min="0" inputmode="numeric" value="' + x.qty + '"></label>' +
             '<div class="st-edit-acts"><button type="submit" class="adm-btn">Enregistrer</button>' +
             '<button type="button" class="adm-ghost" data-st="cancel">Annuler</button>' +
             '<button type="button" class="st-del" data-st="del" data-id="' + x.id + '">Supprimer</button></div></form>';
@@ -188,16 +242,10 @@
           '<button type="button" class="st-main" data-st="edit" data-id="' + x.id + '"><b>' + esc(x.name) + '</b>' +
           '<span>' + unitTxt(x) + ' · alerte à ' + x.threshold + '</span>' +
           (x.low ? '<i>' + (x.qty === 0 ? 'à racheter vite' : 'à racheter') + '</i>' : '') + '</button>' +
-          '<div class="st-qty"><button type="button" data-st="minus" data-id="' + x.id + '" aria-label="Retirer 1">−</button>' +
+          '<div class="st-qty"><button type="button" data-st="minus" data-id="' + x.id + '" aria-label="Retirer 1 paquet">−</button>' +
           '<b>' + x.qty + '</b>' +
-          '<button type="button" data-st="plus" data-id="' + x.id + '" aria-label="Ajouter 1">+</button></div></div>';
+          '<button type="button" data-st="plus" data-id="' + x.id + '" aria-label="Ajouter 1 paquet">+</button></div></div>';
       }).join('');
-    }
-    const sg = $('#stockSugg');
-    if (sg) {
-      const have = new Set(stock.items.map((x) => x.name.toLowerCase()));
-      sg.innerHTML = STOCK_SUGG.filter((x) => !have.has(x[0].toLowerCase()))
-        .map((x) => '<button type="button" data-sugg="' + esc(x[0]) + '" data-unit="' + esc(x[1]) + '">' + esc(x[0]) + '</button>').join('');
     }
     const acc = $('#stockAccess');
     if (acc) {
@@ -230,8 +278,13 @@
   }
 
   document.addEventListener('click', async (e) => {
-    const sg = e.target.closest('[data-sugg]');
-    if (sg) { const f = $('#stockForm'); f.elements['name'].value = sg.dataset.sugg; f.elements['unit'].value = sg.dataset.unit; f.elements['qty'].focus(); return; }
+    const rc = e.target.closest('[data-recent]');
+    if (rc) {
+      stock.pick = rc.dataset.recent === 'new' ? null : Number(rc.dataset.recent);
+      renderStockForm();
+      if (!stock.pick) $('#stockForm').elements['name'].focus();
+      return;
+    }
     const b = e.target.closest('[data-st]'); if (!b || !b.closest('#t-stock')) return;
     const id = Number(b.dataset.id) || 0, act = b.dataset.st;
     if (act === 'edit') { stock.editing = id; renderStock(); return; }
@@ -254,19 +307,35 @@
       await stockPost({ action: 'revoke' }); return;
     }
   });
+  document.addEventListener('input', (e) => {
+    const f = $('#stockForm'); if (!f || !f.contains(e.target)) return;
+    if (e.target.name === 'name' && !stock.pick) {
+      const n = e.target.value.trim().toLowerCase();
+      const same = n && stock.items.find((x) => x.name.toLowerCase() === n);
+      if (same) { stock.pick = same.id; renderStockForm(); return; }
+    }
+    updateStockPreview();
+  });
+  document.addEventListener('change', (e) => { const f = $('#stockForm'); if (f && f.contains(e.target)) updateStockPreview(); });
   document.addEventListener('submit', async (e) => {
     const f = e.target;
     if (f.id === 'stockForm') {
       e.preventDefault();
-      const ok = await stockPost({ action: 'create', name: f.elements['name'].value, unit: f.elements['unit'].value, qty: f.elements['qty'].value, threshold: f.elements['threshold'].value });
-      if (ok) { f.reset(); f.elements['qty'].value = 0; f.elements['threshold'].value = 1; msg('#stockMsg', 'Ajouté ✓'); }
+      const el = f.elements;
+      let ok;
+      if (stock.pick) ok = await stockPost({ action: 'restock', id: stock.pick, packs: el['packs'].value, pack_size: el['pack_size'].value, threshold: el['threshold'].value });
+      else {
+        if (!el['name'].value.trim()) { el['name'].focus(); msg('#stockMsg', 'Donnez un nom au produit.', true); return; }
+        ok = await stockPost({ action: 'create', name: el['name'].value, pack_size: el['pack_size'].value, qty: el['packs'].value, threshold: el['threshold'].value });
+      }
+      if (ok) { stock.pick = null; f.dataset.pick = 'reset'; renderStockForm(); msg('#stockMsg', 'Ajouté au stock ✓'); }
       return;
     }
     if (f.classList && f.classList.contains('st-edit')) {
       e.preventDefault();
       const id = Number(f.dataset.id);
       stock.editing = null;
-      await stockPost({ action: 'update', id, name: f.elements['name'].value, unit: f.elements['unit'].value, qty: f.elements['qty'].value, threshold: f.elements['threshold'].value });
+      await stockPost({ action: 'update', id, name: f.elements['name'].value, pack_size: f.elements['pack_size'].value, qty: f.elements['qty'].value, threshold: f.elements['threshold'].value });
     }
   });
 
@@ -288,22 +357,21 @@
     const all = stays();
     const cur = all.find((s) => s.from <= t && s.to > t);
     const next = all.find((s) => s.from > t);
+    const block = (lab, big, sub) => '<div class="tx-block"><span class="tx-lab">' + lab + '</span><strong class="tx-big">' + big + '</strong>' + (sub ? '<span class="tx-sub">' + sub + '</span>' : '') + '</div>';
     let h = '';
     if (cur) {
-      h += '<span class="tx-lab">En ce moment · départ ' + (daysBetween(t, cur.to) === 0 ? "aujourd'hui" : frShort(cur.to)) + '</span>' +
-        '<strong class="tx-big">' + esc(cur.who) + '</strong>' +
-        '<span class="tx-sub">' + daysBetween(cur.from, cur.to) + ' nuit' + (daysBetween(cur.from, cur.to) > 1 ? 's' : '') + ' · ' + (cur.src === 'site' ? 'site direct' : 'Airbnb') + ' · ménage le ' + frShort(cur.to) + '</span>';
+      const n = daysBetween(cur.from, cur.to);
+      h += block('En ce moment · départ ' + (daysBetween(t, cur.to) === 0 ? "aujourd'hui" : frShort(cur.to)), esc(cur.who),
+        n + ' nuit' + (n > 1 ? 's' : '') + ' · ' + (cur.src === 'site' ? 'site direct' : 'Airbnb') + ' · ménage le ' + frShort(cur.to));
     }
     if (next) {
       const d = daysBetween(t, next.from);
-      const quand = d === 1 ? 'demain' : 'dans ' + d + ' jours';
       const n = daysBetween(next.from, next.to);
-      h += (cur ? '<div class="tx-sep"></div>' : '') +
-        '<span class="tx-lab">Prochaine arrivée · ' + quand + '</span>' +
-        '<strong class="tx-big">' + frShort(next.from) + ' → ' + frShort(next.to) + '</strong>' +
-        '<span class="tx-sub">' + n + ' nuit' + (n > 1 ? 's' : '') + ' · ' + (next.src === 'site' ? esc(next.who) + ' · site direct' : 'Airbnb') + '</span>';
+      h += block('Prochaine arrivée · ' + (d === 1 ? 'demain' : 'dans ' + d + ' jours'), frShort(next.from) + ' → ' + frShort(next.to),
+        n + ' nuit' + (n > 1 ? 's' : '') + ' · ' + (next.src === 'site' ? esc(next.who) + ' · site direct' : 'Airbnb'));
     }
-    if (!cur && !next) h = '<span class="tx-lab">Prochaine arrivée</span><strong class="tx-big">Aucune réservation à venir</strong>';
+    if (!cur && !next) h = block('Prochaine arrivée', 'Aucune réservation à venir', '');
+    h = '<div class="tx-card">' + h + '</div>';
     box.innerHTML = h;
   }
 

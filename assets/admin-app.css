@@ -22,30 +22,44 @@
 .adm-app{display:block;min-height:100vh}
 .adm-shell{min-width:0}
 
-/* ---------- En-tête bleu nuit ---------- */
+/* ---------- En-tête : bleu nuit épuré ---------- */
 .adm-app .adm-top{
   position:relative;overflow:hidden;
   display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:0;
-  padding:calc(22px + var(--safe-t)) 22px 24px;
-  background:radial-gradient(ellipse at 92% 0%,rgba(217,151,26,.24),transparent 52%),linear-gradient(160deg,var(--navy) 0%,var(--navy2) 100%);
+  padding:calc(18px + var(--safe-t)) 20px 22px;
+  background:
+    radial-gradient(120% 90% at 100% 0%,rgba(230,169,44,.16),transparent 55%),
+    linear-gradient(165deg,#14365f 0%,#0f2a4a 45%,#0a1f38 100%);
   color:var(--paper);
-  border:0;border-radius:0 0 26px 26px;
-  box-shadow:0 14px 34px rgba(10,31,56,.18);
+  border:0;border-radius:0 0 24px 24px;
+  box-shadow:0 10px 30px rgba(10,31,56,.16);
 }
-.adm-frond{position:absolute;top:-10px;right:-12px;width:110px;height:190px;color:rgba(251,247,238,.15);pointer-events:none}
-.adm-top-kicker{position:relative;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(251,247,238,.8)}
+.adm-top-kicker{position:relative;font-size:13px;font-weight:500;letter-spacing:.01em;color:rgba(251,247,238,.62)}
 .adm-top-title{
-  position:relative;margin:10px 0 0;
-  font-family:'Fraunces',serif;font-weight:400;font-size:34px;line-height:1.02;letter-spacing:-.02em;color:var(--paper);
+  position:relative;margin:4px 0 0;
+  font-family:'Fraunces',serif;font-weight:400;font-size:30px;line-height:1.08;letter-spacing:-.015em;color:#fff;
+  animation:admFade .35s ease;
 }
 .adm-top-title em{font-style:italic;font-weight:300;color:var(--gold-l)}
-.adm-top-filet{position:relative;width:56px;height:2px;border-radius:2px;background:var(--gold);margin:14px 0 0}
-.adm-top-extra{position:relative;display:flex;flex-direction:column;margin-top:14px}
+@keyframes admFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.adm-top-extra{position:relative;width:100%;margin-top:16px}
 .adm-top-extra:empty{display:none}
-.tx-lab{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(251,247,238,.72)}
-.tx-big{margin-top:5px;font-family:'Fraunces',serif;font-weight:400;font-size:21px;line-height:1.2;color:var(--paper)}
-.tx-sub{margin-top:3px;font-size:14px;font-weight:300;color:rgba(251,247,238,.88)}
-.tx-sep{height:1px;background:rgba(251,247,238,.14);margin:14px 0}
+.tx-card{
+  display:grid;grid-template-columns:1fr;gap:0;
+  border-radius:16px;background:rgba(255,255,255,.07);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.10);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  animation:admFade .35s ease;
+}
+.tx-block{display:flex;flex-direction:column;gap:3px;padding:13px 15px}
+.tx-block + .tx-block{border-top:1px solid rgba(255,255,255,.09)}
+.tx-lab{font-size:12px;font-weight:500;color:var(--gold-l)}
+.tx-big{font-family:'Jost',sans-serif;font-weight:600;font-size:17px;line-height:1.25;color:#fff}
+.tx-sub{font-size:13px;font-weight:300;color:rgba(251,247,238,.75)}
+@media (min-width:900px){
+  .tx-card{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .tx-block + .tx-block{border-top:0;border-left:1px solid rgba(255,255,255,.09)}
+}
 
 /* ---------- Contenu ---------- */
 .adm-app .adm-main{max-width:1080px;margin:0 auto;padding:20px 16px 40px}
@@ -221,7 +235,7 @@
 }
 @media (max-width: 380px){
   .h-kpi b{font-size:22px}
-  .adm-top-title{font-size:30px}
+  .adm-top-title{font-size:27px}
 }
 
 /* PC : barre latérale */
@@ -246,7 +260,7 @@
   .adm-app .adm-nav .nav-m{display:none}
   .adm-nav-foot{display:flex;flex-direction:column;gap:2px;margin-top:auto;padding-top:12px;border-top:1px solid rgba(251,247,238,.12)}
   .adm-shell{margin-left:236px}
-  .adm-app .adm-top{border-radius:0 0 28px 28px;padding:30px clamp(24px,4vw,48px) 28px;margin:0 clamp(0px,2vw,24px)}
+  .adm-app .adm-top{border-radius:0 0 24px 24px;padding:26px clamp(24px,4vw,48px) 26px;margin:0 clamp(0px,2vw,24px)}
   .adm-app .adm-main{padding:26px clamp(20px,4vw,48px) 60px}
   .h-kpis{max-width:640px}
   .h-acts{grid-template-columns:repeat(4,1fr)}
@@ -283,9 +297,6 @@
 .st-edit-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .st-edit-acts{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 .st-del{margin-left:auto;border:0;background:none;cursor:pointer;font:600 12px 'Jost',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#9A3412}
-.st-sugg{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
-.st-sugg:empty{display:none}
-.st-sugg button{border:1px solid #E3DCCA;background:#FBF7EE;border-radius:999px;padding:7px 12px;cursor:pointer;font:500 13px 'Jost',sans-serif;color:var(--navy)}
 .st-access{padding:16px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
 .st-access > p{margin:0 0 12px;font-size:14px;line-height:1.5;color:var(--ink)}
 .st-access .adm-hint{margin:12px 0 0;font-size:12.5px;color:var(--mute)}
@@ -317,3 +328,36 @@
   .st-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
   .st-access,.low-card{max-width:640px}
 }
+
+/* Ajouter au stock : récents + menus déroulants */
+.st-lab{display:block;margin:0 0 8px;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-ink)}
+.st-recent-wrap{margin:0 0 16px}
+.st-recent{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 6px;margin:0 -2px}
+.st-recent::-webkit-scrollbar{display:none}
+.st-recent button{
+  flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:1px;
+  padding:9px 13px;border-radius:12px;border:1px solid #E3DCCA;background:#FBF7EE;cursor:pointer;text-align:left;
+  font:inherit;color:var(--ink);
+}
+.st-recent button b{font-size:13.5px;font-weight:600;white-space:nowrap}
+.st-recent button em{font-style:normal;font-size:11.5px;color:var(--mute);white-space:nowrap}
+.st-recent button.on{background:var(--navy);border-color:var(--navy);color:var(--paper)}
+.st-recent button.on em{color:rgba(251,247,238,.75)}
+.st-recent .st-new{justify-content:center;border-style:dashed;color:var(--navy);font-size:13px;font-weight:600}
+.st-name{margin-bottom:12px}
+#stockForm.picked .st-name input{background:#F3EEE3;color:var(--navy);font-weight:600}
+.st-sel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.adm-app .st-sel-grid select,.st-edit select{
+  -webkit-appearance:none;appearance:none;width:100%;box-sizing:border-box;margin-top:6px;
+  padding:11px 34px 11px 12px;border:1px solid #E3DCCA;border-radius:10px;
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23a9760f' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 12px center;
+  font:400 15px 'Jost',sans-serif;color:var(--ink);
+}
+.st-preview{margin:14px 0 0;padding:11px 14px;border-radius:12px;background:#F7F2E7;font-size:13.5px;line-height:1.45;color:var(--ink)}
+.st-preview:empty{display:none}
+@media (max-width:899px){.st-sel-grid{grid-template-columns:1fr 1fr}.st-sel-grid label:last-child{grid-column:1 / -1}}
+
+/* Transitions plus fluides entre onglets */
+.adm-app .adm-panel.on{animation:admFade .3s ease}
+@media (prefers-reduced-motion:reduce){.adm-top-title,.tx-card,.adm-app .adm-panel.on{animation:none}}
+#homeLow .h-sec{margin-top:22px}
