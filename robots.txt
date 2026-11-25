@@ -1,0 +1,33 @@
+# La Bonne Aventure — studio à Aix-les-Bains
+# Moteurs de recherche et assistants IA bienvenus sur les pages publiques.
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /menage
+Disallow: /guide
+Disallow: /mon-compte
+Disallow: /extras-offre
+Disallow: /api/
+
+# Assistants IA (lecture des pages publiques)
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Claude-User
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Google-Extended
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+Disallow: /menage
+Disallow: /guide
+Disallow: /mon-compte
+Disallow: /extras-offre
+Disallow: /api/
+
+Sitemap: https://labonneaventure-aixlesbains.fr/sitemap.xml
