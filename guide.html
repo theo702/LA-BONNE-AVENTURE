@@ -20,8 +20,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="apple-touch-icon" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/site.css?v=32">
-<link rel="stylesheet" href="assets/guide.css?v=29">
+<link rel="stylesheet" href="assets/site.css?v=34">
+<link rel="stylesheet" href="assets/guide.css?v=30">
 <style>
   img.hero-logo{width:128px!important;height:128px!important;max-width:128px!important;max-height:128px!important;object-fit:contain!important}
   @media(min-width:760px){img.hero-logo{width:156px!important;height:156px!important;max-width:156px!important;max-height:156px!important}}
@@ -33,14 +33,14 @@
 <body class="page-guide">
 <div class="app">
 
-  <header class="guide-chrome is-over-hero" id="guideChrome">
+  <header class="guide-chrome" id="guideChrome">
     <nav class="nav" aria-label="Sections du livret">
-      <button type="button" class="on" data-p="p-home" onclick="go(this)">Accueil</button>
-      <button type="button" data-p="p-info" onclick="go(this)">Infos</button>
-      <button type="button" data-p="p-rules" onclick="go(this)">Règles</button>
-      <button type="button" data-p="p-spots" onclick="go(this)">Adresses</button>
-      <button type="button" data-p="p-sos" onclick="go(this)">Urgences</button>
-      <button type="button" class="ext-link" onclick="location.href='extras.html'">Extras</button>
+      <button type="button" class="on" data-p="p-home" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 11l8-7 8 7v8a1 1 0 01-1 1h-5v-6H10v6H5a1 1 0 01-1-1v-8z"/></svg>Accueil</button>
+      <button type="button" data-p="p-info" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8h.01"/></svg>Infos</button>
+      <button type="button" data-p="p-rules" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 6h11M8 12h11M8 18h11M5 6h.01M5 12h.01M5 18h.01"/></svg>Règles</button>
+      <button type="button" data-p="p-spots" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.2"/></svg>Adresses</button>
+      <button type="button" data-p="p-sos" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 4v8M12 16h.01"/><circle cx="12" cy="12" r="8"/></svg>Urgences</button>
+      <button type="button" class="ext-link" onclick="location.href='extras.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8L12 3z"/></svg>Extras</button>
     </nav>
   </header>
 
@@ -77,6 +77,13 @@
           <div><div class="sk">Départ</div><div class="sv" id="guide-depart-time">10:00</div><div class="sx" id="guide-depart-hint">avant</div></div>
         </div>
         <p class="hours-flex-note" id="guide-hours-note" hidden></p>
+
+        <div class="home-links reveal" style="--i:4">
+          <button type="button" onclick="jump('p-info')"><span class="hl-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8h.01"/></svg></span><span>Infos</span></button>
+          <button type="button" onclick="jump('p-rules')"><span class="hl-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 6h11M8 12h11M8 18h11M5 6h.01M5 12h.01M5 18h.01"/></svg></span><span>Règles</span></button>
+          <button type="button" onclick="jump('p-spots')"><span class="hl-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.2"/></svg></span><span>Adresses</span></button>
+          <button type="button" onclick="jump('p-sos')"><span class="hl-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 4v8M12 16h.01"/><circle cx="12" cy="12" r="8"/></svg></span><span>Urgences</span></button>
+        </div>
 
         <a class="guide-upsell reveal" style="--i:4" href="extras.html">
           <span class="guide-upsell-badge">Dès 10&nbsp;€</span>
@@ -573,6 +580,10 @@
     document.getElementById(id).classList.add('active');
     resetScroll();
     syncChrome();
+  }
+  function jump(id){
+    var b = document.querySelector('.nav button[data-p="'+id+'"]');
+    if (b) go(b);
   }
   function go(btn){
     document.querySelectorAll('.nav button').forEach(function(b){b.classList.remove('on')});

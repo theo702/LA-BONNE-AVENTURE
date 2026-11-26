@@ -4,7 +4,8 @@
    ========================================================================== */
 
 .page-guide{
-  --guide-bar:calc(64px + env(safe-area-inset-top, 0px));
+  --guide-bar:0px;
+  --guide-nav:calc(74px + env(safe-area-inset-bottom, 0px));
   height:100vh;
   height:100dvh;
   overflow:hidden;
@@ -22,61 +23,41 @@
   overflow:hidden;
 }
 
-/* ---- Header : pastille flottante, une seule ligne, toujours lisible ---- */
+/* ---- Navigation basse ---- */
 .page-guide .guide-chrome{
-  position:fixed;top:0;left:0;right:0;z-index:40;
-  display:flex;align-items:flex-start;justify-content:center;
-  padding:10px 12px 0;
-  padding-top:calc(10px + env(safe-area-inset-top));
-  background:transparent;
-  border:0;
-  min-height:0;
+  position:fixed;left:0;right:0;bottom:0;top:auto;z-index:40;
+  display:flex;align-items:stretch;justify-content:center;
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  background:rgba(251,247,238,.94);
+  border-top:1px solid rgba(15,42,74,.08);
+  backdrop-filter:blur(16px) saturate(1.1);
+  -webkit-backdrop-filter:blur(16px) saturate(1.1);
   box-sizing:border-box;
-  pointer-events:none;
+  pointer-events:auto;
 }
 .page-guide .guide-chrome .nav{
-  pointer-events:auto;
   position:static;
-  display:flex;flex-wrap:nowrap;align-items:center;
-  gap:2px;
-  width:max-content;
-  max-width:min(760px,100%);
-  overflow-x:auto;
-  scrollbar-width:none;
-  padding:4px;
-  margin:0;
-  border-radius:999px;
-  background:rgba(251,247,238,.94);
-  border:1px solid rgba(255,255,255,.7);
-  box-shadow:0 10px 28px rgba(15,30,55,.18);
-  backdrop-filter:blur(16px) saturate(1.15);
-  -webkit-backdrop-filter:blur(16px) saturate(1.15);
+  display:flex;flex-wrap:nowrap;align-items:stretch;justify-content:space-between;
+  gap:0;width:100%;max-width:640px;
+  overflow:hidden;padding:0;margin:0;
+  background:transparent;border:0;box-shadow:none;border-radius:0;
 }
-.page-guide .guide-chrome .nav::-webkit-scrollbar{display:none}
 .page-guide .guide-chrome .nav button{
-  width:auto;flex:0 0 auto;min-width:0;
-  display:inline-flex;align-items:center;justify-content:center;
-  font-family:'Jost',sans-serif;font-weight:500;font-size:13px;
-  padding:8px 12px;border:0;border-radius:999px;
+  flex:1 1 0;min-width:0;width:auto;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-family:'Jost',sans-serif;font-weight:500;font-size:10px;
+  padding:6px 2px;border:0;border-radius:12px;
   background:transparent;color:var(--ink-soft,#5f6675);cursor:pointer;
-  letter-spacing:.01em;white-space:nowrap;
-  transition:background .15s ease,color .15s ease,transform .1s cubic-bezier(.2,0,0,1);
-  scroll-snap-align:center;
+  letter-spacing:0;line-height:1.1;white-space:nowrap;
 }
-.page-guide .guide-chrome .nav button:hover{
-  color:var(--green,#0f2a4a);background:rgba(15,42,74,.05);
-}
-.page-guide .guide-chrome .nav button:active{transform:scale(.96)}
+.page-guide .guide-chrome .nav button svg{width:20px;height:20px}
 .page-guide .guide-chrome .nav button.on{
-  color:#1a1408;background:var(--gold,#d9971a);font-weight:600;
+  color:var(--green,#0f2a4a);background:transparent;font-weight:600;
 }
+.page-guide .guide-chrome .nav button.on svg{color:var(--gold-deep,#a9760f)}
 .page-guide .guide-chrome .nav button.ext-link{color:var(--gold-deep,#a9760f)}
-.page-guide .guide-chrome:not(.is-over-hero) .nav{
-  box-shadow:0 8px 20px rgba(15,42,74,.08);
-  border-color:rgba(15,42,74,.08);
-}
+.page-guide .guide-chrome .nav button:active{transform:scale(.96)}
 
-/* Réserve toujours la place du header fixe — valeurs fixes (jamais modifiées au scroll) */
 .page-guide .scroll{
   flex:1 1 auto;
   min-height:0;
@@ -84,16 +65,16 @@
   overflow-anchor:none;
   overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
-  padding-bottom:24px;
-  padding-top:var(--guide-bar);
+  padding-top:0;
+  padding-bottom:var(--guide-nav);
 }
-.page-guide .bot-fab{bottom:18px}
+.page-guide .bot-fab{bottom:calc(var(--guide-nav) + 10px)}
 
 /* ---- Hero livret ---- */
 .page-guide .hero,
 .page-guide .up-hero{margin-top:calc(var(--guide-bar) * -1)}
-.page-guide .hero{min-height:78svh;min-height:78vh}
-.page-guide .hero .inner{padding:calc(104px + env(safe-area-inset-top, 0px)) 22px 52px}
+.page-guide .hero{min-height:68svh;min-height:68vh}
+.page-guide .hero .inner{padding:calc(36px + env(safe-area-inset-top, 0px)) 22px 40px}
 .page-guide .hero h1{
   color:#FBF7EE;
   font-size:clamp(34px,7.5vw,52px);
@@ -545,17 +526,11 @@
 }
 .page-guide .pop a svg{width:14px;height:14px}
 
-@media(min-width:640px){
-  .page-guide .guide-chrome .nav button{padding:8px 14px;font-size:13.5px}
-}
-
 @media(min-width:760px){
-  .page-guide .guide-chrome{
-    padding-left:clamp(24px,4vw,80px);
-    padding-right:clamp(24px,4vw,80px);
-  }
-  .page-guide .guide-chrome .nav button{padding:8px 12px;font-size:13.5px}
-  .page-guide .hero{min-height:85svh;min-height:85vh}
+  .page-guide .guide-chrome .nav{max-width:720px}
+  .page-guide .guide-chrome .nav button{font-size:11px}
+  .page-guide .hero{min-height:72svh;min-height:72vh}
+  .page-guide .home-links{grid-template-columns:repeat(4,1fr)}
   .page-guide .hero .inner{
     max-width:1200px;margin-left:auto;margin-right:auto;
     padding-left:clamp(24px,4vw,80px);padding-right:clamp(24px,4vw,80px);
@@ -570,9 +545,78 @@
 }
 
 @media(max-width:560px){
-  .page-guide .guide-chrome{padding:8px 10px 0;padding-top:calc(8px + env(safe-area-inset-top))}
-  .page-guide .guide-chrome .nav button{padding:7px 10px;font-size:12.5px}
+  .page-guide .guide-chrome .nav button{font-size:9.5px}
   .page-guide .hours .sv{font-size:26px}
+}
+
+/* ---- Livret moderne : raccourcis, cartes, titres ---- */
+.page-guide .home-links{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0 8px;
+}
+.page-guide .home-links button{
+  display:flex;align-items:center;gap:10px;
+  text-align:left;cursor:pointer;
+  padding:14px 12px;border:0;border-radius:18px;
+  background:#fff;color:var(--ink,#1f2838);
+  font-family:'Jost',sans-serif;font-weight:600;font-size:15px;
+  box-shadow:0 0 0 1px rgba(15,42,74,.05), 0 10px 22px rgba(15,42,74,.07);
+}
+.page-guide .home-links button:active{transform:scale(.98)}
+.page-guide .hl-ic{
+  width:40px;height:40px;border-radius:14px;flex:0 0 auto;
+  display:inline-flex;align-items:center;justify-content:center;
+  color:var(--green,#0f2a4a);
+  background:linear-gradient(160deg,#fff 0%,#f6edd6 100%);
+  box-shadow:inset 0 1px 0 #fff, 0 6px 12px rgba(15,42,74,.1);
+}
+.page-guide .hl-ic svg{width:20px;height:20px}
+.page-guide .section-head .no{display:none}
+.page-guide .divider{margin:28px 0 12px}
+.page-guide .divider .ln{display:none}
+.page-guide .divider .lab,
+.page-guide .spot-group-head .lab{
+  font-family:'Fraunces',serif;font-weight:500;font-size:26px;
+  letter-spacing:-.02em;text-transform:none;color:var(--ink,#1f2838);
+}
+.page-guide .spot-group-head .ln{display:none}
+.page-guide .hours{
+  gap:10px;background:transparent;border:0;
+}
+.page-guide .hours > div{
+  border-radius:20px;
+  box-shadow:0 0 0 1px rgba(15,42,74,.05), 0 10px 22px rgba(15,42,74,.07);
+}
+.page-guide .tag{
+  background:#fff;border:0;border-radius:22px;
+  box-shadow:0 0 0 1px rgba(217,151,26,.35), 0 12px 28px rgba(15,42,74,.08);
+}
+.page-guide .info-list .row,
+.page-guide .rule-item,
+.page-guide .step{
+  background:#fff;border:0;border-radius:18px;
+  padding:14px 14px;margin:0 0 8px;
+  box-shadow:0 0 0 1px rgba(15,42,74,.05), 0 8px 18px rgba(15,42,74,.06);
+}
+.page-guide .info-list .row:last-child,
+.page-guide .rule-item:last-child,
+.page-guide .step:last-child{margin-bottom:0}
+.page-guide .path,
+.page-guide .rule-list,
+.page-guide .info-list{background:transparent}
+.page-guide .zone-list{
+  background:#fff;border-radius:18px;padding:6px 14px;margin-top:10px;
+  box-shadow:0 0 0 1px rgba(15,42,74,.05), 0 8px 18px rgba(15,42,74,.06);
+}
+.page-guide .spot{
+  background:#fff;border:0;border-radius:22px;overflow:hidden;
+  padding:0 0 16px;margin:0 0 16px;
+  box-shadow:0 0 0 1px rgba(15,42,74,.05), 0 12px 28px rgba(15,42,74,.08);
+}
+.page-guide .spot-ph{border-radius:22px 22px 0 0;aspect-ratio:16/9}
+.page-guide .spot-bd{padding:14px 16px 0}
+.page-guide .callout{
+  border-radius:18px;background:#fff;
+  box-shadow:0 0 0 1px rgba(217,151,26,.28), 0 8px 18px rgba(15,42,74,.05);
 }
 
 @media (prefers-reduced-motion:reduce){
