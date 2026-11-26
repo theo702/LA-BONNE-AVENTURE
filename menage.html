@@ -89,6 +89,25 @@
   .cl-t .late{color:var(--gold-ink);font-weight:600}
   .cl-t .tight{color:#9A3412;font-weight:600}
   .cl-when{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-ink)}
+  .how{margin:-4px 0 12px;font-size:14px;line-height:1.5;color:var(--mute)}
+  .card{padding:6px 16px 16px;border-radius:20px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+  .srow{position:relative;display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #F0ECE1}
+  .srow.low::before{content:"";position:absolute;left:-16px;top:14px;bottom:14px;width:3px;border-radius:2px;background:var(--gold)}
+  .srow.empty::before{background:#9A3412}
+  .sname{flex:1;min-width:0}
+  .sname b{display:block;font-size:16.5px;font-weight:600}
+  .sname span{font-size:13px;color:var(--mute)}
+  .srow.low .sname span strong{color:var(--gold-ink)}
+  .srow.empty .sname span strong{color:#9A3412}
+  .stp{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .stp button{width:46px;height:46px;border-radius:50%;border:1px solid #D8CDB8;background:#fff;color:var(--navy);font:400 26px/1 'Jost',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+  .stp button.pl{background:var(--navy);border-color:var(--navy);color:var(--paper)}
+  .stp button:disabled{opacity:.3}
+  .stp input{width:46px;height:46px;border:0;border-radius:12px;background:#F6F1E6;text-align:center;font:600 20px 'Jost',sans-serif;color:var(--ink);padding:0;-moz-appearance:textfield}
+  .stp input.on{background:rgba(217,151,26,.18);color:var(--gold-ink)}
+  .stp input::-webkit-outer-spin-button,.stp input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .again{display:block;width:100%;margin:10px 0 2px;min-height:46px;border:1px dashed #D8CDB8;border-radius:12px;background:#FBF7EE;color:var(--navy);font:600 13.5px 'Jost',sans-serif;cursor:pointer}
+  .card .use{margin-top:16px}
   .toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9;max-width:536px;margin:0 auto;
     display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;background:var(--navy);color:var(--paper);
     box-shadow:0 14px 34px rgba(10,31,56,.3);font-size:14.5px;transform:translateY(140%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s}
@@ -110,8 +129,9 @@
   </div>
   <div id="cleanings"></div>
   <div id="extras"></div>
-  <div class="sec"><i>03</i><span>Le stock</span></div>
-  <div class="list" id="list"><div class="msg">Chargement…</div></div>
+  <div class="sec"><i>03</i><span>Après le ménage</span></div>
+  <p class="how">Mettez ce que vous avez <b>remis ou utilisé</b> (papier toilette, café…), puis touchez <b>Valider</b>. Une fois par ménage, c’est tout.</p>
+  <div id="list"><div class="msg">Chargement…</div></div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastTxt"></span><button type="button" id="undoBtn">Annuler</button></div>
 
@@ -121,7 +141,9 @@
   var qs = new URLSearchParams(location.search);
   var key = qs.get('k') || '';
   try { if (key) localStorage.setItem(LS, key); else key = localStorage.getItem(LS) || ''; } catch (e) {}
-  var items = [], lastMove = null, toastTimer = null;
+  var items = [], lastMove = null, toastTimer = null, counts = {}, LAST = 'lba_menage_last';
+  function lastSaved() { try { return JSON.parse(localStorage.getItem(LAST) || 'null'); } catch (e) { return null; } }
+  function total() { var n = 0; for (var k in counts) n += counts[k] || 0; return n; }
   var $ = function (s) { return document.querySelector(s); };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
   var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
@@ -134,12 +156,24 @@
 
   function render() {
     if (!items.length) { fail('Aucun produit pour l’instant.'); return; }
-    $('#list').innerHTML = items.map(function (x) {
-      var cls = 'item' + (x.low ? ' low' : '') + (x.qty === 0 ? ' empty' : '');
-      return '<div class="' + cls + '"><div class="top"><div><b>' + esc(x.name) + '</b><span>' + esc(x.unit || '') + '</span></div>' +
-        '<span class="left">reste <strong>' + x.qty + '</strong></span></div>' +
-        '<button type="button" class="use" data-id="' + x.id + '"' + (x.qty === 0 ? ' disabled' : '') + '>' + ICON + (x.qty === 0 ? 'Plus en stock' : 'J’en ai pris 1') + '</button></div>';
+    var last = lastSaved(), n = total();
+    var h = '<div class="card">';
+    if (last && !n && items.some(function (x) { return last[x.id] > 0 && x.qty > 0; })) h += '<button type="button" class="again" id="again">↺ Comme la dernière fois</button>';
+    h += items.map(function (x) {
+      var c = counts[x.id] || 0, cls = 'srow' + (x.low ? ' low' : '') + (x.qty === 0 ? ' empty' : '');
+      return '<div class="' + cls + '"><div class="sname"><b>' + esc(x.name) + '</b><span>' + (x.unit ? esc(x.unit) + ' · ' : '') + 'reste <strong>' + x.qty + '</strong></span></div>' +
+        '<div class="stp"><button type="button" class="mn" data-id="' + x.id + '" aria-label="Moins"' + (c ? '' : ' disabled') + '>−</button>' +
+        '<input class="nb' + (c ? ' on' : '') + '" data-id="' + x.id + '" type="number" inputmode="numeric" min="0" max="' + x.qty + '" value="' + c + '" aria-label="' + esc(x.name) + '">' +
+        '<button type="button" class="pl" data-id="' + x.id + '" aria-label="Plus"' + (c >= x.qty ? ' disabled' : '') + '>+</button></div></div>';
     }).join('');
+    h += '<button type="button" class="use" id="send"' + (n ? '' : ' disabled') + '>' + ICON + (n ? 'Valider' : 'Choisissez les produits') + '</button></div>';
+    $('#list').innerHTML = h;
+  }
+  function setCount(id, v) {
+    var it = items.filter(function (x) { return x.id === id; })[0];
+    if (!it) return;
+    counts[id] = Math.max(0, Math.min(it.qty, Math.round(Number(v) || 0)));
+    render();
   }
 
   function toast(text, undo) {
@@ -147,7 +181,7 @@
     $('#undoBtn').hidden = !undo;
     $('#toast').classList.add('on');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { $('#toast').classList.remove('on'); lastMove = null; }, 8000);
+    toastTimer = setTimeout(function () { $('#toast').classList.remove('on'); lastMove = null; }, 10000);
   }
 
   function load() {
@@ -160,21 +194,51 @@
   }
 
   document.addEventListener('click', function (e) {
-    var b = e.target.closest('.use');
-    if (!b) return;
-    var id = Number(b.dataset.id);
-    var it = items.filter(function (x) { return x.id === id; })[0];
-    b.disabled = true;
-    call('POST', { id: id, qty: 1 }).then(function (j) {
-      if (!j.ok) { b.disabled = false; toast(j.message || 'Erreur, réessayez.', false); return; }
-      items = j.items || items; lastMove = j.move_id; render();
-      toast('Noté : 1 × ' + (it ? it.name + (it.unit ? ' (' + it.unit + ')' : '') : 'produit'), true);
-    }).catch(function () { b.disabled = false; toast('Pas de connexion. Réessayez.', false); });
+    var t = e.target.closest('.mn, .pl, #again, #send');
+    if (!t) return;
+    if (t.id === 'again') {
+      var last = lastSaved() || {}; counts = {};
+      items.forEach(function (x) { if (last[x.id] > 0) counts[x.id] = Math.min(x.qty, last[x.id]); });
+      render(); return;
+    }
+    if (t.id === 'send') {
+      var lines = [], names = [];
+      items.forEach(function (x) { var c = counts[x.id] || 0; if (c) { lines.push({ id: x.id, qty: c }); names.push(c + ' × ' + x.name); } });
+      if (!lines.length) return;
+      t.disabled = true;
+      call('POST', { action: 'batch', lines: lines }).then(function (j) {
+        if (!j.ok) { t.disabled = false; toast(j.message || 'Erreur, réessayez.', false); return; }
+        try { localStorage.setItem(LAST, JSON.stringify(counts)); } catch (e2) {}
+        items = j.items || items; lastMove = j.move_ids || null; counts = {}; render();
+        toast('Merci ! Noté : ' + names.join(', '), true);
+      }).catch(function () { t.disabled = false; toast('Pas de connexion. Réessayez.', false); });
+      return;
+    }
+    var id = Number(t.dataset.id);
+    setCount(id, (counts[id] || 0) + (t.classList.contains('pl') ? 1 : -1));
   });
+  // Saisie au clavier : on met à jour le compteur sans redessiner (sinon le champ perd le focus).
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (!el.classList || !el.classList.contains('nb')) return;
+    var id = Number(el.dataset.id), it = items.filter(function (x) { return x.id === id; })[0];
+    if (!it) return;
+    var c = Math.max(0, Math.min(it.qty, Math.round(Number(el.value) || 0)));
+    counts[id] = c;
+    el.classList.toggle('on', c > 0);
+    var box = el.parentNode; box.querySelector('.mn').disabled = !c; box.querySelector('.pl').disabled = c >= it.qty;
+    var n = total(), send = $('#send');
+    if (send) { send.disabled = !n; send.innerHTML = ICON + (n ? 'Valider' : 'Choisissez les produits'); }
+  });
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (el.classList && el.classList.contains('nb')) el.value = counts[Number(el.dataset.id)] || 0;
+  });
+  document.addEventListener('focusin', function (e) { if (e.target.classList && e.target.classList.contains('nb')) e.target.select(); });
   $('#undoBtn').addEventListener('click', function () {
     if (!lastMove) return;
     var m = lastMove; lastMove = null;
-    call('POST', { action: 'undo', move_id: m }).then(function (j) {
+    call('POST', Array.isArray(m) ? { action: 'undo', move_ids: m } : { action: 'undo', move_id: m }).then(function (j) {
       if (j.ok) { items = j.items || items; render(); toast('C’est annulé.', false); }
       else toast(j.message || 'Impossible d’annuler.', false);
     });
