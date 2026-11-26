@@ -73,8 +73,30 @@
     if (inp.type === 'date') return inp.value || '';
     return dmyToIso(inp.value);
   }
-  var FROND = '<div class="frond"><svg viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M60 198 C60 150 58 95 64 8"/><path d="M61 165 C40 158 28 150 20 132"/><path d="M62 150 C84 144 96 136 104 118"/><path d="M60 132 C40 126 30 118 24 100"/><path d="M62 116 C82 110 92 102 98 86"/></svg></div>';
-  function bag() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6h15l-1.5 8.5H7.7L6 3H3M8 20a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z"/></svg>'; }
+  function svg(inner) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>';
+  }
+  function sunrise() { return svg('<path d="M4 18h16"/><path d="M6.5 18a5.5 5.5 0 0111 0"/><path d="M12 4v2.2M7.2 8.4l1.5 1.5M16.8 8.4l-1.5 1.5"/>'); }
+  function moon() { return svg('<path d="M4 18.5h16"/><path d="M15.2 15.4A4.4 4.4 0 1111.2 7.6a3.5 3.5 0 004 7.8z"/>'); }
+  function gift() { return svg('<rect x="3.5" y="10" width="17" height="9" rx="1.6"/><path d="M3.5 14h17M12 10v9"/><path d="M12 10c-.2-2.6-2-4.2-3.6-4.2-1.5 0-2.5 1.2-2 2.6.4 1.1 1.8 1.6 5.6 1.6zM12 10c.2-2.6 2-4.2 3.6-4.2 1.5 0 2.5 1.2 2 2.6-.4 1.1-1.8 1.6-5.6 1.6z"/>'); }
+  function linen() { return svg('<path d="M4 7h16v3.2H4zM4 12.2h16v3.2H4z"/><path d="M7 18h10"/><path d="M17.4 3.2l.55 1.35 1.35.55-1.35.55-.55 1.35-.55-1.35-1.35-.55 1.35-.55.55-1.35z"/>'); }
+  function spark() { return svg('<path d="M12 3l1.5 4.8L18.2 9.2 13.5 10.7 12 15.5 10.5 10.7 5.8 9.2l4.7-1.4L12 3z"/>'); }
+  function arrow() { return svg('<path d="M5 12h14M13 6l6 6-6 6"/>'); }
+  function clock() { return svg('<circle cx="12" cy="12" r="8"/><path d="M12 8v4.5l2.8 1.6"/>'); }
+  function iconFor(x) {
+    if (isFeatured(x) || (x && x.kind === 'both')) return gift();
+    if (x && x.kind === 'early_checkin') return sunrise();
+    if (x && x.kind === 'late_checkout') return moon();
+    if (isCure(x)) return linen();
+    return spark();
+  }
+  function iconClass(x) {
+    if (isFeatured(x) || (x && x.kind === 'both')) return 'shop-ic shop-ic-pack';
+    if (x && x.kind === 'early_checkin') return 'shop-ic shop-ic-early';
+    if (x && x.kind === 'late_checkout') return 'shop-ic shop-ic-late';
+    if (isCure(x)) return 'shop-ic shop-ic-cure';
+    return 'shop-ic';
+  }
   function card() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>'; }
   function lock() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>'; }
   function check() { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>'; }
@@ -119,6 +141,7 @@
       id: 'flex',
       title: 'Flexibilité des horaires',
       lead: 'Arrivez plus tôt ou partez plus tard, sans stress.',
+      icon: 'clock',
       match: function (x) {
         return x.kind === 'flex_pack' || x.kind === 'both' || x.kind === 'late_checkout' || x.kind === 'early_checkin';
       }
@@ -127,12 +150,14 @@
       id: 'stay',
       title: 'Long séjour & cure',
       lead: 'Confort hebdomadaire pour les cures et séjours prolongés.',
+      icon: 'linen',
       match: function (x) { return x.kind === 'weekly'; }
     },
     {
       id: 'other',
       title: 'Autres services',
       lead: 'Options à la carte pendant votre séjour.',
+      icon: 'spark',
       match: function () { return true; }
     }
   ];
@@ -191,16 +216,16 @@
   function cardNode(x, items, i) {
     var featured = isFeatured(x);
     var compare = packCompareCents(items, x);
-    var node = el('<div class="shop-item reveal in' + (featured ? ' shop-item-pack' : (isCure(x) ? ' shop-item-cure' : '')) + '" style="--i:' + (i + 1) + '">' + FROND +
+    var node = el('<div class="shop-item reveal in' + (featured ? ' shop-item-pack' : (isCure(x) ? ' shop-item-cure' : '')) + '" style="--i:' + (i + 1) + '">' +
       badgeHtml(x, compare) +
       (featured ? '<p class="shop-pack-kicker">Les deux pour le prix d\u2019un</p>' : '') +
-      '<div class="shop-top"><div class="shop-ic">' + bag() + '</div><div>' +
+      '<div class="shop-top"><div class="' + iconClass(x) + '">' + iconFor(x) + '</div><div>' +
       '<h3>' + esc(x.title) + '</h3>' +
       '<p class="desc">' + esc(x.description || '') + '</p>' +
       (x.condition ? '<p class="cond">' + esc(x.condition) + '</p>' : '') +
       '</div></div>' +
       '<div class="shop-foot">' + priceHtml(x, compare) +
-      '<button class="shop-buy" type="button">' + bag() + (featured ? 'Profiter de l\u2019offre' : 'Réserver') + '</button></div></div>');
+      '<button class="shop-buy" type="button">' + (featured ? spark() : arrow()) + (featured ? 'Profiter de l\u2019offre' : 'Réserver') + '</button></div></div>');
     node.querySelector('.shop-buy').addEventListener('click', function () { openBuy(x); });
     return node;
   }
@@ -213,8 +238,11 @@
       var section = el(
         '<section class="shop-section reveal in" style="--i:' + (++idx) + '" data-section="' + esc(g.sec.id) + '">' +
           '<header class="shop-section-head">' +
-            '<h3 class="shop-section-title">' + esc(g.sec.title) + '</h3>' +
-            (g.sec.lead ? '<p class="shop-section-lead">' + esc(g.sec.lead) + '</p>' : '') +
+            '<div class="shop-section-ic">' + (g.sec.icon === 'linen' ? linen() : (g.sec.icon === 'spark' ? spark() : clock())) + '</div>' +
+            '<div>' +
+              '<h3 class="shop-section-title">' + esc(g.sec.title) + '</h3>' +
+              (g.sec.lead ? '<p class="shop-section-lead">' + esc(g.sec.lead) + '</p>' : '') +
+            '</div>' +
           '</header>' +
           '<div class="grid2 shop-section-grid"></div>' +
         '</section>'
