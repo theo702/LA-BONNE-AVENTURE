@@ -2,6 +2,7 @@
 import { loadSettings, validatePromo, computeQuote, loadEventRates } from '../_lib/pricing.js';
 import { fetchExternalRanges } from '../_lib/ical.js';
 import { getBusyRanges, overlaps } from '../_lib/db.js';
+import { clientIp, isLimited, hit, tooMany } from '../_lib/ratelimit.js';
 
 export async function onRequestPost({ env, request }) {
   const body = await request.json().catch(() => ({}));
@@ -10,8 +11,16 @@ export async function onRequestPost({ env, request }) {
   const nights = (body.checkin && body.checkout)
     ? Math.round((Date.parse(body.checkout) - Date.parse(body.checkin)) / 86400000)
     : 0;
+  // Anti « devinette » de codes promo : 15 codes faux par heure et par IP.
+  const kPromo = 'promo:ip:' + clientIp(request);
+  if (body.promo && String(body.promo).trim() && await isLimited(env, [[kPromo, 15]])) {
+    return tooMany('Trop d’essais de code promo. Réessayez plus tard.');
+  }
   const promoRes = await validatePromo(env, body.promo, { nights, checkin: body.checkin, checkout: body.checkout });
-  if (!promoRes.ok) return Response.json({ ok: false, error: 'promo', message: promoRes.message }, { status: 400 });
+  if (!promoRes.ok) {
+    await hit(env, [[kPromo, 60 * 60]]);
+    return Response.json({ ok: false, error: 'promo', message: promoRes.message }, { status: 400 });
+  }
 
   const quote = computeQuote(body, { settings, promo: promoRes.promo, eventRates: await loadEventRates(env) });
   if (!quote.ok) return Response.json(quote, { status: 400 });

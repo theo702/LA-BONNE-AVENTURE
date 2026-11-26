@@ -1,3 +1,11 @@
+# Sécurité : pas d'affichage du site dans une page étrangère (clickjacking), pas de
+# devinette de type de fichier, et l'adresse complète n'est pas transmise aux autres sites.
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=()
+
 # Cloudflare Pages : forcer la revalidation du HTML/JS/CSS à chaque requête.
 # Sans ce fichier, un navigateur (ou un proxy) peut continuer à servir une VERSION
 # PÉRIMÉE de assets/admin.js ou assets/booking.js après un déploiement — un clic sur un
