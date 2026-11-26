@@ -1221,3 +1221,48 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
   .lba-lang-btn{padding:5px 7px;font-size:10px}
   .hero-top-bar .edge-link.edge-light{font-size:12px;padding:7px 11px}
 }
+
+/* ---------- Objets tactiles & motion (couleurs de marque inchangées) ---------- */
+:root{
+  --ease-ui:cubic-bezier(.2,0,0,1);
+  --shadow-story:0 0 0 1px rgba(0,0,0,.04), 0 6px 16px rgba(15,30,55,.12);
+}
+.amen .ai,.tok,.shop-ic,.svc .si,.callout .ci{
+  background:linear-gradient(155deg,#fff 0%,#f7f2e6 58%,#efe4cc 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 1px 0 rgba(15,42,74,.06),
+    0 7px 12px rgba(15,42,74,.10);
+}
+.shop-ic{color:var(--gold-deep);background:linear-gradient(155deg,#fff8ec 0%,#f3e2b8 100%)}
+.amen .ai svg,.tok svg,.shop-ic svg,.svc .si svg,.callout .ci svg{
+  filter:drop-shadow(0 1px 0 rgba(15,42,74,.14));
+}
+@keyframes iconFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+.amen .ai,.shop-ic,.page-guide .tok{
+  animation:iconFloat 4.2s var(--ease-ui) infinite;
+}
+.amen .a:nth-child(2n) .ai,.shop-item:nth-child(2n) .shop-ic{animation-delay:.6s}
+.amen .a:hover .ai,.shop-item:hover .shop-ic{animation:none;transform:translateY(-2px) scale(1.06)}
+.cta,.bw-pay,.hero-cta a,.tb-act,.edge-link,.shop-buy,.svc .acts a,.chip{
+  border-radius:800px;
+  transition:transform .1s var(--ease-ui),box-shadow .2s var(--ease-ui),background .2s var(--ease-ui),filter .2s var(--ease-ui);
+}
+.cta:active,.bw-pay:active:not(:disabled),.hero-cta a:active,.tb-act:active,.edge-link:active,.shop-buy:active,.chip:active{
+  transform:scale(.96);
+}
+.g-item{border-radius:12px;box-shadow:var(--shadow-story)}
+.book-card,.sec-avis .review{box-shadow:var(--shadow-story)}
+.reviews-prev,.reviews-next{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(8px);
+}
+.reviews-prev:active,.reviews-next:active{transform:scale(.96)}
+@media (prefers-reduced-motion:reduce){
+  .amen .ai,.shop-ic,.page-guide .tok{animation:none}
+  .cta:active,.hero-cta a:active,.bw-pay:active{transform:none}
+}
