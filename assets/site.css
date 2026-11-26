@@ -320,15 +320,20 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 }
 .amenities-grid{
   list-style:none;margin:0;padding:0;
-  display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;
+  display:grid;grid-template-columns:1fr;gap:8px;
+}
+.amen-group{margin:0 0 22px}
+.amen-group h4{
+  font-family:'Fraunces',serif;font-weight:500;font-size:22px;color:var(--ink);
+  margin:0 0 10px;letter-spacing:-.015em;
 }
 .amenities-grid li{
-  font-family:'Jost',sans-serif;font-size:13.5px;font-weight:500;color:var(--ink);
-  padding:14px 12px 12px;border-radius:18px;
+  font-family:'Jost',sans-serif;font-size:14px;font-weight:500;color:var(--ink);
+  padding:12px 14px;border-radius:16px;
   background:#fff;
-  box-shadow:0 0 0 1px rgba(15,42,74,.05), 0 10px 22px rgba(15,42,74,.08);
-  display:flex;flex-direction:column;align-items:flex-start;gap:10px;
-  line-height:1.3;min-height:92px;
+  box-shadow:0 0 0 1px rgba(15,42,74,.05), 0 8px 18px rgba(15,42,74,.06);
+  display:flex;flex-direction:row;align-items:center;gap:12px;
+  line-height:1.35;
 }
 .amenities-grid .obj{
   width:40px;height:40px;border-radius:14px;flex:0 0 auto;
@@ -345,8 +350,9 @@ h2{font-size:30px;line-height:1.1;letter-spacing:-.015em;margin:2px 0 10px}
 .amenities-grid li:hover{transform:translateY(-3px)}
 .amenities-grid li:hover .obj{animation:none;transform:translateY(-2px) scale(1.06)}
 @media (min-width:760px){
-  .amenities-grid{grid-template-columns:repeat(3,1fr);gap:10px 14px}
+  .amenities-grid{grid-template-columns:1fr 1fr;gap:10px 12px}
   .amenities-title{font-size:26px}
+  .amen-group h4{font-size:24px}
 }
 
 /* ---------- Bloc « pourquoi réserver en direct » ---------- */

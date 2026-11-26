@@ -270,10 +270,10 @@
       ur: "سہولیات"
     },
     'amen.ac': {
-      fr: "Climatisation réversible",
-      en: "Reversible air conditioning",
-      es: "Climatización reversible",
-      de: "Reversible Klimaanlage",
+      fr: "Clim et chauffage réversibles",
+      en: "Reversible air conditioning and heating",
+      es: "Climatización y calefacción reversibles",
+      de: "Reversible Klima- und Heizung",
       zh: "可逆空调",
       hi: "रिवर्सिबल एयर कंडीशनिंग",
       ar: "تكييف عكسي",
@@ -283,8 +283,8 @@
       ur: "ریورسیبل ایئر کنڈیشنگ"
     },
     'amen.wifi': {
-      fr: "Wifi fibre 38 Mbps",
-      en: "Fibre WiFi 38 Mbps",
+      fr: "Wi-Fi fibre (38 Mbps)",
+      en: "Fibre Wi-Fi (38 Mbps)",
       es: "WiFi fibra 38 Mbps",
       de: "Glasfaser-WLAN 38 Mbps",
       zh: "光纤 WiFi 38 Mbps",
@@ -322,10 +322,10 @@
       ur: "فرنیچر والا نجی پیٹیو"
     },
     'amen.coffee': {
-      fr: "Cafetière + café offert",
-      en: "Coffee maker + complimentary coffee",
-      es: "Cafetera + café de regalo",
-      de: "Kaffeemaschine + Kaffee gratis",
+      fr: "Cafetière Nespresso, café offert",
+      en: "Nespresso machine, coffee included",
+      es: "Cafetera Nespresso, café incluido",
+      de: "Nespresso-Maschine, Kaffee inklusive",
       zh: "咖啡机 + 免费咖啡",
       hi: "कॉफ़ी मेकर + मुफ़्त कॉफ़ी",
       ar: "آلة قهوة + قهوة مجانية",
@@ -335,10 +335,10 @@
       ur: "کافی میکر + مفت کافی"
     },
     'amen.fridge': {
-      fr: "Réfrigérateur + congélateur",
-      en: "Fridge + freezer",
-      es: "Nevera + congelador",
-      de: "Kühlschrank + Tiefkühlschrank",
+      fr: "Réfrigérateur-congélateur",
+      en: "Fridge-freezer",
+      es: "Frigorífico-congelador",
+      de: "Kühl-Gefrierkombination",
       zh: "冰箱 + 冷冻室",
       hi: "फ्रिज + फ्रीज़र",
       ar: "ثلاجة + فريزر",
@@ -348,10 +348,10 @@
       ur: "فریج + فریزر"
     },
     'amen.shower': {
-      fr: "Salle d'eau avec douche",
-      en: "Shower room",
-      es: "Cuarto de baño con ducha",
-      de: "Duschbad",
+      fr: "Douche",
+      en: "Shower",
+      es: "Ducha",
+      de: "Dusche",
       zh: "淋浴间",
       hi: "शावर रूम",
       ar: "غرفة دش",
@@ -374,10 +374,10 @@
       ur: "ہیئر ڈرائر"
     },
     'amen.checkin': {
-      fr: "Arrivée autonome (boîte à clés)",
-      en: "Self check-in (lockbox)",
-      es: "Entrada autónoma (caja de llaves)",
-      de: "Selbst-Check-in (Schlüsselbox)",
+      fr: "Arrivée autonome, 24 h/24",
+      en: "Self check-in, 24/7",
+      es: "Entrada autónoma, 24 h",
+      de: "Selbst-Check-in, rund um die Uhr",
       zh: "自助入住（钥匙盒）",
       hi: "स्वयं चेक-इन (लॉकबॉक्स)",
       ar: "تسجيل وصول ذاتي (صندوق مفاتيح)",
@@ -413,17 +413,95 @@
       ur: "قریب ادائیگی والی پارکنگ"
     },
     'amen.smoke': {
-      fr: "Détecteur de fumée",
-      en: "Smoke detector",
-      es: "Detector de humo",
-      de: "Rauchmelder",
+      fr: "Détecteur de fumée et de bruit",
+      en: "Smoke and noise detector",
+      es: "Detector de humo y de ruido",
+      de: "Rauch- und Lärmmelder",
       zh: "烟雾探测器",
       hi: "स्मोक डिटेक्टर",
       ar: "كاشف دخان",
       bn: "স্মোক ডিটেক্টর",
       pt: "Detetor de fumo",
       ru: "Датчик дыма",
-      ur: "اسموک ڈیٹیکٹر"
+      ur: "دھواں اور شور کا ڈیٹیکٹر"
+    },
+    'amen.g.room': {
+      fr: "Chambre et confort", en: "Bedroom and comfort", es: "Dormitorio y confort", de: "Schlafbereich und Komfort",
+      zh: "卧室与舒适", hi: "शयनकक्ष और आराम", ar: "غرفة النوم والراحة", bn: "শোবার ঘর ও আরাম",
+      pt: "Quarto e conforto", ru: "Спальня и комфорт", ur: "سونے کا کمرہ اور آرام"
+    },
+    'amen.g.kitchen': {
+      fr: "Cuisine", en: "Kitchen", es: "Cocina", de: "Küche",
+      zh: "厨房", hi: "रसोई", ar: "المطبخ", bn: "রান্নাঘর",
+      pt: "Cozinha", ru: "Кухня", ur: "باورچی خانہ"
+    },
+    'amen.g.bath': {
+      fr: "Salle d'eau", en: "Shower room", es: "Cuarto de ducha", de: "Duschbad",
+      zh: "淋浴间", hi: "स्नानघर", ar: "غرفة الدش", bn: "স্নানঘর",
+      pt: "Casa de banho", ru: "Душевая", ur: "باتھ روم"
+    },
+    'amen.g.out': {
+      fr: "Extérieur et services", en: "Outdoor and services", es: "Exterior y servicios", de: "Außenbereich und Services",
+      zh: "户外与服务", hi: "बाहर और सेवाएँ", ar: "الخارج والخدمات", bn: "বাইরে ও সেবা",
+      pt: "Exterior e serviços", ru: "Снаружи и услуги", ur: "باہر اور خدمات"
+    },
+    'amen.bed': {
+      fr: "Lit Queen, matelas neuf", en: "Queen bed, new mattress", es: "Cama Queen, colchón nuevo", de: "Queensize-Bett, neue Matratze",
+      zh: "Queen 大床，全新床垫", hi: "Queen बिस्तर, नया गद्दा", ar: "سرير Queen، مرتبة جديدة", bn: "Queen বিছানা, নতুন ম্যাট্রেস",
+      pt: "Cama Queen, colchão novo", ru: "Кровать Queen, новый матрас", ur: "Queen بستر، نیا گدا"
+    },
+    'amen.linen': {
+      fr: "Linge de lit en coton, cintres", en: "Cotton bed linen, hangers", es: "Ropa de cama de algodón, perchas", de: "Bettwäsche aus Baumwolle, Kleiderbügel",
+      zh: "棉质床品、衣架", hi: "कॉटन बिस्तर का लिनेन, हैंगर", ar: "مفارش قطن، علاقات", bn: "সুতির বিছানার চাদর, হ্যাঙ্গার",
+      pt: "Roupa de cama em algodão, cabides", ru: "Хлопковое бельё, вешалки", ur: "کاٹن بیڈ لینن، ہینگرز"
+    },
+    'amen.blinds': {
+      fr: "Stores occultants", en: "Blackout blinds", es: "Estores opacos", de: "Verdunkelungsrollos",
+      zh: "遮光窗帘", hi: "ब्लैकआउट ब्लाइंड्स", ar: "ستائر معتمة", bn: "ব্ল্যাকআউট ব্লাইন্ডস",
+      pt: "Estores blackout", ru: "Блэкаут-шторы", ur: "بلیک آؤٹ بلائنڈز"
+    },
+    'amen.screen': {
+      fr: "Vidéoprojecteur grand écran, Free TV, Netflix, YouTube, Disney+ et Prime Video",
+      en: "Large projector, Free TV, Netflix, YouTube, Disney+ and Prime Video",
+      es: "Proyector de gran pantalla, Free TV, Netflix, YouTube, Disney+ y Prime Video",
+      de: "Großbild-Beamer, Free TV, Netflix, YouTube, Disney+ und Prime Video",
+      zh: "大屏投影仪，Free TV、Netflix、YouTube、Disney+ 和 Prime Video",
+      hi: "बड़ी स्क्रीन प्रोजेक्टर, Free TV, Netflix, YouTube, Disney+ और Prime Video",
+      ar: "جهاز عرض كبير، Free TV وNetflix وYouTube وDisney+ وPrime Video",
+      bn: "বড় স্ক্রিন প্রজেক্টর, Free TV, Netflix, YouTube, Disney+ ও Prime Video",
+      pt: "Projetor de grande ecrã, Free TV, Netflix, YouTube, Disney+ e Prime Video",
+      ru: "Большой проектор, Free TV, Netflix, YouTube, Disney+ и Prime Video",
+      ur: "بڑی اسکرین پروجیکٹر، Free TV، Netflix، YouTube، Disney+ اور Prime Video"
+    },
+    'amen.hob': {
+      fr: "Plaques à induction (2 feux)", en: "Induction hob (2 rings)", es: "Placa de inducción (2 fuegos)", de: "Induktionskochfeld (2 Zonen)",
+      zh: "电磁炉（2 个炉头）", hi: "इंडक्शन हॉब (2 बर्नर)", ar: "موقد حثي (عينان)", bn: "ইনডাকশন হব (২ বার্নার)",
+      pt: "Placa de indução (2 bocas)", ru: "Индукционная плита (2 конфорки)", ur: "انڈکشن ہوب (2 برنر)"
+    },
+    'amen.micro': {
+      fr: "Micro-ondes", en: "Microwave", es: "Microondas", de: "Mikrowelle",
+      zh: "微波炉", hi: "माइक्रोवेव", ar: "ميكروويف", bn: "মাইক্রোওয়েভ",
+      pt: "Micro-ondas", ru: "Микроволновка", ur: "مائیکروویو"
+    },
+    'amen.kettle': {
+      fr: "Bouilloire", en: "Kettle", es: "Hervidor", de: "Wasserkocher",
+      zh: "电热水壶", hi: "केतली", ar: "غلاية", bn: "কেটলি",
+      pt: "Chaleira elétrica", ru: "Чайник", ur: "کیتلی"
+    },
+    'amen.dishes': {
+      fr: "Vaisselle, verres et ustensiles", en: "Crockery, glasses and utensils", es: "Vajilla, vasos y utensilios", de: "Geschirr, Gläser und Utensilien",
+      zh: "餐具、杯子和厨具", hi: "बर्तन, गिलास और उपकरण", ar: "أطباق وأكواب وأدوات", bn: "বাসন, গ্লাস ও সরঞ্জাম",
+      pt: "Loiças, copos e utensílios", ru: "Посуда, стаканы и утварь", ur: "برتن، گلاس اور اوزار"
+    },
+    'amen.soap': {
+      fr: "Gel douche, shampoing et savon", en: "Shower gel, shampoo and soap", es: "Gel de ducha, champú y jabón", de: "Duschgel, Shampoo und Seife",
+      zh: "沐浴露、洗发水和香皂", hi: "शावर जेल, शैम्पू और साबुन", ar: "جل استحمام وشامبو وصابون", bn: "শাওয়ার জেল, শ্যাম্পু ও সাবান",
+      pt: "Gel de banho, champô e sabonete", ru: "Гель для душа, шампунь и мыло", ur: "شاور جیل، شیمپو اور صابن"
+    },
+    'amen.laundry': {
+      fr: "Laverie automatique à proximité", en: "Laundrette nearby", es: "Lavandería automática cerca", de: "Waschsalon in der Nähe",
+      zh: "附近有自助洗衣店", hi: "पास में लॉन्ड्रेट", ar: "مغسلة آلية قريبة", bn: "কাছাকাছি লন্ড্রেট",
+      pt: "Lavandaria automática perto", ru: "Прачечная рядом", ur: "قریب لانڈری"
     },
     'gallery.studio': {
       fr: "Le studio en images",
